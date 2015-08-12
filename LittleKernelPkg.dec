@@ -1,0 +1,8 @@
+[Defines]
+  DEC_SPECIFICATION              = 0x00010005
+  PACKAGE_NAME                   = LittleKernelPkg
+  PACKAGE_GUID                   = 16265e6b-3535-4790-ab51-17f63e821020
+  PACKAGE_VERSION                = 0.5
+
+[Includes.common]
+  Include                        # Root include for the package
