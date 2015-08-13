@@ -2,12 +2,8 @@
 #define __LITTLEKERNEL_PLATFORM_H__
 
 #include <Library/PcdLib.h>
-
 #include <Uefi/UefiBaseType.h>
-
-typedef struct {
-	int (*serial_write_char)(char c);
-} lkapi_t;
+#include <LittleKernelApi.h>
 
 /**
   Returns the pointer to the LK API.
