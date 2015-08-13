@@ -318,8 +318,8 @@
   #
   gArmTokenSpaceGuid.PcdArmUncachedMemoryMask|0x0000000000000000
 
-  gArmTokenSpaceGuid.PcdSystemMemoryBase|0x90000000
-  gArmTokenSpaceGuid.PcdSystemMemorySize|0x01000000
+  gArmTokenSpaceGuid.PcdSystemMemoryBase|0xa0000000
+  gArmTokenSpaceGuid.PcdSystemMemorySize|0x08000000
 
 ################################################################################
 #
