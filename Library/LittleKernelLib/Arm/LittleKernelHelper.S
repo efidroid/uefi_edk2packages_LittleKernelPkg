@@ -25,7 +25,13 @@ GCC_ASM_EXPORT(ArmPlatformIsPrimaryCore)
 GCC_ASM_IMPORT(_gPcd_FixedAtBuild_PcdArmPrimaryCore)
 GCC_ASM_IMPORT(_gPcd_FixedAtBuild_PcdArmPrimaryCoreMask)
 
+.global LKApiAddr
+LKApiAddr:         .word  0
+
 ASM_PFX(ArmPlatformPeiBootAction):
+  // Backup LK API Pointer
+  str   r0, LKApiAddr
+
   bx    lr
 
 //UINTN
