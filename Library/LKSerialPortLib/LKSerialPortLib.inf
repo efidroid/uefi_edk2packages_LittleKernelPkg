@@ -36,5 +36,5 @@
   LittleKernelPkg/LittleKernelPkg.dec
 
 [LibraryClasses]
-  ArmPlatformLib
+  LKApiLib
 

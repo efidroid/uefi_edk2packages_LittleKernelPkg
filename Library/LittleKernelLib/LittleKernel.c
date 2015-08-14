@@ -26,65 +26,30 @@
 
 #include <Ppi/ArmMpCoreInfo.h>
 
-extern void* LKApiAddr; // only available in PrePI
-STATIC lkapi_t* mLKApi = NULL;
+// LIBLK functions
+int lk_uart_putc(int, char);
+void lk_board_init(void);
+void lk_platform_init_timer(void);
+void lk_target_early_init(void);
 
-/**
-  Returns the pointer to the LK API
+// LIBLK dependencies
+int lk_critical_section_count = 1;
 
-  @return The pointer to the LK API
-
-**/
-lkapi_t *
-EFIAPI
-GetLKApi (
-  VOID
-  )
-{
-  VOID                *Hob;
-  CONST UINT64        *LKApiHobData;
-
-  if (LKApiAddr != NULL)
-    return (lkapi_t *) LKApiAddr;
-
-  if (mLKApi != NULL)
-    return mLKApi;
-
-  Hob = GetFirstGuidHob (&gLKApiAddrGuid);
-  if (Hob == NULL || GET_GUID_HOB_DATA_SIZE (Hob) != sizeof *LKApiHobData) {
-    return NULL;
-  }
-  LKApiHobData = GET_GUID_HOB_DATA (Hob);
-
-  mLKApi = (lkapi_t*)(UINTN)*LKApiHobData;
-  if (mLKApi == NULL) {
-    return NULL;
-  }
-
-  return mLKApi;
+void lk_dsb(void) {
+  ArmDataSyncronizationBarrier();
+}
+void lk_arch_disable_ints(void) {
+  ArmDisableInterrupts ();
 }
 
-/**
-  Updates the pointer to the LK API.
-
-  @param  HobList       Hob list pointer to store
-
-**/
-EFI_STATUS
-EFIAPI
-SetLKApi (
-  IN  lkapi_t      *LKApi
-  )
-{
-  UINT64 *LKApiHobData;
-  mLKApi = LKApi;
-
-  LKApiHobData = BuildGuidHob (&gLKApiAddrGuid, sizeof *LKApiHobData);
-  ASSERT (LKApiHobData != NULL);
-  *LKApiHobData = (UINTN)mLKApi;
-
-  return EFI_SUCCESS;
+// LKAPI implementation
+static int api_serial_write_char(char c) {
+  return lk_uart_putc(0, c);
 }
+
+static lkapi_t lkapi = {
+  .serial_write_char = api_serial_write_char,
+};
 
 ARM_CORE_INFO mArmPlatformNullMpCoreInfoTable[] = {
   {
@@ -150,7 +115,8 @@ ArmPlatformGetBootMode (
   VOID
   )
 {
-  SetLKApi(LKApiAddr);
+  // set API (persistent)
+  SetLKApi(&lkapi);
 
   return BOOT_WITH_FULL_CONFIGURATION;
 }
@@ -170,6 +136,14 @@ ArmPlatformInitialize (
   if (!ArmPlatformIsPrimaryCore (MpId)) {
     return RETURN_SUCCESS;
   }
+
+  // initialize LIBLK
+  lk_platform_init_timer();
+  lk_board_init();
+  lk_target_early_init();
+
+  // set API (temporary)
+  SetLKApi(&lkapi);
 
   return RETURN_SUCCESS;
 }
