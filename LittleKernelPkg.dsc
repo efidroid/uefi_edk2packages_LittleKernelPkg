@@ -27,7 +27,6 @@
   FLASH_DEFINITION               = LittleKernelPkg/LittleKernelPkg.fdf
 
 [LibraryClasses.common]
-  ArmPlatformLib|LittleKernelPkg/Library/LittleKernelLib/LittleKernelLib.inf
 
 !if $(TARGET) == RELEASE
   DebugLib|MdePkg/Library/BaseDebugLibNull/BaseDebugLibNull.inf
@@ -127,6 +126,7 @@
   ArmLib|ArmPkg/Library/ArmLib/AArch64/AArch64Lib.inf
 
 [LibraryClasses.common.SEC]
+  ArmPlatformLib|LittleKernelPkg/Library/LittleKernelLib/LittleKernelLib.inf
   ArmPlatformGlobalVariableLib|ArmPlatformPkg/Library/ArmPlatformGlobalVariableLib/PrePi/PrePiArmPlatformGlobalVariableLib.inf
 
   ArmPlatformSecExtraActionLib|ArmPlatformPkg/Library/DebugSecExtraActionLib/DebugSecExtraActionLib.inf
