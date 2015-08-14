@@ -5,6 +5,8 @@
 #include <Uefi/UefiBaseType.h>
 #include <LittleKernelApi.h>
 
+extern EFI_GUID gLKApiAddrGuid;
+
 /**
   Returns the pointer to the LK API.
 
@@ -12,7 +14,7 @@
 
 **/
 
-VOID *
+lkapi_t *
 EFIAPI
 GetLKApi (
   VOID
@@ -29,7 +31,7 @@ GetLKApi (
 EFI_STATUS
 EFIAPI
 SetLKApi (
-  IN  VOID      *LKApi
+  IN  lkapi_t      *LKApi
   );
 
 #endif

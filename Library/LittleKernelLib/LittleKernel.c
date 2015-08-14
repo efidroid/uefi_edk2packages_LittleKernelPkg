@@ -21,10 +21,13 @@
 #include <Library/PrePiLib.h>
 #include <Library/PcdLib.h>
 #include <Library/ArmPlatformGlobalVariableLib.h>
+#include <Library/HobLib.h>
+#include <LittleKernel.h>
 
 #include <Ppi/ArmMpCoreInfo.h>
 
-extern void* LKApiAddr;
+extern void* LKApiAddr; // only available in PrePI
+STATIC lkapi_t* mLKApi = NULL;
 
 /**
   Returns the pointer to the LK API
@@ -32,17 +35,33 @@ extern void* LKApiAddr;
   @return The pointer to the LK API
 
 **/
-VOID *
+lkapi_t *
 EFIAPI
 GetLKApi (
   VOID
   )
 {
-  VOID* LKApi;
+  VOID                *Hob;
+  CONST UINT64        *LKApiHobData;
 
-  ArmPlatformGetGlobalVariable (PcdGet32 (PcdLKApiPtrGlobalOffset), sizeof(VOID*), &LKApi);
+  if (LKApiAddr != NULL)
+    return (lkapi_t *) LKApiAddr;
 
-  return LKApi;
+  if (mLKApi != NULL)
+    return mLKApi;
+
+  Hob = GetFirstGuidHob (&gLKApiAddrGuid);
+  if (Hob == NULL || GET_GUID_HOB_DATA_SIZE (Hob) != sizeof *LKApiHobData) {
+    return NULL;
+  }
+  LKApiHobData = GET_GUID_HOB_DATA (Hob);
+
+  mLKApi = (lkapi_t*)(UINTN)*LKApiHobData;
+  if (mLKApi == NULL) {
+    return NULL;
+  }
+
+  return mLKApi;
 }
 
 /**
@@ -54,10 +73,15 @@ GetLKApi (
 EFI_STATUS
 EFIAPI
 SetLKApi (
-  IN  VOID      *LKApi
+  IN  lkapi_t      *LKApi
   )
 {
-  ArmPlatformSetGlobalVariable (PcdGet32 (PcdLKApiPtrGlobalOffset), sizeof(VOID*), &LKApi);
+  UINT64 *LKApiHobData;
+  mLKApi = LKApi;
+
+  LKApiHobData = BuildGuidHob (&gLKApiAddrGuid, sizeof *LKApiHobData);
+  ASSERT (LKApiHobData != NULL);
+  *LKApiHobData = (UINTN)mLKApi;
 
   return EFI_SUCCESS;
 }
@@ -126,6 +150,8 @@ ArmPlatformGetBootMode (
   VOID
   )
 {
+  SetLKApi(LKApiAddr);
+
   return BOOT_WITH_FULL_CONFIGURATION;
 }
 
@@ -144,8 +170,6 @@ ArmPlatformInitialize (
   if (!ArmPlatformIsPrimaryCore (MpId)) {
     return RETURN_SUCCESS;
   }
-
-  SetLKApi(LKApiAddr);
 
   return RETURN_SUCCESS;
 }

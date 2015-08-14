@@ -25,6 +25,7 @@
   ArmPkg/ArmPkg.dec
   ArmPlatformPkg/ArmPlatformPkg.dec
   EmbeddedPkg/EmbeddedPkg.dec
+  LittleKernelPkg/LittleKernelPkg.dec
 
 [LibraryClasses]
   ArmLib
@@ -65,4 +66,5 @@
   gEmbeddedTokenSpaceGuid.PcdPrePiStackSize
   gEmbeddedTokenSpaceGuid.PcdPrePiStackBase
 
-  gArmPlatformTokenSpaceGuid.PcdLKApiPtrGlobalOffset
+[Guids]
+  gLKApiAddrGuid

@@ -6,3 +6,6 @@
 
 [Includes.common]
   Include                        # Root include for the package
+
+[Guids.common]
+  gLKApiAddrGuid = { 0x14623400, 0x8E48, 0x4C0F, { 0x93, 0x0B, 0xAC, 0x57, 0xB2, 0xCF, 0xEA, 0x3D } }
