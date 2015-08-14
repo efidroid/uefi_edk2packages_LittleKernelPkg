@@ -47,24 +47,11 @@
   gEmbeddedTokenSpaceGuid.PcdCacheEnable
 
 [FixedPcd]
-  gEmbeddedTokenSpaceGuid.PcdMemoryBase
-  gEmbeddedTokenSpaceGuid.PcdMemorySize
   gArmTokenSpaceGuid.PcdSystemMemoryBase
   gArmTokenSpaceGuid.PcdSystemMemorySize
 
   gArmTokenSpaceGuid.PcdArmPrimaryCoreMask
   gArmTokenSpaceGuid.PcdArmPrimaryCore
-
-  gEmbeddedTokenSpaceGuid.PcdEmbeddedFdBaseAddress
-  gEmbeddedTokenSpaceGuid.PcdEmbeddedFdSize
-  
-  gEmbeddedTokenSpaceGuid.PcdFlashFvMainBase
-  gEmbeddedTokenSpaceGuid.PcdFlashFvMainSize
-  
-  gArmTokenSpaceGuid.PcdCpuVectorBaseAddress
-  
-  gEmbeddedTokenSpaceGuid.PcdPrePiStackSize
-  gEmbeddedTokenSpaceGuid.PcdPrePiStackBase
 
 [Guids]
   gLKApiAddrGuid
