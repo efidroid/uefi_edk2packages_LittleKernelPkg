@@ -321,6 +321,9 @@
   gArmTokenSpaceGuid.PcdSystemMemoryBase|0xa0000000
   gArmTokenSpaceGuid.PcdSystemMemorySize|0x08000000
 
+  gArmTokenSpaceGuid.PcdGicDistributorBase|0x02000000
+  gArmTokenSpaceGuid.PcdGicInterruptInterfaceBase|0x02002000
+
 ################################################################################
 #
 # Components Section - list of all EDK II Modules needed by this Platform
