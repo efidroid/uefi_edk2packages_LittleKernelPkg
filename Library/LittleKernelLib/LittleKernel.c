@@ -27,10 +27,10 @@
 #include <Ppi/ArmMpCoreInfo.h>
 
 // LIBLK functions
-int lk_uart_putc(int, char);
 void lk_board_init(void);
 void lk_platform_init_timer(void);
 void lk_target_early_init(void);
+extern lkapi_t lk_uefiapi;
 
 // LIBLK dependencies
 int lk_critical_section_count = 1;
@@ -41,15 +41,6 @@ void lk_dsb(void) {
 void lk_arch_disable_ints(void) {
   ArmDisableInterrupts ();
 }
-
-// LKAPI implementation
-static int api_serial_write_char(char c) {
-  return lk_uart_putc(0, c);
-}
-
-static lkapi_t lkapi = {
-  .serial_write_char = api_serial_write_char,
-};
 
 ARM_CORE_INFO mArmPlatformNullMpCoreInfoTable[] = {
   {
@@ -116,7 +107,7 @@ ArmPlatformGetBootMode (
   )
 {
   // set API (persistent)
-  SetLKApi(&lkapi);
+  SetLKApi(&lk_uefiapi);
 
   return BOOT_WITH_FULL_CONFIGURATION;
 }
@@ -143,7 +134,7 @@ ArmPlatformInitialize (
   lk_target_early_init();
 
   // set API (temporary)
-  SetLKApi(&lkapi);
+  SetLKApi(&lk_uefiapi);
 
   return RETURN_SUCCESS;
 }
