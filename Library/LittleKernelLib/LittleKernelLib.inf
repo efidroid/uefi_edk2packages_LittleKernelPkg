@@ -29,6 +29,7 @@
 
 [LibraryClasses]
   ArmLib
+  ArmGicLib
   DebugLib
   ArmPlatformGlobalVariableLib
   LKApiLib
@@ -57,3 +58,6 @@
 
 [BuildOptions]
   GCC:*_*_*_SLINK_FLAGS     = $(WORKSPACE)/Conf/liblk.o
+
+[Pcd.common]
+  gArmTokenSpaceGuid.PcdGicDistributorBase

@@ -22,14 +22,12 @@
 #include <Library/PcdLib.h>
 #include <Library/ArmPlatformGlobalVariableLib.h>
 #include <Library/HobLib.h>
+#include <Library/ArmGicLib.h>
 #include <LittleKernel.h>
 
 #include <Ppi/ArmMpCoreInfo.h>
 
 // LIBLK functions
-void lk_board_init(void);
-void lk_platform_init_timer(void);
-void lk_target_early_init(void);
 extern lkapi_t lk_uefiapi;
 
 // LIBLK dependencies
@@ -38,8 +36,43 @@ int lk_critical_section_count = 1;
 void lk_dsb(void) {
   ArmDataSyncronizationBarrier();
 }
+
+void lk_dmb(void) {
+  ArmDataMemoryBarrier();
+}
+
+void lk_arch_enable_ints(void) {
+  ArmEnableInterrupts ();
+}
+
 void lk_arch_disable_ints(void) {
   ArmDisableInterrupts ();
+}
+
+int lk_mask_interrupt(unsigned int vector) {
+  UINT32 mGicDistributorBase = PcdGet32 (PcdGicDistributorBase);
+
+  if (vector > ArmGicGetMaxNumInterrupts (mGicDistributorBase)) {
+    ASSERT(FALSE);
+    return 1;
+  }
+
+  ArmGicDisableInterrupt(mGicDistributorBase, 0, vector);
+
+  return 0;
+}
+
+int lk_unmask_interrupt(unsigned int vector) {
+  UINT32 mGicDistributorBase = PcdGet32 (PcdGicDistributorBase);
+
+  if (vector > ArmGicGetMaxNumInterrupts (mGicDistributorBase)) {
+    ASSERT(FALSE);
+    return 1;
+  }
+
+  ArmGicEnableInterrupt(mGicDistributorBase, 0, vector);
+
+  return 0;
 }
 
 ARM_CORE_INFO mArmPlatformNullMpCoreInfoTable[] = {
@@ -128,10 +161,7 @@ ArmPlatformInitialize (
     return RETURN_SUCCESS;
   }
 
-  // initialize LIBLK
-  lk_platform_init_timer();
-  lk_board_init();
-  lk_target_early_init();
+  lk_uefiapi.platform_early_init();
 
   // set API (temporary)
   SetLKApi(&lk_uefiapi);

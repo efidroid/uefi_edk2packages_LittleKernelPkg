@@ -2,7 +2,8 @@
 #define __LITTLEKERNELAPI_PLATFORM_H__
 
 typedef struct {
-	int (*serial_write_char)(char c);
+	void (*platform_early_init)(void);
+	void (*serial_write_char)(char c);
 } lkapi_t;
 
 #endif
