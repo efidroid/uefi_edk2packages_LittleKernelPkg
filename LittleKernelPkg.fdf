@@ -102,6 +102,10 @@ FvNameGuid         = 411ffc75-2138-44b9-874c-d2c91fa78e91
   INF EmbeddedPkg/RealTimeClockRuntimeDxe/RealTimeClockRuntimeDxe.inf
   INF EmbeddedPkg/MetronomeDxe/MetronomeDxe.inf
 
+  # Arch Dependencies
+  INF LittleKernelPkg/Drivers/ArmGic/ArmGicDxe.inf
+  INF LittleKernelPkg/Drivers/TimerDxe/TimerDxe.inf
+
   # Simple TextIn/TextOut for UEFI Terminal
   INF EmbeddedPkg/SimpleTextInOutSerial/SimpleTextInOutSerial.inf
 

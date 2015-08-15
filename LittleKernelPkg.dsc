@@ -83,7 +83,7 @@
   ArmSmcLib|ArmPkg/Library/ArmSmcLib/ArmSmcLib.inf
 
   SerialPortLib|LittleKernelPkg/Library/LKSerialPortLib/LKSerialPortLib.inf
-  TimerLib|MdePkg/Library/BaseTimerLibNullTemplate/BaseTimerLibNullTemplate.inf
+  TimerLib|LittleKernelPkg/Library/LKTimerLib/LKTimerLib.inf
   EfiResetSystemLib|EmbeddedPkg/Library/TemplateResetSystemLib/TemplateResetSystemLib.inf
   RealTimeClockLib|EmbeddedPkg/Library/TemplateRealTimeClockLib/TemplateRealTimeClockLib.inf
 
@@ -359,6 +359,10 @@
   EmbeddedPkg/ResetRuntimeDxe/ResetRuntimeDxe.inf
   EmbeddedPkg/RealTimeClockRuntimeDxe/RealTimeClockRuntimeDxe.inf
   EmbeddedPkg/MetronomeDxe/MetronomeDxe.inf
+
+  # Arch Dependencies
+  LittleKernelPkg/Drivers/ArmGic/ArmGicDxe.inf
+  LittleKernelPkg/Drivers/TimerDxe/TimerDxe.inf
 
   # Simple TextIn/TextOut for UEFI Terminal
   EmbeddedPkg/SimpleTextInOutSerial/SimpleTextInOutSerial.inf

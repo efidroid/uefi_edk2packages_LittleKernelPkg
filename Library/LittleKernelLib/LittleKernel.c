@@ -49,32 +49,6 @@ void lk_arch_disable_ints(void) {
   ArmDisableInterrupts ();
 }
 
-int lk_mask_interrupt(unsigned int vector) {
-  UINT32 mGicDistributorBase = PcdGet32 (PcdGicDistributorBase);
-
-  if (vector > ArmGicGetMaxNumInterrupts (mGicDistributorBase)) {
-    ASSERT(FALSE);
-    return 1;
-  }
-
-  ArmGicDisableInterrupt(mGicDistributorBase, 0, vector);
-
-  return 0;
-}
-
-int lk_unmask_interrupt(unsigned int vector) {
-  UINT32 mGicDistributorBase = PcdGet32 (PcdGicDistributorBase);
-
-  if (vector > ArmGicGetMaxNumInterrupts (mGicDistributorBase)) {
-    ASSERT(FALSE);
-    return 1;
-  }
-
-  ArmGicEnableInterrupt(mGicDistributorBase, 0, vector);
-
-  return 0;
-}
-
 ARM_CORE_INFO mArmPlatformNullMpCoreInfoTable[] = {
   {
     // Cluster 0, Core 0
