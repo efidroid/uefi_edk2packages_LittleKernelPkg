@@ -389,6 +389,7 @@
   # Bds
   #
   MdeModulePkg/Universal/DevicePathDxe/DevicePathDxe.inf
+  MdeModulePkg/Universal/HiiDatabaseDxe/HiiDatabaseDxe.inf
   ArmPlatformPkg/Bds/Bds.inf
 
   # Legacy Linux Loader

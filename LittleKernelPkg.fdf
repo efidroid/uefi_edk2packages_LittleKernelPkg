@@ -125,12 +125,13 @@ FvNameGuid         = 411ffc75-2138-44b9-874c-d2c91fa78e91
   #
   # UEFI application (Shell Embedded Boot Loader)
   #
-  INF EmbeddedPkg/Ebl/Ebl.inf
+  INF ShellBinPkg/UefiShell/UefiShell.inf
 
   #
   # Bds
   #
   INF MdeModulePkg/Universal/DevicePathDxe/DevicePathDxe.inf
+  INF MdeModulePkg/Universal/HiiDatabaseDxe/HiiDatabaseDxe.inf
   INF ArmPlatformPkg/Bds/Bds.inf
 
   # Legacy Linux Loader
@@ -264,4 +265,11 @@ READ_LOCK_STATUS   = TRUE
   FILE APPLICATION = $(NAMED_GUID) {
     UI     STRING ="$(MODULE_NAME)" Optional
     PE32   PE32                         $(INF_OUTPUT)/$(MODULE_NAME).efi
+  }
+
+[Rule.Common.UEFI_APPLICATION.BINARY]
+  FILE APPLICATION = $(NAMED_GUID) {
+    PE32      PE32                    |.efi
+    UI        STRING="$(MODULE_NAME)" Optional
+    VERSION   STRING="$(INF_VERSION)" Optional BUILD_NUM=$(BUILD_NUMBER)
   }
