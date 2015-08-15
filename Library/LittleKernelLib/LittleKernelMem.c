@@ -22,7 +22,7 @@
 #define DDR_ATTRIBUTES_CACHED                ARM_MEMORY_REGION_ATTRIBUTE_WRITE_BACK
 #define DDR_ATTRIBUTES_UNCACHED              ARM_MEMORY_REGION_ATTRIBUTE_UNCACHED_UNBUFFERED
 
-#define MAX_VIRTUAL_MEMORY_MAP_DESCRIPTORS          2
+#define MAX_VIRTUAL_MEMORY_MAP_DESCRIPTORS          3
 
 /**
   Return the Virtual Memory Map of your platform
@@ -56,10 +56,16 @@ ArmPlatformGetVirtualMemoryMap (
     CacheAttributes = DDR_ATTRIBUTES_UNCACHED;
   }
 
-  // ReMap (Either NOR Flash or DRAM)
+  // IOMAP
   VirtualMemoryTable[Index].PhysicalBase = (0);
   VirtualMemoryTable[Index].VirtualBase  = (0);
-  VirtualMemoryTable[Index].Length       = (0xffffffff);
+  VirtualMemoryTable[Index].Length       = (0x80000000);
+  VirtualMemoryTable[Index].Attributes   = ARM_MEMORY_REGION_ATTRIBUTE_DEVICE;
+
+  // ReMap (Either NOR Flash or DRAM)
+  VirtualMemoryTable[++Index].PhysicalBase = (0x80000000);
+  VirtualMemoryTable[Index].VirtualBase  = (0x80000000);
+  VirtualMemoryTable[Index].Length       = (0x80000000);
   VirtualMemoryTable[Index].Attributes   = CacheAttributes;
 
   // End of Table

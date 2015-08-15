@@ -230,7 +230,7 @@
   gEmbeddedTokenSpaceGuid.PcdEmbeddedIoEnable|FALSE
   gEmbeddedTokenSpaceGuid.PcdEmbeddedScriptCmd|FALSE
 
-  gEmbeddedTokenSpaceGuid.PcdCacheEnable|FALSE
+  gEmbeddedTokenSpaceGuid.PcdCacheEnable|TRUE
 
   # Use the Vector Table location in CpuDxe. We will not copy the Vector Table at PcdCpuVectorBaseAddress
   gArmTokenSpaceGuid.PcdRelocateVectorTable|FALSE
