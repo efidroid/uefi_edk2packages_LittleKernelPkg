@@ -36,6 +36,7 @@
 [Sources.common]
   LittleKernel.c
   LittleKernelMem.c
+  empty.c
 
 [Sources.Arm]
   Arm/LittleKernelHelper.S    | GCC
