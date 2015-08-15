@@ -3,7 +3,9 @@
 
 typedef struct {
 	void (*platform_early_init)(void);
+	int (*serial_poll_char)(void);
 	void (*serial_write_char)(char c);
+	char (*serial_read_char)(void);
 } lkapi_t;
 
 #endif

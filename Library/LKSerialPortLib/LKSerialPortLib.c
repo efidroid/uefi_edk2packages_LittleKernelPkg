@@ -69,7 +69,7 @@ SerialPortWrite (
 	LKApi->serial_write_char(Buffer[i]);
   }
 
-  return 0;
+  return NumberOfBytes;
 }
 
 
@@ -96,7 +96,14 @@ SerialPortRead (
   IN  UINTN     NumberOfBytes
 )
 {
-  return 0;
+  UINTN i;
+
+  lkapi_t* LKApi = GetLKApi();
+
+  for(i=0; i<NumberOfBytes; i++) {
+	Buffer[i] = LKApi->serial_read_char();
+  }
+  return NumberOfBytes;
 }
 
 /**
@@ -116,6 +123,8 @@ SerialPortPoll (
   VOID
   )
 {
-  return FALSE;
+  lkapi_t* LKApi = GetLKApi();
+
+  return LKApi->serial_poll_char() == 1;
 }
 
