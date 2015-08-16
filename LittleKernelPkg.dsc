@@ -83,6 +83,7 @@
   ArmSmcLib|ArmPkg/Library/ArmSmcLib/ArmSmcLib.inf
 
   SerialPortLib|LittleKernelPkg/Library/LKSerialPortLib/LKSerialPortLib.inf
+  SerialPortExtLib|EmbeddedPkg/Library/TemplateSerialPortExtLib/TemplateSerialPortExtLib.inf
   TimerLib|LittleKernelPkg/Library/LKTimerLib/LKTimerLib.inf
   EfiResetSystemLib|EmbeddedPkg/Library/TemplateResetSystemLib/TemplateResetSystemLib.inf
   RealTimeClockLib|EmbeddedPkg/Library/TemplateRealTimeClockLib/TemplateRealTimeClockLib.inf
@@ -324,6 +325,9 @@
   gArmTokenSpaceGuid.PcdGicDistributorBase|0x02000000
   gArmTokenSpaceGuid.PcdGicInterruptInterfaceBase|0x02002000
 
+  gArmPlatformTokenSpaceGuid.PcdDefaultConOutPaths|L"VenHw(D3987D4B-971A-435F-8CAF-4967EB627241)/Uart(115200,8,N,1)/VenPcAnsi()"
+  gArmPlatformTokenSpaceGuid.PcdDefaultConInPaths|L"VenHw(D3987D4B-971A-435F-8CAF-4967EB627241)/Uart(115200,8,N,1)/VenPcAnsi()"
+
 ################################################################################
 #
 # Components Section - list of all EDK II Modules needed by this Platform
@@ -364,8 +368,11 @@
   LittleKernelPkg/Drivers/ArmGic/ArmGicDxe.inf
   LittleKernelPkg/Drivers/TimerDxe/TimerDxe.inf
 
-  # Simple TextIn/TextOut for UEFI Terminal
-  EmbeddedPkg/SimpleTextInOutSerial/SimpleTextInOutSerial.inf
+  MdeModulePkg/Universal/Console/ConPlatformDxe/ConPlatformDxe.inf
+  MdeModulePkg/Universal/Console/ConSplitterDxe/ConSplitterDxe.inf
+  MdeModulePkg/Universal/Console/GraphicsConsoleDxe/GraphicsConsoleDxe.inf
+  MdeModulePkg/Universal/Console/TerminalDxe/TerminalDxe.inf
+  EmbeddedPkg/SerialDxe/SerialDxe.inf
 
   #
   #
