@@ -17,7 +17,7 @@ typedef struct {
 	char (*serial_read_char)(void);
 
 	int (*timer_register_handler)(lkapi_timer_callback_t handler);
-	void (*timer_set_period)(UINT64 period);
+	void (*timer_set_period)(unsigned long long period);
 	void (*timer_delay_microseconds)(unsigned int microseconds);
 	void (*timer_delay_nanoseconds)(unsigned int nanoseconds);
 
