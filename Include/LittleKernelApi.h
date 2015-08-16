@@ -25,7 +25,7 @@ typedef struct {
 	int (*int_unmask)(unsigned int vector);
 	void (*int_register_handler)(unsigned int vector, lkapi_int_handler func, void *arg);
 
-	int (*mmc_init)(void);
+	int (*mmc_init)(unsigned long long *numblocks);
 	int (*mmc_read)(unsigned long long lba, unsigned long buffersize, void* buffer);
 	int (*mmc_write)(unsigned long long lba, unsigned long buffersize, void* buffer);
 } lkapi_t;

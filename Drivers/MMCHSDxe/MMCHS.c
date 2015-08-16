@@ -250,7 +250,7 @@ MMCHSInitialize (
 
   LKApi = GetLKApi();
 
-  if (LKApi->mmc_init()) {
+  if (LKApi->mmc_init(&gMMCHSMedia.LastBlock)) {
      return EFI_DEVICE_ERROR;
   }
 
