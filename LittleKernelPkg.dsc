@@ -242,6 +242,7 @@
 
 [PcdsFixedAtBuild.common]
   gArmPlatformTokenSpaceGuid.PcdFirmwareVendor|"ARM Platform"
+  gArmPlatformTokenSpaceGuid.PcdCoreCount|4
 
   gEmbeddedTokenSpaceGuid.PcdEmbeddedPrompt|"ArmPlatform"
   gEfiMdePkgTokenSpaceGuid.PcdMaximumUnicodeStringLength|1000000
@@ -338,7 +339,13 @@
   #
   # PEI Phase modules
   #
-  ArmPlatformPkg/PrePi/PeiUniCore.inf
+  ArmPlatformPkg/PrePi/PeiMPCore.inf {
+
+    <LibraryClasses>
+
+      ArmPlatformGlobalVariableLib|ArmPlatformPkg/Library/ArmPlatformGlobalVariableLib/PrePi/PrePiArmPlatformGlobalVariableLib.inf
+
+  }
 
   #
   # DXE
