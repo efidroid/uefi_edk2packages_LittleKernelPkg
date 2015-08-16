@@ -49,6 +49,13 @@ void lk_arch_disable_ints(void) {
   ArmDisableInterrupts ();
 }
 
+void *lk_heap_alloc(UINTN size, unsigned int alignment) {
+  // UEFI aligns by to EFI_PAGE_SIZE default
+  ASSERT(alignment <= EFI_PAGE_SIZE);
+
+  return (void*) AllocatePool (size);
+}
+
 ARM_CORE_INFO mArmPlatformNullMpCoreInfoTable[] = {
   {
     // Cluster 0, Core 0

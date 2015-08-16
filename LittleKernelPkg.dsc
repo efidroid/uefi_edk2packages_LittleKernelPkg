@@ -368,6 +368,9 @@
   LittleKernelPkg/Drivers/ArmGic/ArmGicDxe.inf
   LittleKernelPkg/Drivers/TimerDxe/TimerDxe.inf
 
+  # MMC driver
+  LittleKernelPkg/Drivers/MMCHSDxe/MMCHS.inf
+
   MdeModulePkg/Universal/Console/ConPlatformDxe/ConPlatformDxe.inf
   MdeModulePkg/Universal/Console/ConSplitterDxe/ConSplitterDxe.inf
   MdeModulePkg/Universal/Console/GraphicsConsoleDxe/GraphicsConsoleDxe.inf

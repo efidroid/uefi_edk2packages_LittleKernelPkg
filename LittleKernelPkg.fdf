@@ -106,6 +106,9 @@ FvNameGuid         = 411ffc75-2138-44b9-874c-d2c91fa78e91
   INF LittleKernelPkg/Drivers/ArmGic/ArmGicDxe.inf
   INF LittleKernelPkg/Drivers/TimerDxe/TimerDxe.inf
 
+  # MMC driver
+  INF LittleKernelPkg/Drivers/MMCHSDxe/MMCHS.inf
+
   #
   # Multiple Console IO support
   #

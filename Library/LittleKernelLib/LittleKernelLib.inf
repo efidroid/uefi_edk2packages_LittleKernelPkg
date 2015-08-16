@@ -33,6 +33,7 @@
   DebugLib
   ArmPlatformGlobalVariableLib
   LKApiLib
+  MemoryAllocationLib
 
 [Sources.common]
   LittleKernel.c
