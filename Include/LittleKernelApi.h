@@ -35,6 +35,10 @@ typedef struct {
 	unsigned int (*lcd_get_height)(void);
 	void (*lcd_flush)(void);
 	void (*lcd_shutdown)(void);
+
+	void (*reset_cold)(void);
+	void (*reset_warm)(void);
+	void (*reset_shutdown)(void);
 } lkapi_t;
 
 #endif

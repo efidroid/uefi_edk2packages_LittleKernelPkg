@@ -84,7 +84,7 @@
   SerialPortLib|LittleKernelPkg/Library/LKSerialPortLib/LKSerialPortLib.inf
   SerialPortExtLib|EmbeddedPkg/Library/TemplateSerialPortExtLib/TemplateSerialPortExtLib.inf
   TimerLib|LittleKernelPkg/Library/LKTimerLib/LKTimerLib.inf
-  EfiResetSystemLib|EmbeddedPkg/Library/TemplateResetSystemLib/TemplateResetSystemLib.inf
+  EfiResetSystemLib|LittleKernelPkg/Library/ResetSystemLib/ResetSystemLib.inf
   RealTimeClockLib|EmbeddedPkg/Library/TemplateRealTimeClockLib/TemplateRealTimeClockLib.inf
 
   # Networking Requirements for ArmPlatformPkg/Bds
