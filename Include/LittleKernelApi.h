@@ -28,6 +28,13 @@ typedef struct {
 	int (*mmc_init)(unsigned long long *numblocks);
 	int (*mmc_read)(unsigned long long lba, unsigned long buffersize, void* buffer);
 	int (*mmc_write)(unsigned long long lba, unsigned long buffersize, void* buffer);
+
+	unsigned long long (*lcd_get_vram_address)(void);
+	int (*lcd_init)(unsigned long long vramaddr);
+	unsigned int (*lcd_get_width)(void);
+	unsigned int (*lcd_get_height)(void);
+	void (*lcd_flush)(void);
+	void (*lcd_shutdown)(void);
 } lkapi_t;
 
 #endif
