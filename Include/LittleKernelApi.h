@@ -39,6 +39,10 @@ typedef struct {
 	void (*reset_cold)(void);
 	void (*reset_warm)(void);
 	void (*reset_shutdown)(void);
+
+	int (*rtc_init)(void);
+	int (*rtc_gettime)(unsigned int* time);
+	int (*rtc_settime)(unsigned int time);
 } lkapi_t;
 
 #endif
