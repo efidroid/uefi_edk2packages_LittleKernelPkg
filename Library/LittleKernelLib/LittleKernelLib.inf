@@ -58,7 +58,7 @@
   gArmTokenSpaceGuid.PcdArmPrimaryCore
 
 [BuildOptions]
-  GCC:*_*_*_SLINK_FLAGS     = $(WORKSPACE)/Conf/liblk.o
+  GCC:*_*_*_SLINK_FLAGS     = $(WORKSPACE)/Build/EFIDROID/liblk.o
 
 [Pcd.common]
   gArmTokenSpaceGuid.PcdGicDistributorBase
