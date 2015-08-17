@@ -36,26 +36,3 @@ GetLKApi (
 
   return mLKApi;
 }
-
-/**
-  Updates the pointer to the LK API.
-
-  @param  LKApi       pointer to the LK API
-
-**/
-EFI_STATUS
-EFIAPI
-SetLKApi (
-  IN  lkapi_t      *LKApi
-  )
-{
-  UINT64 *LKApiHobData;
-  mLKApi = LKApi;
-
-  LKApiHobData = BuildGuidHob (&gLKApiAddrGuid, sizeof *LKApiHobData);
-  ASSERT (LKApiHobData != NULL);
-  *LKApiHobData = (UINTN)mLKApi;
-
-  return EFI_SUCCESS;
-}
-

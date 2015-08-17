@@ -10,7 +10,7 @@ extern EFI_GUID gLKApiAddrGuid;
 /**
   Returns the pointer to the LK API.
 
-  @return The pointer to the LK APO.
+  @return The pointer to the LK API.
 
 **/
 
@@ -23,15 +23,15 @@ GetLKApi (
 
 
 /**
-  Updates the pointer to the LK API.
+  Creates the Hob for the LK API.
 
   @param  HobList       Hob list pointer to store
 
 **/
 EFI_STATUS
 EFIAPI
-SetLKApi (
-  IN  lkapi_t      *LKApi
+BuildLKApiHob (
+  VOID
   );
 
 #endif

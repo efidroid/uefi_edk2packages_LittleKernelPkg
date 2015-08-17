@@ -27,9 +27,6 @@
 
 #include <Ppi/ArmMpCoreInfo.h>
 
-// LIBLK functions
-extern lkapi_t lk_uefiapi;
-
 // LIBLK dependencies
 int lk_critical_section_count = 1;
 
@@ -120,8 +117,7 @@ ArmPlatformGetBootMode (
   VOID
   )
 {
-  // set API (persistent)
-  SetLKApi(&lk_uefiapi);
+  BuildLKApiHob();
 
   return BOOT_WITH_FULL_CONFIGURATION;
 }
@@ -142,10 +138,7 @@ ArmPlatformInitialize (
     return RETURN_SUCCESS;
   }
 
-  lk_uefiapi.platform_early_init();
-
-  // set API (temporary)
-  SetLKApi(&lk_uefiapi);
+  GetLKApi()->platform_early_init();
 
   return RETURN_SUCCESS;
 }
