@@ -63,9 +63,9 @@ ArmPlatformGetVirtualMemoryMap (
   VirtualMemoryTable[Index].Attributes   = ARM_MEMORY_REGION_ATTRIBUTE_DEVICE;
 
   // ReMap (Either NOR Flash or DRAM)
-  VirtualMemoryTable[++Index].PhysicalBase = (0x80000000);
-  VirtualMemoryTable[Index].VirtualBase  = (0x80000000);
-  VirtualMemoryTable[Index].Length       = (0x80000000);
+  VirtualMemoryTable[++Index].PhysicalBase = PcdGet64 (PcdSystemMemoryBase);
+  VirtualMemoryTable[Index].VirtualBase  = PcdGet64 (PcdSystemMemoryBase);
+  VirtualMemoryTable[Index].Length       = PcdGet64 (PcdSystemMemorySize);
   VirtualMemoryTable[Index].Attributes   = CacheAttributes;
 
   // End of Table

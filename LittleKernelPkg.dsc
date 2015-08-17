@@ -246,8 +246,9 @@
   gEfiMdeModulePkgTokenSpaceGuid.PcdTurnOffUsbLegacySupport|TRUE
 
 [PcdsFixedAtBuild.common]
-  gArmPlatformTokenSpaceGuid.PcdFirmwareVendor|"ARM Platform"
+  gArmPlatformTokenSpaceGuid.PcdFirmwareVendor|"$(FIRMWARE_VENDOR)"
   gArmPlatformTokenSpaceGuid.PcdCoreCount|4
+  gEfiMdeModulePkgTokenSpaceGuid.PcdFirmwareVersionString|L"$(FIRMWARE_VER)"
 
   gEmbeddedTokenSpaceGuid.PcdEmbeddedPrompt|"ArmPlatform"
   gEfiMdePkgTokenSpaceGuid.PcdMaximumUnicodeStringLength|1000000
@@ -325,8 +326,8 @@
   #
   gArmTokenSpaceGuid.PcdArmUncachedMemoryMask|0x0000000000000000
 
-  gArmTokenSpaceGuid.PcdSystemMemoryBase|0xa0000000
-  gArmTokenSpaceGuid.PcdSystemMemorySize|0x08000000
+  gArmTokenSpaceGuid.PcdSystemMemoryBase|$(DRAM_BASE)
+  gArmTokenSpaceGuid.PcdSystemMemorySize|$(DRAM_SIZE)
 
   gArmTokenSpaceGuid.PcdGicDistributorBase|0x02000000
   gArmTokenSpaceGuid.PcdGicInterruptInterfaceBase|0x02002000
