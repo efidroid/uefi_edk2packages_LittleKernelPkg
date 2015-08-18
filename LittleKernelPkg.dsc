@@ -113,6 +113,10 @@
   # BDS Libraries
   BdsLib|ArmPkg/Library/BdsLib/BdsLib.inf
   FdtLib|EmbeddedPkg/Library/FdtLib/FdtLib.inf
+  CapsuleLib|MdeModulePkg/Library/DxeCapsuleLibNull/DxeCapsuleLibNull.inf
+  PlatformBdsLib|ArmPlatformPkg/Library/PlatformIntelBdsLib/PlatformIntelBdsLib.inf
+  GenericBdsLib|IntelFrameworkModulePkg/Library/GenericBdsLib/GenericBdsLib.inf
+  CustomizedDisplayLib|MdeModulePkg/Library/CustomizedDisplayLib/CustomizedDisplayLib.inf
 
 [LibraryClasses.ARM]
   ArmLib|ArmPkg/Library/ArmLib/ArmV7/ArmV7Lib.inf
@@ -254,6 +258,9 @@
   gEfiMdePkgTokenSpaceGuid.PcdPerformanceLibraryPropertyMask|0
   gEfiMdePkgTokenSpaceGuid.PcdPostCodePropertyMask|0
   gEfiMdePkgTokenSpaceGuid.PcdUefiLibMaxPrintBufferSize|320
+
+  gEfiMdeModulePkgTokenSpaceGuid.PcdResetOnMemoryTypeInformationChange|FALSE
+  gEfiIntelFrameworkModulePkgTokenSpaceGuid.PcdShellFile|{ 0x83, 0xA5, 0x04, 0x7C, 0x3E, 0x9E, 0x1C, 0x4F, 0xAD, 0x65, 0xE0, 0x52, 0x68, 0xD0, 0xB4, 0xD1 }
 
   # DEBUG_ASSERT_ENABLED       0x01
   # DEBUG_PRINT_ENABLED        0x02
@@ -405,7 +412,9 @@
   #
   MdeModulePkg/Universal/DevicePathDxe/DevicePathDxe.inf
   MdeModulePkg/Universal/HiiDatabaseDxe/HiiDatabaseDxe.inf
-  ArmPlatformPkg/Bds/Bds.inf
+  MdeModulePkg/Universal/DisplayEngineDxe/DisplayEngineDxe.inf
+  MdeModulePkg/Universal/SetupBrowserDxe/SetupBrowserDxe.inf
+  IntelFrameworkModulePkg/Universal/BdsDxe/BdsDxe.inf
 
   #
   # UEFI application (Shell Embedded Boot Loader)
