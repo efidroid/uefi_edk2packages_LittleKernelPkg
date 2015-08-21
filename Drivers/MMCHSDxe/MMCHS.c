@@ -363,7 +363,7 @@ MMCHSInitialize (
 
     // set data
     Instance->BlockMedia.BlockSize = Devices[Index].block_size;
-    Instance->BlockMedia.LastBlock = Devices[Index].num_blocks;
+    Instance->BlockMedia.LastBlock = Devices[Index].num_blocks - 1;
     Instance->LKDev = Devices[Index];
     // give every device a slighty different GUID, this limits us to 256 devices
     Instance->DevicePath.Mmc.Guid.Data4[7] = Index;
