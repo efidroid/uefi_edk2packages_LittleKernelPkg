@@ -14,7 +14,7 @@
 [Defines]
   INF_VERSION                    = 0x00010005
   BASE_NAME                      = MMCHS
-  FILE_GUID                      = 8ba9db79-d124-4b6f-9edf-15b6e41a7c24
+  FILE_GUID                      = 8ba9db79-d124-4b6f-9edf-15b6e41a7c00
   MODULE_TYPE                    = DXE_DRIVER
   VERSION_STRING                 = 1.0
   ENTRY_POINT                    = MMCHSInitialize
