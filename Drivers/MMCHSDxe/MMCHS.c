@@ -25,40 +25,51 @@
 
 lkapi_t* LKApi = NULL;
 
-EFI_BLOCK_IO_MEDIA gMMCHSMedia = {
-  SIGNATURE_32('e','m','m','c'),            // MediaId
-  FALSE,                                    // RemovableMedia
-  TRUE,                                     // MediaPresent
-  FALSE,                                    // LogicalPartition
-  FALSE,                                    // ReadOnly
-  FALSE,                                    // WriteCaching
-  512,                                      // BlockSize
-  4,                                        // IoAlign
-  0,                                        // Pad
-  0                                         // LastBlock
-};
-
-typedef struct {
-  VENDOR_DEVICE_PATH  Mmc;
-  EFI_DEVICE_PATH     End;
-} MMCHS_DEVICE_PATH;
-
-MMCHS_DEVICE_PATH gMmcHsDevicePath = {
-  {
-    {
-      HARDWARE_DEVICE_PATH,
-      HW_VENDOR_DP,
-      {
-        (UINT8)(sizeof(VENDOR_DEVICE_PATH)),
-        (UINT8)((sizeof(VENDOR_DEVICE_PATH)) >> 8),
-      }
-    },
-    {0xb615f1f5, 0x5088, 0x43cd, {0x80, 0x9c, 0xa1, 0x6e, 0x52, 0x48, 0x7d, 0x00}}
+BIO_INSTANCE mBioTemplate = {
+  BIO_INSTANCE_SIGNATURE,
+  NULL, // Handle
+  { // BlockIo
+    EFI_BLOCK_IO_INTERFACE_REVISION,   // Revision
+    NULL,                              // *Media
+    MMCHSReset,                        // Reset
+    MMCHSReadBlocks,                   // ReadBlocks
+    MMCHSWriteBlocks,                  // WriteBlocks
+    MMCHSFlushBlocks                   // FlushBlocks
   },
-  {
-    END_DEVICE_PATH_TYPE,
-    END_ENTIRE_DEVICE_PATH_SUBTYPE,
-    { sizeof (EFI_DEVICE_PATH_PROTOCOL), 0 }
+  { // BlockMedia
+    BIO_INSTANCE_SIGNATURE,                   // MediaId
+    FALSE,                                    // RemovableMedia
+    TRUE,                                     // MediaPresent
+    FALSE,                                    // LogicalPartition
+    FALSE,                                    // ReadOnly
+    FALSE,                                    // WriteCaching
+    0,                                        // BlockSize
+    4,                                        // IoAlign
+    0,                                        // Pad
+    0                                         // LastBlock
+  },
+  { // DevicePath
+   {
+      {
+        HARDWARE_DEVICE_PATH, HW_VENDOR_DP,
+        { (UINT8) (sizeof(VENDOR_DEVICE_PATH)), (UINT8) ((sizeof(VENDOR_DEVICE_PATH)) >> 8) },
+      },
+      // Hardware Device Path for Bio
+      EFI_CALLER_ID_GUID // Use the driver's GUID
+    },
+
+    {
+      END_DEVICE_PATH_TYPE,
+      END_ENTIRE_DEVICE_PATH_SUBTYPE,
+      { sizeof (EFI_DEVICE_PATH_PROTOCOL), 0 }
+    }
+  },
+  { // LKDev
+    0,                           // block_size
+    0,                           // num_blocks
+    NULL,                        // init
+    NULL,                        // read
+    NULL,                        // write
   }
 };
 
@@ -141,8 +152,39 @@ MMCHSReadBlocks (
   OUT VOID                          *Buffer
   )
 {
-  return LKApi->mmc_read(Lba, BufferSize, Buffer)==0?EFI_SUCCESS:EFI_DEVICE_ERROR;
+  BIO_INSTANCE              *Instance;
+  EFI_BLOCK_IO_MEDIA        *Media;
+  UINTN                      BlockSize;
 
+  Instance = BIO_INSTANCE_FROM_GOP_THIS(This);
+  Media     = &Instance->BlockMedia;
+  BlockSize = Media->BlockSize;
+
+  if (MediaId != Media->MediaId) {
+    return EFI_MEDIA_CHANGED;
+  }
+
+  if (Lba > Media->LastBlock) {
+    return EFI_INVALID_PARAMETER;
+  }
+
+  if ((Lba + (BufferSize / BlockSize) - 1) > Media->LastBlock) {
+    return EFI_INVALID_PARAMETER;
+  }
+
+  if (BufferSize % BlockSize != 0) {
+    return EFI_BAD_BUFFER_SIZE;
+  }
+
+  if (Buffer == NULL) {
+    return EFI_INVALID_PARAMETER;
+  }
+
+  if (BufferSize == 0) {
+    return EFI_SUCCESS;
+  }
+
+  return Instance->LKDev.read(Lba, BufferSize, Buffer)==0?EFI_SUCCESS:EFI_DEVICE_ERROR;
 }
 
 
@@ -195,8 +237,39 @@ MMCHSWriteBlocks (
   IN VOID                           *Buffer
   )
 {
-  return LKApi->mmc_write(Lba, BufferSize, Buffer)==0?EFI_SUCCESS:EFI_DEVICE_ERROR;
+  BIO_INSTANCE              *Instance;
+  EFI_BLOCK_IO_MEDIA        *Media;
+  UINTN                      BlockSize;
 
+  Instance = BIO_INSTANCE_FROM_GOP_THIS(This);
+  Media     = &Instance->BlockMedia;
+  BlockSize = Media->BlockSize;
+
+  if (MediaId != Media->MediaId) {
+    return EFI_MEDIA_CHANGED;
+  }
+
+  if (Lba > Media->LastBlock) {
+    return EFI_INVALID_PARAMETER;
+  }
+
+  if ((Lba + (BufferSize / BlockSize) - 1) > Media->LastBlock) {
+    return EFI_INVALID_PARAMETER;
+  }
+
+  if (BufferSize % BlockSize != 0) {
+    return EFI_BAD_BUFFER_SIZE;
+  }
+
+  if (Buffer == NULL) {
+    return EFI_INVALID_PARAMETER;
+  }
+
+  if (BufferSize == 0) {
+    return EFI_SUCCESS;
+  }
+
+  return Instance->LKDev.write(Lba, BufferSize, Buffer)==0?EFI_SUCCESS:EFI_DEVICE_ERROR;
 }
 
 
@@ -229,15 +302,32 @@ MMCHSFlushBlocks (
 }
 
 
-EFI_BLOCK_IO_PROTOCOL gBlockIo = {
+EFI_BLOCK_IO_PROTOCOL gBlockIoTemplate = {
   EFI_BLOCK_IO_INTERFACE_REVISION,   // Revision
-  &gMMCHSMedia,                      // *Media
+  NULL,                              // *Media
   MMCHSReset,                        // Reset
   MMCHSReadBlocks,                   // ReadBlocks
   MMCHSWriteBlocks,                  // WriteBlocks
   MMCHSFlushBlocks                   // FlushBlocks
 };
 
+EFI_STATUS
+BioInstanceContructor (
+  OUT BIO_INSTANCE** NewInstance
+  )
+{
+  BIO_INSTANCE* Instance;
+
+  Instance = AllocateCopyPool (sizeof(BIO_INSTANCE), &mBioTemplate);
+  if (Instance == NULL) {
+    return EFI_OUT_OF_RESOURCES;
+  }
+
+  Instance->BlockIo.Media     = &Instance->BlockMedia;
+
+  *NewInstance = Instance;
+  return EFI_SUCCESS;
+}
 
 EFI_STATUS
 EFIAPI
@@ -247,20 +337,49 @@ MMCHSInitialize (
   )
 {
   EFI_STATUS  Status;
+  INT32       Count;
+  UINTN       Index;
+  BIO_INSTANCE    *Instance;
+  lkapi_biodev_t  *Devices = NULL;
 
   LKApi = GetLKApi();
 
-  if (LKApi->mmc_init(&gMMCHSMedia.LastBlock)) {
-     return EFI_DEVICE_ERROR;
+  Count = LKApi->bio_list(NULL);
+  Devices = (lkapi_biodev_t*)AllocateZeroPool (sizeof(lkapi_biodev_t) * Count);
+  LKApi->bio_list(Devices);
+
+  for (Index = 0 ; Index < Count ; Index++) {
+    // Initialize device
+    if (Devices[Index].init()) {
+     Status = EFI_DEVICE_ERROR;
+     goto EXIT;
+    }
+
+    // allocate instance
+    Status = BioInstanceContructor (&Instance);
+    if (EFI_ERROR(Status)) {
+      goto EXIT;
+    }
+
+    // set data
+    Instance->BlockMedia.BlockSize = Devices[Index].block_size;
+    Instance->BlockMedia.LastBlock = Devices[Index].num_blocks;
+    Instance->LKDev = Devices[Index];
+    // give every device a slighty different GUID, this limits us to 256 devices
+    Instance->DevicePath.Mmc.Guid.Data4[7] = Index;
+
+    // Publish BlockIO
+    Status = gBS->InstallMultipleProtocolInterfaces (
+                &Instance->Handle,
+                &gEfiBlockIoProtocolGuid,    &Instance->BlockIo,
+                &gEfiDevicePathProtocolGuid, &Instance->DevicePath,
+                NULL
+                );
   }
 
-  //Publish BlockIO.
-  Status = gBS->InstallMultipleProtocolInterfaces (
-                  &ImageHandle,
-                  &gEfiBlockIoProtocolGuid,    &gBlockIo,
-                  &gEfiDevicePathProtocolGuid, &gMmcHsDevicePath,
-                  NULL
-                  );
+  EXIT:
+  if (Devices)
+    FreePool(Devices);
 
   return Status;
 }

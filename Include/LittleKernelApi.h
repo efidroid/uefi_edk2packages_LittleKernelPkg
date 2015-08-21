@@ -10,6 +10,15 @@ typedef enum lkapi_handler_return (*lkapi_int_handler)(void *arg);
 typedef void (*lkapi_timer_callback_t)(void);
 
 typedef struct {
+	unsigned int block_size;
+	unsigned long long num_blocks;
+
+	int (*init)(void);
+	int (*read)(unsigned long long lba, unsigned long buffersize, void* buffer);
+	int (*write)(unsigned long long lba, unsigned long buffersize, void* buffer);
+} lkapi_biodev_t;
+
+typedef struct {
 	void (*platform_early_init)(void);
 
 	int (*serial_poll_char)(void);
@@ -25,9 +34,8 @@ typedef struct {
 	int (*int_unmask)(unsigned int vector);
 	void (*int_register_handler)(unsigned int vector, lkapi_int_handler func, void *arg);
 
-	int (*mmc_init)(unsigned long long *numblocks);
-	int (*mmc_read)(unsigned long long lba, unsigned long buffersize, void* buffer);
-	int (*mmc_write)(unsigned long long lba, unsigned long buffersize, void* buffer);
+
+	int (*bio_list)(lkapi_biodev_t* list);
 
 	unsigned long long (*lcd_get_vram_address)(void);
 	int (*lcd_init)(unsigned long long vramaddr);
