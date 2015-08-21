@@ -40,6 +40,7 @@ ReadNvVars (
   VOID                        *FileContents;
   EFI_HANDLE                  SerializedVariables;
   UINT32                      *BufPtr32;
+  UINT32                      Checksum;
 
   // allocate buffer for first block
   FileContents = AllocatePool (BlockIo->Media->BlockSize);
@@ -69,11 +70,12 @@ ReadNvVars (
 
   // get data size
   DataSize = BufPtr32[1];
-  ReadSize = ALIGN_VALUE(sizeof(UINT32)*2 + DataSize, BlockIo->Media->BlockSize);
+  ReadSize = ALIGN_VALUE(sizeof(UINT32)*3 + DataSize, BlockIo->Media->BlockSize);
 
   // increase buffer size to fit all data
   FreePool (FileContents);
   FileContents = AllocatePool (ReadSize);
+  BufPtr32 = (UINT32*)FileContents;
   if (FileContents == NULL) {
     return EFI_OUT_OF_RESOURCES;
   }
@@ -91,6 +93,12 @@ ReadNvVars (
     return Status;
   }
 
+  // verify data
+  Status = gBS->CalculateCrc32(FileContents + sizeof(UINT32)*3, DataSize, &Checksum);
+  if (EFI_ERROR(Status) || BufPtr32[2] != Checksum) {
+    return Status;
+  }
+
   DEBUG ((
     EFI_D_INFO,
     "FsAccess.c: Read %Lu bytes from NV Variables interface\n",
@@ -99,7 +107,7 @@ ReadNvVars (
 
   Status = SerializeVariablesNewInstanceFromBuffer (
              &SerializedVariables,
-             FileContents + sizeof(UINT32)*2,
+             FileContents + sizeof(UINT32)*3,
              DataSize
              );
   if (!RETURN_ERROR (Status)) {
@@ -291,7 +299,7 @@ SaveNvVarsToBlockIo (
              &VariableDataSize
              );
   if (Status == RETURN_BUFFER_TOO_SMALL) {
-    BufferSize = ALIGN_VALUE(sizeof(UINT32)*2 + VariableDataSize, BlockIo->Media->BlockSize);
+    BufferSize = ALIGN_VALUE(sizeof(UINT32)*3 + VariableDataSize, BlockIo->Media->BlockSize);
     VariableData = AllocatePool (BufferSize);
     if (VariableData == NULL) {
       Status = EFI_OUT_OF_RESOURCES;
@@ -302,9 +310,15 @@ SaveNvVarsToBlockIo (
 
       Status = SerializeVariablesToBuffer (
                  SerializedVariables,
-                 VariableData + sizeof(UINT32)*2,
+                 VariableData + sizeof(UINT32)*3,
                  &VariableDataSize
                  );
+
+      Status = gBS->CalculateCrc32(VariableData + sizeof(UINT32)*3, VariableDataSize, &BufPtr[2]);
+      if (EFI_ERROR(Status)) {
+        ASSERT(FALSE);
+        return Status;
+      }
     }
   }
 
