@@ -9,7 +9,13 @@ typedef enum lkapi_handler_return (*lkapi_int_handler)(void *arg);
 
 typedef void (*lkapi_timer_callback_t)(void);
 
+typedef enum {
+	LKAPI_BIODEV_TYPE_MMC,
+	LKAPI_BIODEV_TYPE_VNOR,
+} lkapi_biodev_type_t;
+
 typedef struct {
+	lkapi_biodev_type_t type;
 	unsigned int block_size;
 	unsigned long long num_blocks;
 

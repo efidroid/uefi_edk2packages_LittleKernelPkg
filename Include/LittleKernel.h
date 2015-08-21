@@ -6,6 +6,7 @@
 #include <LittleKernelApi.h>
 
 extern EFI_GUID gLKApiAddrGuid;
+extern EFI_GUID gLKVNORGuid;
 
 /**
   Returns the pointer to the LK API.

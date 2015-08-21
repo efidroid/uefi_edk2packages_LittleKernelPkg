@@ -31,8 +31,6 @@
 
 #include <LittleKernel.h>
 
-extern EFI_BLOCK_IO_PROTOCOL gBlockIo;
-
 //
 // Device structures
 //

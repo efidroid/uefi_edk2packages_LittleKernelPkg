@@ -65,6 +65,7 @@ BIO_INSTANCE mBioTemplate = {
     }
   },
   { // LKDev
+    0,                           // type
     0,                           // block_size
     0,                           // num_blocks
     NULL,                        // init
@@ -341,6 +342,7 @@ MMCHSInitialize (
   UINTN       Index;
   BIO_INSTANCE    *Instance;
   lkapi_biodev_t  *Devices = NULL;
+  EFI_GUID        VNOR_GUID = gLKVNORGuid;
 
   LKApi = GetLKApi();
 
@@ -367,6 +369,8 @@ MMCHSInitialize (
     Instance->LKDev = Devices[Index];
     // give every device a slighty different GUID, this limits us to 256 devices
     Instance->DevicePath.Mmc.Guid.Data4[7] = Index;
+    if (Devices[Index].type == LKAPI_BIODEV_TYPE_VNOR)
+      Instance->DevicePath.Mmc.Guid = VNOR_GUID;
 
     // Publish BlockIO
     Status = gBS->InstallMultipleProtocolInterfaces (
