@@ -253,7 +253,6 @@
 
 [PcdsFixedAtBuild.common]
   gArmPlatformTokenSpaceGuid.PcdFirmwareVendor|"$(FIRMWARE_VENDOR)"
-  gArmPlatformTokenSpaceGuid.PcdCoreCount|4
   gArmPlatformTokenSpaceGuid.PcdSystemMemoryUefiRegionSize|0x800000 # 8MB
   gEfiMdeModulePkgTokenSpaceGuid.PcdFirmwareVersionString|L"$(FIRMWARE_VER)"
 
@@ -334,9 +333,6 @@
   gArmTokenSpaceGuid.PcdSystemMemoryBase|$(DRAM_BASE)
   gArmTokenSpaceGuid.PcdSystemMemorySize|$(DRAM_SIZE)
 
-  gArmTokenSpaceGuid.PcdGicDistributorBase|0x02000000
-  gArmTokenSpaceGuid.PcdGicInterruptInterfaceBase|0x02002000
-
   gArmPlatformTokenSpaceGuid.PcdDefaultConOutPaths|L"VenHw(D3987D4B-971A-435F-8CAF-4967EB627241)/Uart(115200,8,N,1)/VenPcAnsi();VenHw(2B087898-86D8-4512-9E72-D2DA27E3C9E0)"
   gArmPlatformTokenSpaceGuid.PcdDefaultConInPaths|L"VenHw(D3987D4B-971A-435F-8CAF-4967EB627241)/Uart(115200,8,N,1)/VenPcAnsi()"
 
@@ -355,6 +351,10 @@
   gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageFtwWorkingBase|0
   gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageFtwSpareBase|0
 
+  gArmTokenSpaceGuid.PcdGicDistributorBase|0
+  gArmTokenSpaceGuid.PcdGicRedistributorsBase|0
+  gArmTokenSpaceGuid.PcdGicInterruptInterfaceBase|0
+
 ################################################################################
 #
 # Components Section - list of all EDK II Modules needed by this Platform
@@ -365,13 +365,7 @@
   #
   # PEI Phase modules
   #
-  ArmPlatformPkg/PrePi/PeiMPCore.inf {
-
-    <LibraryClasses>
-
-      ArmPlatformGlobalVariableLib|ArmPlatformPkg/Library/ArmPlatformGlobalVariableLib/PrePi/PrePiArmPlatformGlobalVariableLib.inf
-
-  }
+  LittleKernelPkg/PrePi/PeiUniCore.inf
 
   #
   # DXE
@@ -382,6 +376,7 @@
       NULL|MdeModulePkg/Library/DxeCrc32GuidedSectionExtractLib/DxeCrc32GuidedSectionExtractLib.inf
   }
   MdeModulePkg/Universal/PCD/Dxe/Pcd.inf
+  LittleKernelPkg/Drivers/DxeInit/DxeInit.inf
 
   #
   # Architectural Protocols

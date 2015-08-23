@@ -41,7 +41,9 @@ typedef struct {
 	int (*int_mask)(unsigned int vector);
 	int (*int_unmask)(unsigned int vector);
 	void (*int_register_handler)(unsigned int vector, lkapi_int_handler func, void *arg);
-
+	unsigned int (*int_get_dist_base)(void);
+	unsigned int (*int_get_redist_base)(void);
+	unsigned int (*int_get_cpu_base)(void);
 
 	int (*bio_list)(lkapi_biodev_t* list);
 
