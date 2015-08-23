@@ -24,6 +24,8 @@ typedef struct {
 	int (*write)(unsigned long long lba, unsigned long buffersize, void* buffer);
 } lkapi_biodev_t;
 
+typedef void* (*lkapi_mmap_cb_t)(void* pdata, unsigned long addr, unsigned long size, int reserved);
+
 typedef struct {
 	void (*platform_early_init)(void);
 
@@ -57,6 +59,9 @@ typedef struct {
 	int (*rtc_init)(void);
 	int (*rtc_gettime)(unsigned int* time);
 	int (*rtc_settime)(unsigned int time);
+
+	void* (*mmap_get_dram)(void* pdata, lkapi_mmap_cb_t cb);
+	void* (*mmap_get_iomap)(void* pdata, lkapi_mmap_cb_t cb);
 } lkapi_t;
 
 #endif
