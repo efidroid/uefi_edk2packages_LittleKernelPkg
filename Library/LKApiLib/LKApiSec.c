@@ -4,7 +4,7 @@
 #include <LittleKernel.h>
 
 // LIBLK functions
-extern lkapi_t lk_uefiapi;
+extern lkapi_t* LKApiAddr;
 
 /**
   Returns the pointer to the LK API
@@ -18,7 +18,7 @@ GetLKApi (
   VOID
   )
 {
-  return &lk_uefiapi;
+  return LKApiAddr;
 }
 
 /**
@@ -37,7 +37,7 @@ BuildLKApiHob (
 
   LKApiHobData = BuildGuidHob (&gLKApiAddrGuid, sizeof *LKApiHobData);
   ASSERT (LKApiHobData != NULL);
-  *LKApiHobData = (UINTN)&lk_uefiapi;
+  *LKApiHobData = (UINTN)LKApiAddr;
 
   return EFI_SUCCESS;
 }
