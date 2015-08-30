@@ -337,7 +337,7 @@ MMCHSInitialize (
   IN EFI_SYSTEM_TABLE   *SystemTable
   )
 {
-  EFI_STATUS  Status;
+  EFI_STATUS  Status = EFI_SUCCESS;
   INT32       Count;
   UINTN       Index;
   BIO_INSTANCE    *Instance;
