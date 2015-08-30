@@ -39,7 +39,7 @@ typedef struct {
 
 	int (*serial_poll_char)(void);
 	void (*serial_write_char)(char c);
-	char (*serial_read_char)(void);
+	int (*serial_read_char)(char* c);
 
 	int (*timer_register_handler)(lkapi_timer_callback_t handler);
 	void (*timer_set_period)(unsigned long long period);

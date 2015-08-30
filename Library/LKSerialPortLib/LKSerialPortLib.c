@@ -96,14 +96,18 @@ SerialPortRead (
   IN  UINTN     NumberOfBytes
 )
 {
-  UINTN i;
+  UINTN NumRead = 0;
 
   lkapi_t* LKApi = GetLKApi();
 
-  for(i=0; i<NumberOfBytes; i++) {
-	Buffer[i] = LKApi->serial_read_char();
+  while(NumRead!=NumberOfBytes) {
+	char c = 0;
+	int rc = LKApi->serial_read_char(&c);
+	if(rc>0) {
+		Buffer[NumRead++] = c;
+	}
   }
-  return NumberOfBytes;
+  return NumRead;
 }
 
 /**
