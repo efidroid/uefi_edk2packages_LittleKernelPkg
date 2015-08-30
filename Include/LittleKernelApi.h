@@ -1,6 +1,13 @@
 #ifndef __LITTLEKERNELAPI_PLATFORM_H__
 #define __LITTLEKERNELAPI_PLATFORM_H__
 
+typedef enum {
+	LKAPI_MEMORY_UNCACHED = 0,
+	LKAPI_MEMORY_WRITE_BACK,
+	LKAPI_MEMORY_WRITE_THROUGH,
+	LKAPI_MEMORY_DEVICE,
+} lkapi_memorytype_t;
+
 enum lkapi_handler_return {
 	LKAPI_INT_NO_RESCHEDULE = 0,
 	LKAPI_INT_RESCHEDULE,
@@ -25,6 +32,7 @@ typedef struct {
 } lkapi_biodev_t;
 
 typedef void* (*lkapi_mmap_cb_t)(void* pdata, unsigned long addr, unsigned long size, int reserved);
+typedef void* (*lkapi_mmap_mappings_cb_t)(void* pdata, unsigned long vaddr, unsigned long paddr, unsigned long size, lkapi_memorytype_t type);
 
 typedef struct {
 	void (*platform_early_init)(void);
@@ -63,7 +71,7 @@ typedef struct {
 	int (*rtc_settime)(unsigned int time);
 
 	void* (*mmap_get_dram)(void* pdata, lkapi_mmap_cb_t cb);
-	void* (*mmap_get_iomap)(void* pdata, lkapi_mmap_cb_t cb);
+	void* (*mmap_get_mappings)(void* pdata, lkapi_mmap_mappings_cb_t cb);
 } lkapi_t;
 
 #endif

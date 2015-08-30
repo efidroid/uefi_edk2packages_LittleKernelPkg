@@ -19,14 +19,7 @@
 #include <Library/PcdLib.h>
 #include <LittleKernel.h>
 
-// DDR attributes
-#define DDR_ATTRIBUTES_CACHED                ARM_MEMORY_REGION_ATTRIBUTE_WRITE_BACK
-#define DDR_ATTRIBUTES_UNCACHED              ARM_MEMORY_REGION_ATTRIBUTE_UNCACHED_UNBUFFERED
-
-#define MAX_VIRTUAL_MEMORY_MAP_DESCRIPTORS          3
-
-STATIC UINT32 mDramCount = 0;
-STATIC UINT32 mIomapCount = 0;
+STATIC UINT32 mTableSize = 0;
 
 static void* mmap_callback_dram_buildhob(void* pdata, unsigned long addr, unsigned long size, int reserved) {
   EFI_RESOURCE_ATTRIBUTE_TYPE   ResourceAttributes;
@@ -49,46 +42,41 @@ static void* mmap_callback_dram_buildhob(void* pdata, unsigned long addr, unsign
       size
     );
 
-    mDramCount++;
   }
 
   return pdata;
 }
 
-static void* mmap_callback_dram_addmap(void* pdata, unsigned long addr, unsigned long size, int reserved) {
-  ARM_MEMORY_REGION_ATTRIBUTES  CacheAttributes;
-  ARM_MEMORY_REGION_DESCRIPTOR  *VirtualMemoryTable = (ARM_MEMORY_REGION_DESCRIPTOR*)pdata;
+static void* mmap_callback_mappings_count(void* pdata, unsigned long vaddr, unsigned long paddr, unsigned long size, lkapi_memorytype_t type) {
 
-  if(!reserved) {
-    if (FeaturePcdGet(PcdCacheEnable) == TRUE) {
-      CacheAttributes = DDR_ATTRIBUTES_CACHED;
-    } else {
-      CacheAttributes = DDR_ATTRIBUTES_UNCACHED;
-    }
+  mTableSize++;
 
-    VirtualMemoryTable->PhysicalBase = addr;
-    VirtualMemoryTable->VirtualBase  = addr;
-    VirtualMemoryTable->Length       = size;
-    VirtualMemoryTable->Attributes   = CacheAttributes;
+  return pdata;
+}
 
-    return (void*)(VirtualMemoryTable+1);
+static UINT64 lktype2efitype(lkapi_memorytype_t type) {
+  switch(type) {
+    case LKAPI_MEMORY_UNCACHED:
+      return ARM_MEMORY_REGION_ATTRIBUTE_UNCACHED_UNBUFFERED;
+    case LKAPI_MEMORY_WRITE_BACK:
+      return ARM_MEMORY_REGION_ATTRIBUTE_WRITE_BACK;
+    case LKAPI_MEMORY_WRITE_THROUGH:
+      return ARM_MEMORY_REGION_ATTRIBUTE_WRITE_THROUGH;
+    case LKAPI_MEMORY_DEVICE:
+      return ARM_MEMORY_REGION_ATTRIBUTE_DEVICE;
+    default:
+      ASSERT(FALSE);
+      return 0;
   }
-
-  return pdata;
 }
 
-static void* mmap_callback_iomap_count(void* pdata, unsigned long addr, unsigned long size, int reserved) {
-  mIomapCount++;
-  return pdata;
-}
-
-static void* mmap_callback_iomap_addmap(void* pdata, unsigned long addr, unsigned long size, int reserved) {
+static void* mmap_callback_mappings_add(void* pdata, unsigned long vaddr, unsigned long paddr, unsigned long size, lkapi_memorytype_t type) {
   ARM_MEMORY_REGION_DESCRIPTOR  *VirtualMemoryTable = (ARM_MEMORY_REGION_DESCRIPTOR*)pdata;
 
-  VirtualMemoryTable->PhysicalBase = addr;
-  VirtualMemoryTable->VirtualBase  = addr;
+  VirtualMemoryTable->PhysicalBase = vaddr;
+  VirtualMemoryTable->VirtualBase  = paddr;
   VirtualMemoryTable->Length       = size;
-  VirtualMemoryTable->Attributes   = ARM_MEMORY_REGION_ATTRIBUTE_DEVICE;
+  VirtualMemoryTable->Attributes   = lktype2efitype(type);
 
   return (void*)(VirtualMemoryTable+1);
 }
@@ -109,7 +97,7 @@ ArmPlatformGetVirtualMemoryMap (
   IN ARM_MEMORY_REGION_DESCRIPTOR** VirtualMemoryMap
   )
 {
-  UINTN                         Index = 0;
+  //UINTN                         Index = 0;
   UINTN                         NumTableEntries = 0;
   ARM_MEMORY_REGION_DESCRIPTOR  *VirtualMemoryTable;
   ARM_MEMORY_REGION_DESCRIPTOR  *VirtualMemoryTablePtr;
@@ -120,22 +108,18 @@ ArmPlatformGetVirtualMemoryMap (
   // build memory resource Hob's
   LKApi->mmap_get_dram(NULL, mmap_callback_dram_buildhob);
 
-  // count IOMAP entries
-  LKApi->mmap_get_iomap(NULL, mmap_callback_iomap_count);
+  // count table entries
+  LKApi->mmap_get_mappings(NULL, mmap_callback_mappings_count);
 
-  NumTableEntries = (mDramCount + mIomapCount + 1);
+  // allocate table memory
+  NumTableEntries = (mTableSize + 1);
   VirtualMemoryTable = (ARM_MEMORY_REGION_DESCRIPTOR*)AllocatePages(EFI_SIZE_TO_PAGES (sizeof(ARM_MEMORY_REGION_DESCRIPTOR) * NumTableEntries));
   if (VirtualMemoryTable == NULL) {
     return;
   }
 
-  // add IOMAP entries
-  VirtualMemoryTablePtr = LKApi->mmap_get_iomap(VirtualMemoryTable, mmap_callback_iomap_addmap);
-  Index+=mIomapCount;
-
-  // add DRAM entries
-  VirtualMemoryTablePtr = LKApi->mmap_get_dram(VirtualMemoryTablePtr, mmap_callback_dram_addmap);
-  Index+=mDramCount;
+  // add entries
+  VirtualMemoryTablePtr = LKApi->mmap_get_mappings(VirtualMemoryTable, mmap_callback_mappings_add);
 
   // End of Table
   VirtualMemoryTablePtr->PhysicalBase = 0;
