@@ -115,7 +115,7 @@ FvNameGuid         = 411ffc75-2138-44b9-874c-d2c91fa78e91
   INF LittleKernelPkg/Drivers/TimerDxe/TimerDxe.inf
 
   # non-volatile variable storage
-  INF OvmfPkg/EmuVariableFvbRuntimeDxe/Fvb.inf
+  INF LittleKernelPkg/Drivers/EmuVariableFvbRuntimeDxe/Fvb.inf
   INF MdeModulePkg/Universal/FaultTolerantWriteDxe/FaultTolerantWriteDxe.inf
   INF MdeModulePkg/Universal/Variable/RuntimeDxe/VariableRuntimeDxe.inf
 

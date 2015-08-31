@@ -120,7 +120,7 @@
 
   # non-volatile variable storage
   NvVarsBlockIoLib|LittleKernelPkg/Library/NvVarsBlockIoLib/NvVarsBlockIoLib.inf
-  SerializeVariablesLib|OvmfPkg/Library/SerializeVariablesLib/SerializeVariablesLib.inf
+  SerializeVariablesLib|LittleKernelPkg/Library/SerializeVariablesLib/SerializeVariablesLib.inf
   TpmMeasurementLib|MdeModulePkg/Library/TpmMeasurementLibNull/TpmMeasurementLibNull.inf
   AuthVariableLib|MdeModulePkg/Library/AuthVariableLibNull/AuthVariableLibNull.inf
   VarCheckLib|MdeModulePkg/Library/VarCheckLib/VarCheckLib.inf
@@ -411,9 +411,9 @@
   EmbeddedPkg/SerialDxe/SerialDxe.inf
 
   # non-volatile variable storage
-  OvmfPkg/EmuVariableFvbRuntimeDxe/Fvb.inf {
+  LittleKernelPkg/Drivers/EmuVariableFvbRuntimeDxe/Fvb.inf {
     <LibraryClasses>
-      PlatformFvbLib|OvmfPkg/Library/EmuVariableFvbLib/EmuVariableFvbLib.inf
+      PlatformFvbLib|LittleKernelPkg/Library/EmuVariableFvbLib/EmuVariableFvbLib.inf
   }
   MdeModulePkg/Universal/FaultTolerantWriteDxe/FaultTolerantWriteDxe.inf
   MdeModulePkg/Universal/Variable/RuntimeDxe/VariableRuntimeDxe.inf {

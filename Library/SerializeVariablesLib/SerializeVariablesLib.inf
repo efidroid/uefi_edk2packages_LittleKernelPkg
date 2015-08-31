@@ -1,8 +1,7 @@
 ## @file
-#  NvVarsFileLib
+#  Serialize Variables Library implementation
 #
-#  This library saves and restores non-volatile variables in a
-#  file within a file system.
+#  This library serializes and deserializes UEFI variables
 #
 #  Copyright (c) 2006 - 2011, Intel Corporation. All rights reserved.<BR>
 #
@@ -13,26 +12,18 @@
 #  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
 #  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 #
-#
 ##
 
 [Defines]
   INF_VERSION                    = 0x00010005
-  BASE_NAME                      = NvVarsBlockIoLib
-  FILE_GUID                      = a6a5cfc4-62ad-4134-8595-13570698167d
+  BASE_NAME                      = DxeSerializeVariablesLib
+  FILE_GUID                      = 741ba32f-f5d5-48be-9f04-223cf97d6df5
   MODULE_TYPE                    = UEFI_DRIVER
   VERSION_STRING                 = 1.0
-  LIBRARY_CLASS                  = NvVarsBlockIoLib|DXE_DRIVER DXE_RUNTIME_DRIVER DXE_SAL_DRIVER UEFI_DRIVER
-
-#
-# The following information is for reference only and not required by the build tools.
-#
-#  VALID_ARCHITECTURES           = IA32 X64 IPF EBC
-#
+  LIBRARY_CLASS                  = SerializeVariablesLib|DXE_DRIVER DXE_RUNTIME_DRIVER DXE_SAL_DRIVER UEFI_DRIVER
 
 [Sources]
-  BlockIoAccess.c
-  NvVarsBlockIoLib.c
+  SerializeVariablesLib.c
 
 [Packages]
   MdePkg/MdePkg.dec
@@ -44,14 +35,7 @@
   BaseLib
   BaseMemoryLib
   DebugLib
-  FileHandleLib
   MemoryAllocationLib
-  SerializeVariablesLib
-
-[Protocols]
-  gEfiBlockIoProtocolGuid              ## CONSUMES
-
-
-[Depex]
-  gEfiVariableWriteArchProtocolGuid
+  UefiBootServicesTableLib
+  UefiRuntimeServicesTableLib
 

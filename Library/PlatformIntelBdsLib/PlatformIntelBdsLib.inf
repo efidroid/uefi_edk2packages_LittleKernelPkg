@@ -41,7 +41,6 @@
   MdeModulePkg/MdeModulePkg.dec
   IntelFrameworkModulePkg/IntelFrameworkModulePkg.dec
   LittleKernelPkg/LittleKernelPkg.dec
-  OvmfPkg/OvmfPkg.dec
 
 [LibraryClasses]
   BaseLib
@@ -63,7 +62,7 @@
   gArmPlatformTokenSpaceGuid.PcdDefaultConInPaths
   gArmPlatformTokenSpaceGuid.PcdDefaultConOutPaths
   gEfiMdePkgTokenSpaceGuid.PcdPlatformBootTimeOut
-  gUefiOvmfPkgTokenSpaceGuid.PcdEmuVariableEvent
+  gLittleKernelTokenSpaceGuid.PcdEmuVariableEvent
 
 [Protocols]
   gEfiDevicePathFromTextProtocolGuid
