@@ -214,7 +214,7 @@
 [BuildOptions]
   XCODE:*_*_ARM_PLATFORM_FLAGS == -arch armv7
 
-  GCC:*_*_ARM_PLATFORM_FLAGS == -march=armv7-a
+  GCC:*_*_ARM_PLATFORM_FLAGS == -march=armv7-a -mfpu=neon
 
   RVCT:*_*_ARM_PLATFORM_FLAGS == --cpu Cortex-A8
 
@@ -330,6 +330,7 @@
   # ARM Pcds
   #
   gArmTokenSpaceGuid.PcdArmUncachedMemoryMask|0x0000000000000000
+  gArmTokenSpaceGuid.PcdVFPEnabled|1
 
   gArmTokenSpaceGuid.PcdSystemMemoryBase|$(DRAM_BASE)
   gArmTokenSpaceGuid.PcdSystemMemorySize|$(DRAM_SIZE)
