@@ -33,6 +33,8 @@
 
 // Not used when PrePi in run in XIP mode
 UINTN mGlobalVariableBase = 0;
+UINTN mLKStacksBase = 0;
+UINTN mLKStacksSize = 0;
 
 EFI_STATUS
 EFIAPI
@@ -99,7 +101,6 @@ PrePiMain (
   EFI_STATUS                    Status;
   CHAR8                         Buffer[100];
   UINTN                         CharCount;
-  UINTN                         StacksSize;
 
   // Initialize the architecture specific bits
   ArchInitialize ();
@@ -124,9 +125,10 @@ PrePiMain (
   PrePeiSetHobList (HobList);
 
   // Initialize MMU and Memory HOBs (Resource Descriptor HOBs)
+  mLKStacksBase = StacksBase;
+  mLKStacksSize = PcdGet32 (PcdCPUCorePrimaryStackSize);
   Status = MemoryPeim (UefiMemoryBase, FixedPcdGet32 (PcdSystemMemoryUefiRegionSize));
   ASSERT_EFI_ERROR (Status);
-
   
   // allocate LK range so nothing else is gonna use it's memory
   unsigned long LKAddr, LKSize;
@@ -134,8 +136,7 @@ PrePiMain (
   BuildMemoryAllocationHob ((EFI_PHYSICAL_ADDRESS)LKAddr, (UINT64)LKSize, EfiBootServicesData);
 
   // Create the Stacks HOB (reserve the memory for all stacks)
-  StacksSize = PcdGet32 (PcdCPUCorePrimaryStackSize);
-  BuildStackHob (StacksBase, StacksSize);
+  BuildStackHob (StacksBase, mLKStacksSize);
 
   // Declare the Global Variable HOB
   BuildGlobalVariableHob (GlobalVariableBase, FixedPcdGet32 (PcdPeiGlobalVariableSize));
