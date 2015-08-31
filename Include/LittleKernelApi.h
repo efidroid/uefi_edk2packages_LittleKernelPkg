@@ -72,6 +72,7 @@ typedef struct {
 
 	void* (*mmap_get_dram)(void* pdata, lkapi_mmap_cb_t cb);
 	void* (*mmap_get_mappings)(void* pdata, lkapi_mmap_mappings_cb_t cb);
+	void (*mmap_get_lk_range)(unsigned long *addr, unsigned long *size);
 } lkapi_t;
 
 #endif

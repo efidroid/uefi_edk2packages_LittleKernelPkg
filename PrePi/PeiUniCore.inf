@@ -39,6 +39,7 @@
   ArmPkg/ArmPkg.dec
   ArmPlatformPkg/ArmPlatformPkg.dec
   IntelFrameworkModulePkg/IntelFrameworkModulePkg.dec
+  LittleKernelPkg/LittleKernelPkg.dec
 
 [LibraryClasses]
   BaseLib
@@ -60,6 +61,7 @@
   PrePiHobListPointerLib
   PlatformPeiLib
   MemoryInitPeiLib
+  LKApiLib
 
 [Ppis]
   gArmMpCoreInfoPpiGuid

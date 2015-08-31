@@ -26,6 +26,7 @@
 #include <Ppi/ArmMpCoreInfo.h>
 #include <Guid/LzmaDecompress.h>
 #include <Guid/ArmGlobalVariableHob.h>
+#include <LittleKernel.h>
 
 #include "PrePi.h"
 #include "LzmaDecompress.h"
@@ -125,6 +126,12 @@ PrePiMain (
   // Initialize MMU and Memory HOBs (Resource Descriptor HOBs)
   Status = MemoryPeim (UefiMemoryBase, FixedPcdGet32 (PcdSystemMemoryUefiRegionSize));
   ASSERT_EFI_ERROR (Status);
+
+  
+  // allocate LK range so nothing else is gonna use it's memory
+  unsigned long LKAddr, LKSize;
+  GetLKApi()->mmap_get_lk_range(&LKAddr, &LKSize);
+  BuildMemoryAllocationHob ((EFI_PHYSICAL_ADDRESS)LKAddr, (UINT64)LKSize, EfiBootServicesData);
 
   // Create the Stacks HOB (reserve the memory for all stacks)
   StacksSize = PcdGet32 (PcdCPUCorePrimaryStackSize);
