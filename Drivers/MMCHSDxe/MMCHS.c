@@ -185,7 +185,7 @@ MMCHSReadBlocks (
     return EFI_SUCCESS;
   }
 
-  return Instance->LKDev.read(Lba, BufferSize, Buffer)==0?EFI_SUCCESS:EFI_DEVICE_ERROR;
+  return Instance->LKDev.read(&Instance->LKDev, Lba, BufferSize, Buffer)==0?EFI_SUCCESS:EFI_DEVICE_ERROR;
 }
 
 
@@ -270,7 +270,7 @@ MMCHSWriteBlocks (
     return EFI_SUCCESS;
   }
 
-  return Instance->LKDev.write(Lba, BufferSize, Buffer)==0?EFI_SUCCESS:EFI_DEVICE_ERROR;
+  return Instance->LKDev.write(&Instance->LKDev, Lba, BufferSize, Buffer)==0?EFI_SUCCESS:EFI_DEVICE_ERROR;
 }
 
 
@@ -352,7 +352,7 @@ MMCHSInitialize (
 
   for (Index = 0 ; Index < Count ; Index++) {
     // Initialize device
-    if (Devices[Index].init()) {
+    if (Devices[Index].init(&Devices[Index])) {
      Status = EFI_DEVICE_ERROR;
      goto EXIT;
     }

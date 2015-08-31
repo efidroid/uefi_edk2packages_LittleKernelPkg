@@ -21,15 +21,16 @@ typedef enum {
 	LKAPI_BIODEV_TYPE_VNOR,
 } lkapi_biodev_type_t;
 
-typedef struct {
+typedef struct lkapi_biodev lkapi_biodev_t;
+struct lkapi_biodev {
 	lkapi_biodev_type_t type;
 	unsigned int block_size;
 	unsigned long long num_blocks;
 
-	int (*init)(void);
-	int (*read)(unsigned long long lba, unsigned long buffersize, void* buffer);
-	int (*write)(unsigned long long lba, unsigned long buffersize, void* buffer);
-} lkapi_biodev_t;
+	int (*init)(lkapi_biodev_t* dev);
+	int (*read)(lkapi_biodev_t* dev, unsigned long long lba, unsigned long buffersize, void* buffer);
+	int (*write)(lkapi_biodev_t* dev, unsigned long long lba, unsigned long buffersize, void* buffer);
+};
 
 typedef void* (*lkapi_mmap_cb_t)(void* pdata, unsigned long addr, unsigned long size, int reserved);
 typedef void* (*lkapi_mmap_mappings_cb_t)(void* pdata, unsigned long vaddr, unsigned long paddr, unsigned long size, lkapi_memorytype_t type);
