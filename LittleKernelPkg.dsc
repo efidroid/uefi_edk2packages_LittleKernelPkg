@@ -428,6 +428,7 @@
   # Semi-hosting filesystem
   #
   ArmPkg/Filesystem/SemihostFs/SemihostFs.inf
+  ExtPkg/ExtPkgDxe/Ext.inf
 
   #
   # FAT filesystem + GPT/MBR partitioning
