@@ -59,6 +59,7 @@
 
 [Guids]
   gArmGlobalVariableGuid
+  gEfiEndOfDxeEventGroupGuid
   gLKVNORGuid
 
 [Pcd]

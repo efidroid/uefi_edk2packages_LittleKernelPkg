@@ -37,6 +37,7 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 #include <Library/EFIDroid.h>
 
 #include <Guid/GlobalVariable.h>
+#include <Guid/EventGroup.h>
 
 #include <LittleKernel.h>
 
