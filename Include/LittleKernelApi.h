@@ -74,6 +74,9 @@ typedef struct {
 	void* (*mmap_get_dram)(void* pdata, lkapi_mmap_cb_t cb);
 	void* (*mmap_get_mappings)(void* pdata, lkapi_mmap_mappings_cb_t cb);
 	void (*mmap_get_lk_range)(unsigned long *addr, unsigned long *size);
+
+	int (*boot_create_tags)(const char* cmdline, unsigned int ramdisk_addr, unsigned int ramdisk_size, unsigned int tags_addr, unsigned int tags_size);
+	unsigned int (*boot_machine_type)(void);
 } lkapi_t;
 
 #endif

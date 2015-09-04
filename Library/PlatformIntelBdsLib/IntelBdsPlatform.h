@@ -18,7 +18,9 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 #include <Protocol/DevicePathFromText.h>
 #include <Protocol/DevicePathToText.h>
 #include <Protocol/BlockIo.h>
+#include <Protocol/PartitionName.h>
 
+#include <Library/ArmLib.h>
 #include <Library/BaseMemoryLib.h>
 #include <Library/BdsLib.h>
 #include <Library/DebugLib.h>
@@ -32,9 +34,20 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 #include <Library/GenericBdsLib.h>
 #include <Library/PlatformBdsLib.h>
 #include <Library/NvVarsBlockIoLib.h>
+#include <Library/EFIDroid.h>
 
 #include <Guid/GlobalVariable.h>
 
 #include <LittleKernel.h>
+
+EFI_STATUS
+PlatformBdsAndroidBootFromBlockIo (
+  IN VOID *Private
+);
+
+EFI_STATUS
+PlatformBdsAndroidVerify (
+  IN VOID* Buffer
+);
 
 #endif // _INTEL_BDS_PLATFORM_H

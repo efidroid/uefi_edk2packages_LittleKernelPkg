@@ -32,7 +32,7 @@
 
 [Sources]
   IntelBdsPlatform.c
-  IntelBdsPlatform.h
+  AndroidBoot.c
 
 [Packages]
   ArmPkg/ArmPkg.dec
@@ -41,6 +41,7 @@
   MdeModulePkg/MdeModulePkg.dec
   IntelFrameworkModulePkg/IntelFrameworkModulePkg.dec
   LittleKernelPkg/LittleKernelPkg.dec
+  EFIDroidPkg/EFIDroidPkg.dec
 
 [LibraryClasses]
   BaseLib
@@ -53,6 +54,8 @@
   PcdLib
   GenericBdsLib
   NvVarsBlockIoLib
+  LKApiLib
+  EFIDroidMenuLib
 
 [Guids]
   gArmGlobalVariableGuid
@@ -67,3 +70,4 @@
 [Protocols]
   gEfiDevicePathFromTextProtocolGuid
   gEfiDevicePathToTextProtocolGuid
+  gEfiPartitionNameProtocolGuid
