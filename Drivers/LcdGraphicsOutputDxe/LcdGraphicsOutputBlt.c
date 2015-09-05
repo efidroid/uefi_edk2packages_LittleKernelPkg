@@ -227,9 +227,9 @@ BltVideoFill (
         DestinationPixel8bit = ((UINT8 *)FrameBufferBase) + DestinationLine * HorizontalResolution * BytesPerPixel + DestinationPixelX * BytesPerPixel;
 
         // Copy the pixel into the new target
-        DestinationPixel8bit[0] = EfiSourcePixel->Red;
+        DestinationPixel8bit[0] = EfiSourcePixel->Blue;
         DestinationPixel8bit[1] = EfiSourcePixel->Green;
-        DestinationPixel8bit[2] = EfiSourcePixel->Blue;
+        DestinationPixel8bit[2] = EfiSourcePixel->Red;
       }
     }
     break;
@@ -303,9 +303,9 @@ BltVideoToBltBuffer (
         EfiDestinationPixel = BltBuffer + DestinationLine * BltBufferHorizontalResolution + DestinationPixelX;
 
         // Copy the pixel into the new target
-        EfiDestinationPixel->Red      = SourcePixel8bit[0];
+        EfiDestinationPixel->Blue     = SourcePixel8bit[0];
         EfiDestinationPixel->Green    = SourcePixel8bit[1];
-        EfiDestinationPixel->Blue     = SourcePixel8bit[2];
+        EfiDestinationPixel->Red      = SourcePixel8bit[2];
         // EfiDestinationPixel->Reserved = (UINT8) 0;
       }
     }
@@ -378,9 +378,9 @@ BltBufferToVideo (
         EfiSourcePixel  = BltBuffer + SourceLine * BltBufferHorizontalResolution + SourcePixelX;
         DestinationPixel8bit = ((UINT8 *)FrameBufferBase) + DestinationLine * HorizontalResolution * BytesPerPixel + DestinationPixelX * BytesPerPixel;
 
-        DestinationPixel8bit[0] = EfiSourcePixel->Red;
+        DestinationPixel8bit[0] = EfiSourcePixel->Blue;
         DestinationPixel8bit[1] = EfiSourcePixel->Green;
-        DestinationPixel8bit[2] = EfiSourcePixel->Blue;
+        DestinationPixel8bit[2] = EfiSourcePixel->Red;
       }
     }
     break;
