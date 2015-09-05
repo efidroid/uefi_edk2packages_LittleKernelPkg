@@ -20,8 +20,6 @@
 #include <LittleKernel.h>
 
 STATIC UINT32 mTableSize = 0;
-extern UINTN mLKStacksBase;
-extern UINTN mLKStacksSize;
 
 static void* mmap_callback_dram_buildhob(void* pdata, unsigned long addr, unsigned long size, int reserved) {
   EFI_RESOURCE_ATTRIBUTE_TYPE   ResourceAttributes;
@@ -114,7 +112,7 @@ ArmPlatformGetVirtualMemoryMap (
   LKApi->mmap_get_mappings(NULL, mmap_callback_mappings_count);
 
   // allocate table memory
-  NumTableEntries = (mTableSize + 1 + 1);
+  NumTableEntries = (mTableSize + 1);
   VirtualMemoryTable = (ARM_MEMORY_REGION_DESCRIPTOR*)AllocatePages(EFI_SIZE_TO_PAGES (sizeof(ARM_MEMORY_REGION_DESCRIPTOR) * NumTableEntries));
   if (VirtualMemoryTable == NULL) {
     return;
@@ -122,13 +120,6 @@ ArmPlatformGetVirtualMemoryMap (
 
   // add entries
   VirtualMemoryTablePtr = LKApi->mmap_get_mappings(VirtualMemoryTable, mmap_callback_mappings_add);
-
-  // Stack
-  VirtualMemoryTablePtr->PhysicalBase = mLKStacksBase;
-  VirtualMemoryTablePtr->VirtualBase  = mLKStacksBase;
-  VirtualMemoryTablePtr->Length       = mLKStacksSize;
-  VirtualMemoryTablePtr->Attributes   = ARM_MEMORY_REGION_ATTRIBUTE_WRITE_THROUGH;
-  VirtualMemoryTablePtr++;
 
   // End of Table
   VirtualMemoryTablePtr->PhysicalBase = 0;
