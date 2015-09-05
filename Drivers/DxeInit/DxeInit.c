@@ -22,6 +22,32 @@
 #include <Library/UefiLib.h>
 #include <Library/PcdLib.h>
 #include <LittleKernel.h>
+#include <Library/UefiBootServicesTableLib.h>
+
+STATIC VOID
+lkapi_event_init(VOID** event)
+{
+  ASSERT(gBS->CreateEvent(0, 0, NULL, NULL, (EFI_EVENT*)event)==EFI_SUCCESS);
+}
+
+STATIC VOID
+lkapi_event_destroy(VOID* event)
+{
+  ASSERT(gBS->CloseEvent((EFI_EVENT)event)==EFI_SUCCESS);
+}
+
+STATIC VOID
+lkapi_event_wait(VOID** event)
+{
+  UINTN Index;
+  ASSERT(gBS->WaitForEvent(1, (EFI_EVENT*)event, &Index)==EFI_SUCCESS);
+}
+
+STATIC VOID
+lkapi_event_signal(VOID* event)
+{
+  ASSERT(gBS->SignalEvent((EFI_EVENT)event)==EFI_SUCCESS);
+}
 
 EFI_STATUS
 EFIAPI
@@ -35,6 +61,11 @@ DxeInitInitialize (
   PcdSet32 (PcdGicDistributorBase, LKApi->int_get_dist_base());
   PcdSet32 (PcdGicRedistributorsBase, LKApi->int_get_redist_base());
   PcdSet32 (PcdGicInterruptInterfaceBase, LKApi->int_get_cpu_base());
+
+  LKApi->event_init = lkapi_event_init;
+  LKApi->event_destroy = lkapi_event_destroy;
+  LKApi->event_wait = lkapi_event_wait;
+  LKApi->event_signal = lkapi_event_signal;
 
   return EFI_SUCCESS;
 }

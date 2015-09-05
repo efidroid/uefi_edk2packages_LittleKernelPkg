@@ -77,6 +77,11 @@ typedef struct {
 
 	int (*boot_create_tags)(const char* cmdline, unsigned int ramdisk_addr, unsigned int ramdisk_size, unsigned int tags_addr, unsigned int tags_size);
 	unsigned int (*boot_machine_type)(void);
+
+	void (*event_init)(void** event);
+	void (*event_destroy)(void* event);
+	void (*event_wait)(void** event);
+	void (*event_signal)(void* event);
 } lkapi_t;
 
 #endif
