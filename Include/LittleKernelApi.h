@@ -60,6 +60,7 @@ typedef struct {
 	int (*lcd_init)(unsigned long long vramaddr);
 	unsigned int (*lcd_get_width)(void);
 	unsigned int (*lcd_get_height)(void);
+	unsigned int (*lcd_get_density)(void);
 	void (*lcd_flush)(void);
 	void (*lcd_shutdown)(void);
 
