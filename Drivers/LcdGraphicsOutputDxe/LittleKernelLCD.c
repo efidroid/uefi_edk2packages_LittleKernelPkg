@@ -25,10 +25,10 @@
 
 EFI_STATUS
 LcdInitialize (
-  IN EFI_PHYSICAL_ADDRESS   VramBaseAddress
+  VOID
   )
 {
-  return LKApi->lcd_init(VramBaseAddress)==0?EFI_SUCCESS:EFI_DEVICE_ERROR;
+  return LKApi->lcd_init()==0?EFI_SUCCESS:EFI_DEVICE_ERROR;
 }
 
 EFI_STATUS

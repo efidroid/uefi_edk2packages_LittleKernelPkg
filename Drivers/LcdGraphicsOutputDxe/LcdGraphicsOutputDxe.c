@@ -113,15 +113,16 @@ InitializeDisplay (
   EFI_PHYSICAL_ADDRESS   VramBaseAddress;
   UINTN                  VramSize;
 
+  // Setup the LCD
+  Status = LcdInitialize ();
+  if (EFI_ERROR(Status)) {
+    goto EXIT_ERROR_LCD_SHUTDOWN;
+  }
+
+  // get VRAM address
   Status = LcdPlatformGetVram (&VramBaseAddress, &VramSize);
   if (EFI_ERROR(Status)) {
     return Status;
-  }
-
-  // Setup the LCD
-  Status = LcdInitialize (VramBaseAddress);
-  if (EFI_ERROR(Status)) {
-    goto EXIT_ERROR_LCD_SHUTDOWN;
   }
 
   Status = LcdPlatformInitializeDisplay (Instance->Handle);

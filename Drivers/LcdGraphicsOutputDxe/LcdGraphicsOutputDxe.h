@@ -115,7 +115,7 @@ LcdIndentify (
 
 EFI_STATUS
 LcdInitialize (
-  EFI_PHYSICAL_ADDRESS  VramBaseAddress
+  VOID
 );
 
 EFI_STATUS
