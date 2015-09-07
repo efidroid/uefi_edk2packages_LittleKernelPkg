@@ -214,6 +214,9 @@ PlatformBdsAndroidBootFromBlockIo (
     goto FREEBUFFER;
   }
 
+  // update addresses if necessary
+  LKApi->boot_update_addrs(&AndroidHdr->kernel_addr, &AndroidHdr->ramdisk_addr, &AndroidHdr->tags_addr);
+
   // calculate offsets
   UINTN off_kernel  = AndroidHdr->page_size;
   UINTN off_ramdisk = off_kernel  + ALIGN_VALUE(AndroidHdr->kernel_size, AndroidHdr->page_size);
