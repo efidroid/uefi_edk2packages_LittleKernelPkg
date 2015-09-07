@@ -247,7 +247,8 @@ PlatformBdsAndroidBootFromBlockIo (
   PlatformBdsAndroidLoadCmdline(&Parsed);
 
   // generate Atags
-  LKApi->boot_create_tags(Parsed.Cmdline, AndroidHdr->ramdisk_addr, AndroidHdr->ramdisk_size, AndroidHdr->tags_addr, TagsSize);
+  if(LKApi->boot_create_tags(Parsed.Cmdline, AndroidHdr->ramdisk_addr, AndroidHdr->ramdisk_size, AndroidHdr->tags_addr, TagsSize))
+    goto FREEBUFFER;
 
   // Shut down UEFI boot services. ExitBootServices() will notify every driver that created an event on
   // ExitBootServices event. Example the Interrupt DXE driver will disable the interrupts on this event.
