@@ -184,6 +184,8 @@
   MemoryAllocationLib|MdePkg/Library/UefiMemoryAllocationLib/UefiMemoryAllocationLib.inf
   HiiLib|MdeModulePkg/Library/UefiHiiLib/UefiHiiLib.inf
   ArmPlatformGlobalVariableLib|ArmPlatformPkg/Library/ArmPlatformGlobalVariableLib/Dxe/DxeArmPlatformGlobalVariableLib.inf
+  DxeServicesLib|MdePkg/Library/DxeServicesLib/DxeServicesLib.inf
+  ReportStatusCodeLib|IntelFrameworkModulePkg/Library/DxeReportStatusCodeLibFramework/DxeReportStatusCodeLib.inf
 
 [LibraryClasses.common.UEFI_DRIVER]
   LKApiLib|LittleKernelPkg/Library/LKApiLib/LKApiLib.inf
@@ -473,3 +475,5 @@
 
   # Legacy Linux Loader
   ArmPkg/Application/LinuxLoader/LinuxLoader.inf
+
+  EFIDroidPkg/Application/AndroidBoot/AndroidBoot.inf

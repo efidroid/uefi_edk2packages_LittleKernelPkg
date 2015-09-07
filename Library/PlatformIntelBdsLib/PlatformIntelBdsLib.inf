@@ -32,7 +32,7 @@
 
 [Sources]
   IntelBdsPlatform.c
-  AndroidBoot.c
+  IntelBdsPlatform.h
 
 [Packages]
   ArmPkg/ArmPkg.dec
@@ -41,7 +41,6 @@
   MdeModulePkg/MdeModulePkg.dec
   IntelFrameworkModulePkg/IntelFrameworkModulePkg.dec
   LittleKernelPkg/LittleKernelPkg.dec
-  EFIDroidPkg/EFIDroidPkg.dec
 
 [LibraryClasses]
   BaseLib
@@ -55,7 +54,6 @@
   GenericBdsLib
   NvVarsBlockIoLib
   LKApiLib
-  EFIDroidMenuLib
 
 [Guids]
   gArmGlobalVariableGuid

@@ -14,7 +14,6 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 **/
 
 #include "IntelBdsPlatform.h"
-#include "bootimg.h"
 
 ///
 /// Predefined platform default time out value
@@ -22,8 +21,6 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 UINT16                      gPlatformBootTimeOutDefault;
 VOID                        *mEmuVariableEventReg;
 EFI_EVENT                   mEmuVariableEvent;
-BOOT_MENU_ENTRY             *mBootMenuMain = NULL;
-UINTN                       mBootMenuMainCount = 0;
 
 //
 // Type definitions
@@ -472,197 +469,37 @@ PlatformBdsDiagnostics (
 {
 }
 
-STATIC CHAR8*
-Unicode2Ascii (
-  CONST CHAR16* UnicodeStr
-)
-{
-  CHAR8* AsciiStr = AllocatePool((StrLen (UnicodeStr) + 1) * sizeof (CHAR8));
-  if (AsciiStr == NULL) {
-    return NULL;
-  }
-
-  UnicodeStrToAsciiStr(UnicodeStr, AsciiStr);
-
-  return AsciiStr;
-}
-
+STATIC
 EFI_STATUS
-EFIAPI
-FindAndroidBlockIo (
-  IN EFI_HANDLE  Handle,
-  IN VOID        *Instance,
-  IN VOID        *Context
+BootShell (
+  VOID
   )
 {
-  EFI_STATUS                Status;
-  EFI_BLOCK_IO_PROTOCOL     *BlockIo;
-  EFI_PARTITION_NAME_PROTOCOL *PartitionName;
-  UINTN                     BufferSize;
-  VOID                      *AndroidHdr;
+  EFI_STATUS       Status;
+  EFI_DEVICE_PATH* EfiShellDevicePath;
 
-  Status = EFI_SUCCESS;
-
-  //
-  // Get the BlockIO protocol on that handle
-  //
-  BlockIo = NULL;
-  Status = gBS->HandleProtocol (
-                  Handle,
-                  &gEfiBlockIoProtocolGuid,
-                  (VOID **)&BlockIo
-                  );
-  if (EFI_ERROR (Status)) {
+  // Find the EFI Shell
+  Status = LocateEfiApplicationInFvByName (L"Shell", &EfiShellDevicePath);
+  if (Status == EFI_NOT_FOUND) {
+    Print (L"Error: EFI Application not found.\n");
     return Status;
-  }
-
-  // allocate a buffer for the android header aligned on the block size
-  BufferSize = ALIGN_VALUE(sizeof(boot_img_hdr_t), BlockIo->Media->BlockSize);
-  AndroidHdr = AllocatePool(BufferSize);
-  if(AndroidHdr == NULL)
-    return EFI_OUT_OF_RESOURCES;
-
-  // read and verify the android header
-  BlockIo->ReadBlocks(BlockIo, BlockIo->Media->MediaId, 0, BufferSize, AndroidHdr);
-  Status = PlatformBdsAndroidVerify(AndroidHdr);
-  if(EFI_ERROR(Status)) {
-    goto FREEBUFFER;
-  }
-
-  // create new menu entry
-  BOOT_MENU_ENTRY *Entry = MenuAddEntry(&mBootMenuMain, &mBootMenuMainCount);;
-  if(Entry == NULL) {
-    return EFI_OUT_OF_RESOURCES;
-  }
-
-  //
-  // Get the PartitionName protocol on that handle
-  //
-  PartitionName = NULL;
-  Status = gBS->HandleProtocol (
-                  Handle,
-                  &gEfiPartitionNameProtocolGuid,
-                  (VOID **)&PartitionName
-                  );
-  if (!EFI_ERROR (Status) && PartitionName->Name[0]) {
-    if (!StrCmp(PartitionName->Name, L"boot"))
-      Entry->Description = "Android";
-    else if (!StrCmp(PartitionName->Name, L"recovery"))
-      Entry->Description = "Recovery";
-    else {
-      Entry->Description = Unicode2Ascii(PartitionName->Name);
-    }
-  }
-  else {
-    Entry->Description = "Unknown";
-  }
-
-  Entry->Callback = PlatformBdsAndroidBootFromBlockIo;
-  Entry->Private = BlockIo;
-
-  Status = EFI_SUCCESS;
-
-FREEBUFFER:
-  FreePool(AndroidHdr);
-
-  return Status;
-}
-
-EFI_STATUS
-PlatformBdsBootOption (
-  IN VOID* Private
-)
-{
-  BDS_COMMON_OPTION *BootOption = (BDS_COMMON_OPTION*)Private;
-  UINTN             ExitDataSize;
-  CHAR16            *ExitData;
-  EFI_STATUS        Status;
-
-  //
-  // Make sure the boot option device path connected,
-  // but ignore the BBS device path
-  //
-  if (DevicePathType (BootOption->DevicePath) != BBS_DEVICE_PATH) {
-    //
-    // Notes: the internal shell can not been connected with device path
-    // so we do not check the status here
-    //
-    BdsLibConnectDevicePath (BootOption->DevicePath);
-  }
-
-  //
-  // All the driver options should have been processed since
-  // now boot will be performed.
-  //
-  Status = BdsLibBootViaBootOption (BootOption, BootOption->DevicePath, &ExitDataSize, &ExitData);
-  return Status;
-}
-
-EFI_STATUS
-PlatformBdsRebootCallback (
-  IN VOID* Private
-)
-{
-  gRT->ResetSystem (EfiResetCold, EFI_SUCCESS, 0, NULL);
-  return EFI_UNSUPPORTED;
-}
-
-STATIC VOID
-PlatformBdsAddEfiBootOptions (
-  VOID
-)
-{
-  LIST_ENTRY        BootLists;
-  LIST_ENTRY        *Link;
-  BDS_COMMON_OPTION *Option;
-
-  InitializeListHead (&BootLists);
-
-  //
-  // Parse the boot order to get boot option
-  //
-  BdsLibBuildOptionFromVar (&BootLists, L"BootOrder");
-
-  //
-  // When we didn't have chance to build boot option variables in the first 
-  // full configuration boot (e.g.: Reset in the first page or in Device Manager),
-  // we have no boot options in the following mini configuration boot.
-  // Give the last chance to enumerate the boot options.
-  //
-  if (IsListEmpty (&BootLists)) {
-    BdsLibEnumerateAllBootOption (&BootLists);
-  }
-
-  Link = BootLists.ForwardLink;
-
-  //
-  // Parameter check, make sure the loop will be valid
-  //
-  if (Link == NULL) {
-    return;
-  }
-  //
-  // Here we make the boot in a loop, every boot success will
-  // return to the front page
-  //
-  for (Link = GetFirstNode (&BootLists); !IsNull (&BootLists, Link); Link = GetNextNode (&BootLists, Link)) {
-    Option = CR (Link, BDS_COMMON_OPTION, Link, BDS_LOAD_OPTION_SIGNATURE);
-
-    //
-    // Don't display the hidden/inactive boot option
-    //
-    if (((Option->Attribute & LOAD_OPTION_HIDDEN) != 0) || ((Option->Attribute & LOAD_OPTION_ACTIVE) == 0)) {
-      continue;
+  } else if (EFI_ERROR (Status)) {
+    Print (L"Error: Status Code: 0x%X\n", (UINT32)Status);
+    return Status;
+  } else {
+    // Need to connect every drivers to ensure no dependencies are missing for the application
+    Status = BdsConnectAllDrivers ();
+    if (EFI_ERROR (Status)) {
+      DEBUG ((EFI_D_ERROR, "FAIL to connect all drivers\n"));
+      return Status;
     }
 
-    BOOT_MENU_ENTRY *Entry = MenuAddEntry(&mBootMenuMain, &mBootMenuMainCount);
-    if(Entry == NULL) {
-      break;
-    }
+    CONST CHAR16* Args = L"-nomap -nostartup -noversion -_exit AndroidBoot";
+    UINTN LoadOptionsSize = (UINT32)StrSize (Args);
+    VOID *LoadOptions     = AllocatePool (LoadOptionsSize);
+    StrCpy (LoadOptions, Args);
 
-    Entry->Description = Unicode2Ascii(Option->Description);
-    Entry->Callback = PlatformBdsBootOption;
-    Entry->Private = Option;
+    return BdsStartEfiApplication (gImageHandle, EfiShellDevicePath, LoadOptionsSize, LoadOptions);
   }
 }
 
@@ -698,31 +535,7 @@ PlatformBdsPolicyBehavior (
   Status = PlatformBdsConnectConsole ();
   ASSERT_EFI_ERROR (Status);
 
-  // connect all drivers
-  BdsLibConnectAll ();
-
-  // create main menu
-  mBootMenuMain = MenuCreate();
-
-  // add Android options
-  VisitAllInstancesOfProtocol (
-    &gEfiBlockIoProtocolGuid,
-    FindAndroidBlockIo,
-    NULL
-    );
-
-  // add default EFI options
-  PlatformBdsAddEfiBootOptions();
-
-  // add reboot option
-  BOOT_MENU_ENTRY *Entry = MenuAddEntry(&mBootMenuMain, &mBootMenuMainCount);
-  Entry->Description = "Reboot";
-  Entry->Callback = PlatformBdsRebootCallback;
-
-  // finish and main menu
-  MenuFinish(&mBootMenuMain, &mBootMenuMainCount);
-  SetActiveMenu(mBootMenuMain);
-  EFIDroidEnterFrontPage (0, TRUE);
+  BootShell();
 }
 
 /**

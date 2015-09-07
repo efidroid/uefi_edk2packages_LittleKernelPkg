@@ -170,6 +170,8 @@ FvNameGuid         = 411ffc75-2138-44b9-874c-d2c91fa78e91
   # Legacy Linux Loader
   INF ArmPkg/Application/LinuxLoader/LinuxLoader.inf
 
+  INF EFIDroidPkg/Application/AndroidBoot/AndroidBoot.inf
+
 [FV.FVMAIN_COMPACT]
 FvAlignment        = 8
 ERASE_POLARITY     = 1
