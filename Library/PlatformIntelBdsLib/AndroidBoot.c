@@ -219,9 +219,9 @@ PlatformBdsAndroidBootFromBlockIo (
 
   // calculate offsets
   UINTN off_kernel  = AndroidHdr->page_size;
-  UINTN off_ramdisk = off_kernel  + ALIGN_VALUE(AndroidHdr->kernel_size, AndroidHdr->page_size);
-  UINTN off_second  = off_ramdisk + ALIGN_VALUE(AndroidHdr->second_size, AndroidHdr->page_size);
-  UINTN off_tags    = off_second  + ALIGN_VALUE(AndroidHdr->dt_size,     AndroidHdr->page_size);
+  UINTN off_ramdisk = off_kernel  + ALIGN_VALUE(AndroidHdr->kernel_size,  AndroidHdr->page_size);
+  UINTN off_second  = off_ramdisk + ALIGN_VALUE(AndroidHdr->ramdisk_size, AndroidHdr->page_size);
+  UINTN off_tags    = off_second  + ALIGN_VALUE(AndroidHdr->second_size,  AndroidHdr->page_size);
 
   // load images
   Status = PlatformBdsAndroidLoadImage(BlockIo, off_kernel, AndroidHdr->kernel_size, &Parsed.Kernel, AndroidHdr->kernel_addr);
