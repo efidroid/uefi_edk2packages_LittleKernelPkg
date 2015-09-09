@@ -222,6 +222,10 @@
 
   RVCT:*_*_ARM_PLATFORM_FLAGS == --cpu Cortex-A8
 
+[BuildOptions.common.EDKII.DXE_RUNTIME_DRIVER]
+  GCC:*_*_ARM_DLINK_FLAGS = -z common-page-size=0x1000
+  GCC:*_*_AARCH64_DLINK_FLAGS = -z common-page-size=0x10000
+
 ################################################################################
 #
 # Pcd Section - list of all EDK II PCD Entries defined by this Platform
