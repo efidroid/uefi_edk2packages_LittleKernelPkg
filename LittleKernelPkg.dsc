@@ -119,6 +119,8 @@
   CustomizedDisplayLib|MdeModulePkg/Library/CustomizedDisplayLib/CustomizedDisplayLib.inf
   Freetype2Lib|EFIDroidPkg/Library/Freetype2Lib/Freetype2Lib.inf
   EFIDroidMenuLib|EFIDroidPkg/Library/MenuLib/MenuLib.inf
+  CpioLib|EFIDroidPkg/Library/CpioLib/CpioLib.inf
+  DecompressLib|EFIDroidPkg/Library/DecompressLib/DecompressLib.inf
 
   # non-volatile variable storage
   NvVarsBlockIoLib|LittleKernelPkg/Library/NvVarsBlockIoLib/NvVarsBlockIoLib.inf
