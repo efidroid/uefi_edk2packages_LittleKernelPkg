@@ -264,7 +264,7 @@
 
 [PcdsFixedAtBuild.common]
   gArmPlatformTokenSpaceGuid.PcdFirmwareVendor|"$(FIRMWARE_VENDOR)"
-  gArmPlatformTokenSpaceGuid.PcdSystemMemoryUefiRegionSize|0x00800000 # 8MB
+  gArmPlatformTokenSpaceGuid.PcdSystemMemoryUefiRegionSize|0x00e00000 # PcdSystemMemorySize - PcdFdSize
   gEfiMdeModulePkgTokenSpaceGuid.PcdFirmwareVersionString|L"$(FIRMWARE_VER)"
 
   gEmbeddedTokenSpaceGuid.PcdEmbeddedPrompt|"ArmPlatform"
