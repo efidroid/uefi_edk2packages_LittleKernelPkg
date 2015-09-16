@@ -140,7 +140,13 @@ FvNameGuid         = 411ffc75-2138-44b9-874c-d2c91fa78e91
   # Semi-hosting filesystem (Required the Hardware Debugger to be connected)
   #
   INF ArmPkg/Filesystem/SemihostFs/SemihostFs.inf
-  INF ExtPkg/ExtPkgDxe/Ext.inf
+
+  #
+  # INF GrubFSPkg
+  #
+  INF GrubFSPkg/src/NTFS.inf
+  INF GrubFSPkg/src/EXT2.inf
+  INF GrubFSPkg/src/EXFAT.inf
 
   #
   # FAT filesystem + GPT/MBR partitioning

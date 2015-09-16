@@ -435,7 +435,13 @@
   # Semi-hosting filesystem
   #
   ArmPkg/Filesystem/SemihostFs/SemihostFs.inf
-  ExtPkg/ExtPkgDxe/Ext.inf
+
+  #
+  # GrubFSPkg
+  #
+  GrubFSPkg/src/NTFS.inf
+  GrubFSPkg/src/EXT2.inf
+  GrubFSPkg/src/EXFAT.inf
 
   #
   # FAT filesystem + GPT/MBR partitioning
