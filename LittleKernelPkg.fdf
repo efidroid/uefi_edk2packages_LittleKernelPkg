@@ -174,9 +174,6 @@ FvNameGuid         = 411ffc75-2138-44b9-874c-d2c91fa78e91
   INF MdeModulePkg/Universal/SetupBrowserDxe/SetupBrowserDxe.inf
   INF IntelFrameworkModulePkg/Universal/BdsDxe/BdsDxe.inf
 
-  # Legacy Linux Loader
-  INF ArmPkg/Application/LinuxLoader/LinuxLoader.inf
-
   INF EFIDroidPkg/Application/AndroidBoot/AndroidBoot.inf
 
   # Multiboot binary

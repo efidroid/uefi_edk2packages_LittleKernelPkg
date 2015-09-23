@@ -486,7 +486,4 @@
       gEfiMdePkgTokenSpaceGuid.PcdUefiLibMaxPrintBufferSize|8000
   }
 
-  # Legacy Linux Loader
-  ArmPkg/Application/LinuxLoader/LinuxLoader.inf
-
   EFIDroidPkg/Application/AndroidBoot/AndroidBoot.inf
