@@ -366,6 +366,12 @@ AppendToBuffer (
     Size
     );
 
+  SetMem(
+    (VOID*) (((UINT8*) (Instance->BufferPtr)) + Instance->DataSize + Size),
+    ALIGN_VALUE(Size, sizeof(UINT32))-Size,
+    0
+    );
+
   Instance->DataSize = ALIGN_VALUE(NewSize, sizeof(UINT32));
 }
 
