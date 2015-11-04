@@ -32,6 +32,27 @@
 **/
 
 
+STATIC
+EFI_STATUS
+IsVariableAllowed (
+  IN CHAR16   *Name,
+  IN EFI_GUID *Guid
+  )
+{
+  EFI_STATUS Status;
+
+  Status = EFI_INVALID_PARAMETER;
+
+  if(!StrCmp(Name, L"ConIn") && CompareGuid(Guid, &gEfiGlobalVariableGuid))
+    return Status;
+  if(!StrCmp(Name, L"ConOut") && CompareGuid(Guid, &gEfiGlobalVariableGuid))
+    return Status;
+  if(!StrCmp(Name, L"ErrOut") && CompareGuid(Guid, &gEfiGlobalVariableGuid))
+    return Status;
+
+  return EFI_SUCCESS;
+}
+
 /**
   Unpacks the next variable from the buffer
 
@@ -193,6 +214,9 @@ IterateVariablesInBuffer (
     CopyMem (AlignedName, Name, NameSize);
 
     TotalSizeUsed = TotalSizeUsed + SizeUsed;
+
+    if (IsVariableAllowed(AlignedName, Guid)!=EFI_SUCCESS)
+      continue;
 
     //
     // Run the callback function
@@ -767,6 +791,9 @@ SerializeVariablesAddVariable (
   UINT32         SerializedNameSize;
   UINT32         SerializedDataSize;
   UINTN          SerializedSize;
+
+  if (IsVariableAllowed(VariableName, VendorGuid)!=EFI_SUCCESS)
+    return EFI_SUCCESS;
 
   Instance = SV_FROM_HANDLE (Handle);
 

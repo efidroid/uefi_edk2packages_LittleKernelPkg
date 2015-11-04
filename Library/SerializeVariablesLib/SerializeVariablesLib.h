@@ -24,6 +24,7 @@
 #include <Library/SerializeVariablesLib.h>
 #include <Library/UefiBootServicesTableLib.h>
 #include <Library/UefiRuntimeServicesTableLib.h>
+#include <Guid/GlobalVariable.h>
 
 #define SV_FROM_HANDLE(a)       CR (a, SV_INSTANCE, Signature, SV_SIGNATURE)
 #define SV_SIGNATURE            SIGNATURE_32 ('S', 'V', 'A', 'R')
