@@ -22,6 +22,9 @@
 
 #include "LcdGraphicsOutputDxe.h"
 
+#define MS2100N(x) ((x)*(1000000/100))
+#define FPS2MS(x) (1000/(x))
+
 /**********************************************************************
  *
  *  This file implements the Graphics Output protocol on ArmVersatileExpress
@@ -34,6 +37,9 @@
 //
 
 BOOLEAN mDisplayInitialized = FALSE;
+BOOLEAN gLcdNeedsSync = FALSE;
+LK_DISPLAY_FLUSH_MODE gLCDFlushMode = LK_DISPLAY_FLUSH_MODE_MANUAL;
+EFI_EVENT gTimerEvent;
 lkapi_t* LKApi = NULL;
 
 LCD_INSTANCE mLcdTemplate = {
@@ -76,6 +82,11 @@ LCD_INSTANCE mLcdTemplate = {
       END_ENTIRE_DEVICE_PATH_SUBTYPE,
       { sizeof(EFI_DEVICE_PATH_PROTOCOL), 0 }
     }
+  },
+  { // LKDisplay
+    LKDisplayGetDensity,
+    LKDisplaySetFlushMode,
+    LKDisplayFlushScreen
   },
   (EFI_EVENT) NULL // ExitBootServicesEvent
 };
@@ -148,6 +159,19 @@ EXIT:
   return Status;
 }
 
+VOID
+EFIAPI
+TimerCallback (
+  IN  EFI_EVENT   Event,
+  IN  VOID        *Context
+  )
+{
+  if(gLcdNeedsSync && gLCDFlushMode==LK_DISPLAY_FLUSH_MODE_SW_TIMER) {
+    LKDisplayFlushScreen();
+    gLcdNeedsSync = FALSE;
+  }
+}
+
 EFI_STATUS
 EFIAPI
 LcdGraphicsOutputDxeInitialize (
@@ -170,6 +194,7 @@ LcdGraphicsOutputDxeInitialize (
             &Instance->Handle,
             &gEfiGraphicsOutputProtocolGuid, &Instance->Gop,
             &gEfiDevicePathProtocolGuid,     &Instance->DevicePath,
+            &gEfiLKDisplayProtocolGuid,      &Instance->LKDisplay,
             NULL
             );
 
@@ -193,6 +218,12 @@ LcdGraphicsOutputDxeInitialize (
     goto EXIT_ERROR_UNINSTALL_PROTOCOL;
   }
 
+  Status = gBS->CreateEvent (EVT_TIMER | EVT_NOTIFY_SIGNAL, TPL_CALLBACK, TimerCallback, NULL, &gTimerEvent);
+  ASSERT_EFI_ERROR (Status);
+
+  Status = gBS->SetTimer (gTimerEvent, TimerPeriodic, MS2100N(FPS2MS(30)));
+  ASSERT_EFI_ERROR (Status);
+
   // To get here, everything must be fine, so just exit
   goto EXIT;
 
@@ -206,6 +237,7 @@ EXIT_ERROR_UNINSTALL_PROTOCOL:
     Instance->Handle,
     &gEfiGraphicsOutputProtocolGuid, &Instance->Gop, // Uninstall Graphics Output protocol
     &gEfiDevicePathProtocolGuid,     &Instance->DevicePath,     // Uninstall device path
+    &gEfiLKDisplayProtocolGuid,      &Instance->LKDisplay,
     NULL
     );
 
@@ -389,4 +421,28 @@ GetBytesPerPixel (
   default:
     return 0;
   }
+}
+
+UINT32
+LKDisplayGetDensity (
+  VOID
+)
+{
+  return LKApi->lcd_get_density();
+}
+
+VOID
+LKDisplaySetFlushMode (
+  IN LK_DISPLAY_FLUSH_MODE Mode
+)
+{
+  gLCDFlushMode = Mode;
+}
+
+VOID
+LKDisplayFlushScreen (
+  VOID
+)
+{
+  LKApi->lcd_flush();
 }

@@ -536,7 +536,6 @@ LcdGraphicsBlt (
   switch (BltOperation) {
   case EfiBltVideoFill:
     Status = BltVideoFill (This, BltBuffer, SourceX, SourceY, DestinationX, DestinationY, Width, Height, Delta);
-    LKApi->lcd_flush();
     break;
 
   case EfiBltVideoToBltBuffer:
@@ -545,12 +544,10 @@ LcdGraphicsBlt (
 
   case EfiBltBufferToVideo:
     Status = BltBufferToVideo (This, BltBuffer, SourceX, SourceY, DestinationX, DestinationY, Width, Height, Delta);
-    LKApi->lcd_flush();
     break;
 
   case EfiBltVideoToVideo:
     Status = BltVideoToVideo (This, BltBuffer, SourceX, SourceY, DestinationX, DestinationY, Width, Height, Delta);
-    LKApi->lcd_flush();
     break;
 
   case EfiGraphicsOutputBltOperationMax:
@@ -558,6 +555,10 @@ LcdGraphicsBlt (
     DEBUG((DEBUG_ERROR, "LcdGraphicsBlt: Invalid Operation\n"));
     Status = EFI_INVALID_PARAMETER;
     break;
+  }
+
+  if (!EFI_ERROR(Status) && BltOperation!=EfiBltVideoToBltBuffer) {
+    gLcdNeedsSync = TRUE;
   }
 
 EXIT:

@@ -23,10 +23,13 @@
 #include <Library/UefiLib.h>
 
 #include <Protocol/DevicePath.h>
+#include <Protocol/LKDisplay.h>
 
 #include <LittleKernel.h>
 
 extern lkapi_t* LKApi;
+extern BOOLEAN gLcdNeedsSync;
+extern LK_DISPLAY_FLUSH_MODE gLCDFlushMode;
 
 //
 // Device structures
@@ -43,6 +46,7 @@ typedef struct {
   EFI_GRAPHICS_OUTPUT_PROTOCOL_MODE     Mode;
   EFI_GRAPHICS_OUTPUT_PROTOCOL          Gop;
   LCD_GRAPHICS_DEVICE_PATH              DevicePath;
+  EFI_LK_DISPLAY_PROTOCOL               LKDisplay;
   EFI_EVENT                             ExitBootServicesEvent;
 } LCD_INSTANCE;
 
@@ -125,6 +129,21 @@ LcdSetMode (
 
 VOID
 LcdShutdown (
+  VOID
+);
+
+UINT32
+LKDisplayGetDensity (
+  VOID
+);
+
+VOID
+LKDisplaySetFlushMode (
+  IN LK_DISPLAY_FLUSH_MODE Mode
+);
+
+VOID
+LKDisplayFlushScreen (
   VOID
 );
 

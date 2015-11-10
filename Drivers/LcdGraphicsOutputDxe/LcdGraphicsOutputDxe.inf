@@ -48,6 +48,7 @@
 [Protocols]
   gEfiDevicePathProtocolGuid
   gEfiGraphicsOutputProtocolGuid
+  gEfiLKDisplayProtocolGuid
 
 [FeaturePcd]
   gArmPlatformTokenSpaceGuid.PcdGopDisableOnExitBootServices
