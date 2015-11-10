@@ -123,6 +123,7 @@ InitializeDisplay (
   EFI_STATUS             Status = EFI_SUCCESS;
   EFI_PHYSICAL_ADDRESS   VramBaseAddress;
   UINTN                  VramSize;
+  VOID                   *VramDoubleBuffer;
 
   // Setup the LCD
   Status = LcdInitialize ();
@@ -141,9 +142,17 @@ InitializeDisplay (
     goto EXIT_ERROR_LCD_SHUTDOWN;
   }
 
+  VramDoubleBuffer = AllocatePool (VramSize);
+  if (VramDoubleBuffer == NULL) {
+    Status = EFI_OUT_OF_RESOURCES;
+    goto EXIT;
+  }
+
   // Setup all the relevant mode information
   Instance->Gop.Mode->SizeOfInfo      = sizeof(EFI_GRAPHICS_OUTPUT_MODE_INFORMATION);
-  Instance->Gop.Mode->FrameBufferBase = VramBaseAddress;
+  Instance->Gop.Mode->FrameBufferBase = (EFI_PHYSICAL_ADDRESS)(UINT32) VramDoubleBuffer;
+  Instance->FrameBufferBase           = VramBaseAddress;
+  Instance->FrameBufferSize           = VramSize;
 
   // Set the flag before changing the mode, to avoid infinite loops
   mDisplayInitialized = TRUE;
@@ -166,8 +175,10 @@ TimerCallback (
   IN  VOID        *Context
   )
 {
+  LCD_INSTANCE* Instance = Context;
+
   if(gLcdNeedsSync && gLCDFlushMode==LK_DISPLAY_FLUSH_MODE_SW_TIMER) {
-    LKDisplayFlushScreen();
+    Instance->LKDisplay.FlushScreen(&Instance->LKDisplay);
     gLcdNeedsSync = FALSE;
   }
 }
@@ -218,7 +229,7 @@ LcdGraphicsOutputDxeInitialize (
     goto EXIT_ERROR_UNINSTALL_PROTOCOL;
   }
 
-  Status = gBS->CreateEvent (EVT_TIMER | EVT_NOTIFY_SIGNAL, TPL_CALLBACK, TimerCallback, NULL, &gTimerEvent);
+  Status = gBS->CreateEvent (EVT_TIMER | EVT_NOTIFY_SIGNAL, TPL_CALLBACK, TimerCallback, Instance, &gTimerEvent);
   ASSERT_EFI_ERROR (Status);
 
   Status = gBS->SetTimer (gTimerEvent, TimerPeriodic, MS2100N(FPS2MS(30)));
@@ -425,7 +436,7 @@ GetBytesPerPixel (
 
 UINT32
 LKDisplayGetDensity (
-  VOID
+  IN EFI_LK_DISPLAY_PROTOCOL* This
 )
 {
   return LKApi->lcd_get_density();
@@ -433,6 +444,7 @@ LKDisplayGetDensity (
 
 VOID
 LKDisplaySetFlushMode (
+  IN EFI_LK_DISPLAY_PROTOCOL* This,
   IN LK_DISPLAY_FLUSH_MODE Mode
 )
 {
@@ -441,8 +453,17 @@ LKDisplaySetFlushMode (
 
 VOID
 LKDisplayFlushScreen (
-  VOID
+  IN EFI_LK_DISPLAY_PROTOCOL* This
 )
 {
+  LCD_INSTANCE *Instance;
+
+  Instance = LCD_INSTANCE_FROM_LKDISPLAY_THIS(This);
+
+  CopyMem(
+    (VOID*)(UINT32)Instance->FrameBufferBase,
+    (VOID*)(UINT32)Instance->Gop.Mode->FrameBufferBase,
+    Instance->FrameBufferSize
+  );
   LKApi->lcd_flush();
 }

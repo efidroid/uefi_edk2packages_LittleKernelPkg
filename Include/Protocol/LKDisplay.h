@@ -16,9 +16,9 @@ typedef enum {
 } LK_DISPLAY_FLUSH_MODE;
 
 struct _EFI_LK_DISPLAY_PROTOCOL {
-  UINT32 (*GetDensity)(VOID);
-  VOID   (*SetFlushMode)(LK_DISPLAY_FLUSH_MODE);
-  VOID   (*FlushScreen)(VOID);
+  UINT32 (*GetDensity)(EFI_LK_DISPLAY_PROTOCOL*);
+  VOID   (*SetFlushMode)(EFI_LK_DISPLAY_PROTOCOL*, LK_DISPLAY_FLUSH_MODE);
+  VOID   (*FlushScreen)(EFI_LK_DISPLAY_PROTOCOL*);
 };
 
 extern EFI_GUID gEfiLKDisplayProtocolGuid;

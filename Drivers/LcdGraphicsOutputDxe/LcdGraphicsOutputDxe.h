@@ -48,11 +48,14 @@ typedef struct {
   LCD_GRAPHICS_DEVICE_PATH              DevicePath;
   EFI_LK_DISPLAY_PROTOCOL               LKDisplay;
   EFI_EVENT                             ExitBootServicesEvent;
+  EFI_PHYSICAL_ADDRESS                  FrameBufferBase;
+  UINTN                                 FrameBufferSize;
 } LCD_INSTANCE;
 
 #define LCD_INSTANCE_SIGNATURE  SIGNATURE_32('l', 'c', 'd', '0')
 
 #define LCD_INSTANCE_FROM_GOP_THIS(a)     CR (a, LCD_INSTANCE, Gop, LCD_INSTANCE_SIGNATURE)
+#define LCD_INSTANCE_FROM_LKDISPLAY_THIS(a)     CR (a, LCD_INSTANCE, LKDisplay, LCD_INSTANCE_SIGNATURE)
 
 //
 // Function Prototypes
@@ -134,17 +137,18 @@ LcdShutdown (
 
 UINT32
 LKDisplayGetDensity (
-  VOID
+  IN EFI_LK_DISPLAY_PROTOCOL* This
 );
 
 VOID
 LKDisplaySetFlushMode (
+  IN EFI_LK_DISPLAY_PROTOCOL* This,
   IN LK_DISPLAY_FLUSH_MODE Mode
 );
 
 VOID
 LKDisplayFlushScreen (
-  VOID
+  IN EFI_LK_DISPLAY_PROTOCOL* This
 );
 
 #endif /* __ARM_VE_GRAPHICS_DXE_H__ */
