@@ -346,7 +346,7 @@
   gArmTokenSpaceGuid.PcdSystemMemoryBase|$(DRAM_BASE)
   gArmTokenSpaceGuid.PcdSystemMemorySize|$(DRAM_SIZE)
 
-  gArmPlatformTokenSpaceGuid.PcdDefaultConOutPaths|L"VenHw(D3987D4B-971A-435F-8CAF-4967EB627241)/Uart(115200,8,N,1)/VenPcAnsi()"
+  gArmPlatformTokenSpaceGuid.PcdDefaultConOutPaths|L"VenHw(D3987D4B-971A-435F-8CAF-4967EB627241)/Uart(115200,8,N,1)/VenPcAnsi();VenHw(2B087898-86D8-4512-9E72-D2DA27E3C9E0)"
   gArmPlatformTokenSpaceGuid.PcdDefaultConInPaths|L"VenHw(D3987D4B-971A-435F-8CAF-4967EB627241)/Uart(115200,8,N,1)/VenPcAnsi()"
 
   gEfiMdeModulePkgTokenSpaceGuid.PcdVariableStoreSize|0xe000
