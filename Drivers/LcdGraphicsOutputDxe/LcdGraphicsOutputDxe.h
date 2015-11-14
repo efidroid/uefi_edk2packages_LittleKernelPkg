@@ -156,6 +156,16 @@ LKDisplayFlushScreen (
   IN EFI_LK_DISPLAY_PROTOCOL* This
 );
 
+UINT32
+LKDisplayGetPortraitMode (
+  VOID
+);
+
+UINT32
+LKDisplayGetLandscapeMode (
+  VOID
+);
+
 STATIC inline
 UINT64
 GetTimeMs (

@@ -88,7 +88,9 @@ LCD_INSTANCE mLcdTemplate = {
     LKDisplayGetDensity,
     LKDisplaySetFlushMode,
     LKDisplayGetFlushMode,
-    LKDisplayFlushScreen
+    LKDisplayFlushScreen,
+    LKDisplayGetPortraitMode,
+    LKDisplayGetLandscapeMode
   },
   (EFI_EVENT) NULL // ExitBootServicesEvent
 };
@@ -461,6 +463,53 @@ LKDisplayGetFlushMode (
 }
 
 VOID
+LcdCopyRotated (
+  IN LCD_INSTANCE *Instance
+)
+{
+  UINT32          SourcePixelX;
+  UINT32          DestinationPixelX;
+  UINT32          SourceLine;
+  UINT32          DestinationLine;
+  UINT8           *SourcePixel;
+  UINT8           *DestinationPixel;
+  UINTN           BytesPerPixel;
+  UINT32          HorizontalResolution;
+  UINT32          VerticalResolution;
+  UINT32          Index;
+
+  UINT8* HWBuffer = (VOID*)(UINT32)Instance->FrameBufferBase;
+  UINT8* SWBuffer = (VOID*)(UINT32)Instance->Gop.Mode->FrameBufferBase;
+
+  BytesPerPixel = GetBytesPerPixel(LCD_BITS_PER_PIXEL_24);
+  HorizontalResolution = Instance->ModeInfo.HorizontalResolution;
+  VerticalResolution = Instance->ModeInfo.VerticalResolution;
+
+  // Access each pixel inside the BltBuffer Memory
+  for (SourceLine = 0; SourceLine < VerticalResolution; SourceLine++)
+  {
+    for (SourcePixelX = 0; SourcePixelX < HorizontalResolution; SourcePixelX++)
+    {
+      // RIGHT
+      //DestinationLine = HorizontalResolution-SourcePixelX;
+      //DestinationPixelX = SourceLine;
+
+      // LEFT
+      DestinationLine = SourcePixelX;
+      DestinationPixelX = VerticalResolution-SourceLine;
+
+      // Calculate the source and target addresses:
+      SourcePixel      = SWBuffer + SourceLine      * HorizontalResolution * BytesPerPixel + SourcePixelX      * BytesPerPixel;
+      DestinationPixel = HWBuffer + DestinationLine * VerticalResolution   * BytesPerPixel + DestinationPixelX * BytesPerPixel;
+
+      // copy pixel
+      for(Index = 0; Index<BytesPerPixel; Index++)
+        DestinationPixel[Index] = SourcePixel[Index];
+    }
+  }
+}
+
+VOID
 LKDisplayFlushScreen (
   IN EFI_LK_DISPLAY_PROTOCOL* This
 )
@@ -483,11 +532,16 @@ LKDisplayFlushScreen (
   OldTpl = gBS->RaiseTPL (TPL_NOTIFY);
 
   // copy temporary to real framebuffer
-  CopyMem(
-    (VOID*)(UINT32)Instance->FrameBufferBase,
-    (VOID*)(UINT32)Instance->Gop.Mode->FrameBufferBase,
-    Instance->Gop.Mode->FrameBufferSize
-  );
+  if (Instance->Gop.Mode->Mode == 0) {
+    CopyMem(
+      (VOID*)(UINT32)Instance->FrameBufferBase,
+      (VOID*)(UINT32)Instance->Gop.Mode->FrameBufferBase,
+      Instance->Gop.Mode->FrameBufferSize
+    );
+  }
+  else {
+    LcdCopyRotated(Instance);
+  }
 
   // trigger hw flush
   LKApi->lcd_flush();

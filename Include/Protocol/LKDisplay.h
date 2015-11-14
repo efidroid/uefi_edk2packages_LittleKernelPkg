@@ -20,6 +20,8 @@ struct _EFI_LK_DISPLAY_PROTOCOL {
   VOID   (*SetFlushMode)(EFI_LK_DISPLAY_PROTOCOL*, LK_DISPLAY_FLUSH_MODE);
   LK_DISPLAY_FLUSH_MODE (*GetFlushMode)(EFI_LK_DISPLAY_PROTOCOL*);
   VOID   (*FlushScreen)(EFI_LK_DISPLAY_PROTOCOL*);
+  UINT32 (*GetPortraitMode)(VOID);
+  UINT32 (*GetLandscapeMode)(VOID);
 };
 
 extern EFI_GUID gEfiLKDisplayProtocolGuid;

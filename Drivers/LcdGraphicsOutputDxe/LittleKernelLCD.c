@@ -58,6 +58,9 @@ typedef struct {
 STATIC LCD_RESOLUTION mResolutions[] = {
   {
     0, 0, LCD_BITS_PER_PIXEL_24
+  },
+  {
+    0, 0, LCD_BITS_PER_PIXEL_24
   }
 };
 
@@ -66,8 +69,14 @@ LcdPlatformInitializeDisplay (
   IN EFI_HANDLE   Handle
   )
 {
+  // native orientation
   mResolutions[0].HorizontalResolution = LKApi->lcd_get_width();
   mResolutions[0].VerticalResolution   = LKApi->lcd_get_height();
+
+  // rotated 90deg clockwise
+  mResolutions[1].HorizontalResolution = LKApi->lcd_get_height();
+  mResolutions[1].VerticalResolution   = LKApi->lcd_get_width();
+
   return EFI_SUCCESS;
 }
 
@@ -193,4 +202,26 @@ LcdPlatformGetBpp (
   *Bpp = mResolutions[ModeNumber].Bpp;
 
   return EFI_SUCCESS;
+}
+
+UINT32
+LKDisplayGetPortraitMode (
+  VOID
+)
+{
+  if (mResolutions[0].HorizontalResolution > mResolutions[0].VerticalResolution)
+    return 1;
+  else
+    return 0;
+}
+
+UINT32
+LKDisplayGetLandscapeMode (
+  VOID
+)
+{
+  if (mResolutions[0].HorizontalResolution > mResolutions[0].VerticalResolution)
+    return 0;
+  else
+    return 1;
 }
