@@ -21,14 +21,15 @@
 #include <Library/LcdPlatformLib.h>
 #include <Library/PcdLib.h>
 #include <Library/UefiLib.h>
+#include <Library/TimerLib.h>
 
 #include <Protocol/DevicePath.h>
 #include <Protocol/LKDisplay.h>
+#include <Protocol/Cpu.h>
 
 #include <LittleKernel.h>
 
 extern lkapi_t* LKApi;
-extern BOOLEAN gLcdNeedsSync;
 extern LK_DISPLAY_FLUSH_MODE gLCDFlushMode;
 
 //
@@ -49,7 +50,6 @@ typedef struct {
   EFI_LK_DISPLAY_PROTOCOL               LKDisplay;
   EFI_EVENT                             ExitBootServicesEvent;
   EFI_PHYSICAL_ADDRESS                  FrameBufferBase;
-  UINTN                                 FrameBufferSize;
 } LCD_INSTANCE;
 
 #define LCD_INSTANCE_SIGNATURE  SIGNATURE_32('l', 'c', 'd', '0')
@@ -146,9 +146,23 @@ LKDisplaySetFlushMode (
   IN LK_DISPLAY_FLUSH_MODE Mode
 );
 
+LK_DISPLAY_FLUSH_MODE
+LKDisplayGetFlushMode (
+  IN EFI_LK_DISPLAY_PROTOCOL* This
+);
+
 VOID
 LKDisplayFlushScreen (
   IN EFI_LK_DISPLAY_PROTOCOL* This
 );
+
+STATIC inline
+UINT64
+GetTimeMs (
+  VOID
+)
+{
+  return GetTimeInNanoSecond(GetPerformanceCounter()) / 1000000ULL;
+}
 
 #endif /* __ARM_VE_GRAPHICS_DXE_H__ */

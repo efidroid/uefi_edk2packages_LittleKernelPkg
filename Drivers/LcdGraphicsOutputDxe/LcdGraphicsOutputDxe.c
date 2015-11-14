@@ -38,9 +38,10 @@
 
 BOOLEAN mDisplayInitialized = FALSE;
 BOOLEAN gLcdNeedsSync = FALSE;
-LK_DISPLAY_FLUSH_MODE gLCDFlushMode = LK_DISPLAY_FLUSH_MODE_MANUAL;
-EFI_EVENT gTimerEvent;
+LK_DISPLAY_FLUSH_MODE gLCDFlushMode = LK_DISPLAY_FLUSH_MODE_AUTO;
 lkapi_t* LKApi = NULL;
+EFI_EVENT mTimerEvent;
+STATIC UINT64 mLastFlush = 0;
 
 LCD_INSTANCE mLcdTemplate = {
   LCD_INSTANCE_SIGNATURE,
@@ -86,6 +87,7 @@ LCD_INSTANCE mLcdTemplate = {
   { // LKDisplay
     LKDisplayGetDensity,
     LKDisplaySetFlushMode,
+    LKDisplayGetFlushMode,
     LKDisplayFlushScreen
   },
   (EFI_EVENT) NULL // ExitBootServicesEvent
@@ -151,8 +153,8 @@ InitializeDisplay (
   // Setup all the relevant mode information
   Instance->Gop.Mode->SizeOfInfo      = sizeof(EFI_GRAPHICS_OUTPUT_MODE_INFORMATION);
   Instance->Gop.Mode->FrameBufferBase = (EFI_PHYSICAL_ADDRESS)(UINT32) VramDoubleBuffer;
+  Instance->Gop.Mode->FrameBufferSize = VramSize;
   Instance->FrameBufferBase           = VramBaseAddress;
-  Instance->FrameBufferSize           = VramSize;
 
   // Set the flag before changing the mode, to avoid infinite loops
   mDisplayInitialized = TRUE;
@@ -177,9 +179,8 @@ TimerCallback (
 {
   LCD_INSTANCE* Instance = Context;
 
-  if(gLcdNeedsSync && gLCDFlushMode==LK_DISPLAY_FLUSH_MODE_SW_TIMER) {
+  if(gLcdNeedsSync && gLCDFlushMode==LK_DISPLAY_FLUSH_MODE_AUTO) {
     Instance->LKDisplay.FlushScreen(&Instance->LKDisplay);
-    gLcdNeedsSync = FALSE;
   }
 }
 
@@ -229,10 +230,10 @@ LcdGraphicsOutputDxeInitialize (
     goto EXIT_ERROR_UNINSTALL_PROTOCOL;
   }
 
-  Status = gBS->CreateEvent (EVT_TIMER | EVT_NOTIFY_SIGNAL, TPL_CALLBACK, TimerCallback, Instance, &gTimerEvent);
+  Status = gBS->CreateEvent (EVT_TIMER | EVT_NOTIFY_SIGNAL, TPL_CALLBACK, TimerCallback, Instance, &mTimerEvent);
   ASSERT_EFI_ERROR (Status);
 
-  Status = gBS->SetTimer (gTimerEvent, TimerPeriodic, MS2100N(FPS2MS(30)));
+  Status = gBS->SetTimer (mTimerEvent, TimerPeriodic, MS2100N(FPS2MS(10)));
   ASSERT_EFI_ERROR (Status);
 
   // To get here, everything must be fine, so just exit
@@ -451,19 +452,50 @@ LKDisplaySetFlushMode (
   gLCDFlushMode = Mode;
 }
 
+LK_DISPLAY_FLUSH_MODE
+LKDisplayGetFlushMode (
+  IN EFI_LK_DISPLAY_PROTOCOL* This
+)
+{
+  return gLCDFlushMode;
+}
+
 VOID
 LKDisplayFlushScreen (
   IN EFI_LK_DISPLAY_PROTOCOL* This
 )
 {
   LCD_INSTANCE *Instance;
+  EFI_TPL      OldTpl;
+  UINT64       Now;
 
   Instance = LCD_INSTANCE_FROM_LKDISPLAY_THIS(This);
 
+  // limit flushes per second
+  if(gLCDFlushMode==LK_DISPLAY_FLUSH_MODE_AUTO) {
+    Now = GetTimeMs();
+    if (Now-mLastFlush<50) {
+      gLcdNeedsSync = TRUE;
+      return;
+    }
+  }
+
+  OldTpl = gBS->RaiseTPL (TPL_NOTIFY);
+
+  // copy temporary to real framebuffer
   CopyMem(
     (VOID*)(UINT32)Instance->FrameBufferBase,
     (VOID*)(UINT32)Instance->Gop.Mode->FrameBufferBase,
-    Instance->FrameBufferSize
+    Instance->Gop.Mode->FrameBufferSize
   );
+
+  // trigger hw flush
   LKApi->lcd_flush();
+
+  if(gLCDFlushMode==LK_DISPLAY_FLUSH_MODE_AUTO) {
+    mLastFlush = GetTimeMs();
+    gLcdNeedsSync = FALSE;
+  }
+
+  gBS->RestoreTPL (OldTpl);
 }

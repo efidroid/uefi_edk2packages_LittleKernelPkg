@@ -558,7 +558,9 @@ LcdGraphicsBlt (
   }
 
   if (!EFI_ERROR(Status) && BltOperation!=EfiBltVideoToBltBuffer) {
-    gLcdNeedsSync = TRUE;
+    if (gLCDFlushMode==LK_DISPLAY_FLUSH_MODE_AUTO) {
+      Instance->LKDisplay.FlushScreen(&Instance->LKDisplay);
+    }
   }
 
 EXIT:
