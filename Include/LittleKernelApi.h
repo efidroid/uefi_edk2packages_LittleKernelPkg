@@ -53,6 +53,10 @@ typedef struct {
 	void (*timer_delay_microseconds)(unsigned int microseconds);
 	void (*timer_delay_nanoseconds)(unsigned int nanoseconds);
 
+	unsigned long long (*perf_ticks)(void);
+	unsigned long long (*perf_props)(unsigned long long* startval, unsigned long long* endval);
+	unsigned long long (*perf_ticks_to_ns)(unsigned long long ticks);
+
 	int (*int_mask)(unsigned int vector);
 	int (*int_unmask)(unsigned int vector);
 	void (*int_register_handler)(unsigned int vector, lkapi_int_handler func, void *arg);

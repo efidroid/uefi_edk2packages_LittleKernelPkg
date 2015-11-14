@@ -76,8 +76,8 @@ GetPerformanceCounter (
   VOID
   )
 {
-  ASSERT (FALSE);
-  return 0;
+  lkapi_t* LKApi = GetLKApi();
+  return LKApi->perf_ticks();
 }
 
 /**
@@ -110,9 +110,8 @@ GetPerformanceCounterProperties (
   OUT      UINT64                    *EndValue     OPTIONAL
   )
 {
-  ASSERT (FALSE);
-
-  return (UINT64)(-1);
+  lkapi_t* LKApi = GetLKApi();
+  return LKApi->perf_props(StartValue, EndValue);
 }
 
 /**
@@ -132,6 +131,6 @@ GetTimeInNanoSecond (
   IN      UINT64                     Ticks
   )
 {
-  ASSERT (FALSE);
-  return 0;
+  lkapi_t* LKApi = GetLKApi();
+  return LKApi->perf_ticks_to_ns(Ticks);
 }
