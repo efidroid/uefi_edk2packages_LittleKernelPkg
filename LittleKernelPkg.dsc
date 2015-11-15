@@ -108,8 +108,6 @@
   DebugAgentLib|MdeModulePkg/Library/DebugAgentLibNull/DebugAgentLibNull.inf
   DebugAgentTimerLib|EmbeddedPkg/Library/DebugAgentTimerLibNull/DebugAgentTimerLibNull.inf
 
-  SemihostLib|ArmPkg/Library/SemihostLib/SemihostLib.inf
-
   # BDS Libraries
   BdsLib|ArmPkg/Library/BdsLib/BdsLib.inf
   FdtLib|EmbeddedPkg/Library/FdtLib/FdtLib.inf
@@ -431,12 +429,6 @@
     <LibraryClasses>
       NULL|MdeModulePkg/Library/VarCheckUefiLib/VarCheckUefiLib.inf
   }
-
-  #
-  #
-  # Semi-hosting filesystem
-  #
-  ArmPkg/Filesystem/SemihostFs/SemihostFs.inf
 
   #
   # GrubFSPkg
