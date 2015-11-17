@@ -69,6 +69,7 @@ typedef struct {
 
 typedef struct {
 	void (*platform_early_init)(void);
+	void (*platform_uninit)(void);
 	lkapi_uefi_bootmode (*platform_get_uefi_bootmode)(void);
 
 	int (*serial_poll_char)(void);
