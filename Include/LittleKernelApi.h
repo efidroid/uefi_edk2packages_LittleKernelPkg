@@ -40,6 +40,33 @@ typedef enum {
 	LKAPI_UEFI_BM_RECOVERY,
 } lkapi_uefi_bootmode;
 
+typedef enum {
+  LKAPI_USB_GADGET_EVENT_ONLINE = 0,
+  LKAPI_USB_GADGET_EVENT_OFFLINE,
+  LKAPI_USB_GADGET_EVENT_READ_SUCCESS,
+  LKAPI_USB_GADGET_EVENT_READ_ERROR,
+  LKAPI_USB_GADGET_EVENT_WRITE_SUCCESS,
+  LKAPI_USB_GADGET_EVENT_WRITE_ERROR,
+} lkapi_usb_gadget_event;
+
+typedef struct _lkapi_usb_gadget_gadget lkapi_usb_gadget_gadget;
+struct _lkapi_usb_gadget_gadget {
+	void (*notify)(lkapi_usb_gadget_gadget* gadget, lkapi_usb_gadget_event event, void* data);
+	unsigned char ifc_class;
+	unsigned char ifc_subclass;
+	unsigned char ifc_protocol;
+	const char* ifc_string;
+};
+
+typedef struct {
+	unsigned short vendor_id;
+	unsigned short product_id;
+	unsigned short version_id;
+
+	const char* manufacturer;
+	const char* product;
+} lkapi_usb_gadget_device;
+
 typedef struct {
 	void (*platform_early_init)(void);
 	lkapi_uefi_bootmode (*platform_get_uefi_bootmode)(void);
@@ -94,6 +121,15 @@ typedef struct {
 	void (*event_destroy)(void* event);
 	void (*event_wait)(void** event);
 	void (*event_signal)(void* event);
+
+	int (*usbgadget_init)(lkapi_usb_gadget_device* device);
+	int (*usbgadget_register_gadget)(lkapi_usb_gadget_gadget* gadget);
+	int (*usbgadget_start)(void);
+	int (*usbgadget_stop)(void);
+	void* (*usbgadget_alloc)(unsigned int size);
+	int (*usbgadget_free)(void* buffer);
+	int (*usbgadget_read)(void* buffer, unsigned int size);
+	int (*usbgadget_write)(void* buffer, unsigned int size);
 } lkapi_t;
 
 #endif
