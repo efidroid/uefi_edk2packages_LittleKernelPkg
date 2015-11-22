@@ -177,6 +177,11 @@ FvNameGuid         = 411ffc75-2138-44b9-874c-d2c91fa78e91
     SECTION RAW = $(EFIDROID_MULTIBOOT_BIN)
   }
 
+  # fstab.multiboot
+  FILE FREEFORM = PCD(gLittleKernelTokenSpaceGuid.PcdFstabData) {
+    SECTION RAW = $(EFIDROID_FSTAB)
+  }
+
 [FV.FVMAIN_COMPACT]
 FvAlignment        = 8
 ERASE_POLARITY     = 1

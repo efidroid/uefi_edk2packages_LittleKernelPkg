@@ -120,6 +120,7 @@
   CpioLib|EFIDroidPkg/Library/CpioLib/CpioLib.inf
   DecompressLib|EFIDroidPkg/Library/DecompressLib/DecompressLib.inf
   IniLib|EFIDroidPkg/Library/IniLib/IniLib.inf
+  FstabLib|EFIDroidPkg/Library/FstabLib/FstabLib.inf
 
   # non-volatile variable storage
   NvVarsBlockIoLib|LittleKernelPkg/Library/NvVarsBlockIoLib/NvVarsBlockIoLib.inf
