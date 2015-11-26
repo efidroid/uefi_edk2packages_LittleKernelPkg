@@ -82,7 +82,6 @@
   ArmSmcLib|ArmPkg/Library/ArmSmcLib/ArmSmcLib.inf
 
   SerialPortLib|LittleKernelPkg/Library/LKSerialPortLib/LKSerialPortLib.inf
-  SerialPortExtLib|EmbeddedPkg/Library/TemplateSerialPortExtLib/TemplateSerialPortExtLib.inf
   TimerLib|LittleKernelPkg/Library/LKTimerLib/LKTimerLib.inf
   EfiResetSystemLib|LittleKernelPkg/Library/ResetSystemLib/ResetSystemLib.inf
   RealTimeClockLib|LittleKernelPkg/Library/RealTimeClockLib/RealTimeClockLib.inf
@@ -420,7 +419,7 @@
   MdeModulePkg/Universal/Console/ConSplitterDxe/ConSplitterDxe.inf
   MdeModulePkg/Universal/Console/GraphicsConsoleDxe/GraphicsConsoleDxe.inf
   MdeModulePkg/Universal/Console/TerminalDxe/TerminalDxe.inf
-  EmbeddedPkg/SerialDxe/SerialDxe.inf
+  MdeModulePkg/Universal/SerialDxe/SerialDxe.inf
 
   # non-volatile variable storage
   LittleKernelPkg/Drivers/EmuVariableFvbRuntimeDxe/Fvb.inf {
