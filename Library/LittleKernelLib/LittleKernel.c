@@ -14,18 +14,10 @@
 
 #include <Library/ArmLib.h>
 #include <Library/ArmPlatformLib.h>
-#include <Library/DebugAgentLib.h>
-#include <PiPei.h>
-#include <Library/DebugLib.h>
-#include <Library/ArmLib.h>
-#include <Library/PrePiLib.h>
-#include <Library/PcdLib.h>
-#include <Library/ArmPlatformGlobalVariableLib.h>
-#include <Library/HobLib.h>
-#include <Library/ArmGicLib.h>
 #include <LittleKernel.h>
 
 #include <Ppi/ArmMpCoreInfo.h>
+
 
 ARM_CORE_INFO mArmPlatformNullMpCoreInfoTable[] = {
   {

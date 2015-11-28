@@ -31,7 +31,6 @@
   ArmLib
   ArmGicLib
   DebugLib
-  ArmPlatformGlobalVariableLib
   LKApiLib
   MemoryAllocationLib
 

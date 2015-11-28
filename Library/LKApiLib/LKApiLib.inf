@@ -41,4 +41,4 @@
   gLKApiAddrGuid
 
 [LibraryClasses]
-  ArmPlatformGlobalVariableLib
+  HobLib
