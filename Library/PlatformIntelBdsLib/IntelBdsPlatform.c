@@ -503,6 +503,40 @@ BootShell (
   }
 }
 
+EFI_STATUS
+ConsoleSetBestMode (
+  IN EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL *Console
+)
+{
+  EFI_STATUS Status;
+  UINT32     ModeNumber;
+  UINT32     BestMode = 0;
+  UINT32     BestModeColumns = 0;
+  UINTN      Columns, Rows;
+
+  //
+  // Find the highest resolution supported.
+  //
+  for (ModeNumber = 0; ModeNumber < Console->Mode->MaxMode; ModeNumber++) {
+    Status = Console->QueryMode (
+                       Console,
+                       ModeNumber,
+                       &Columns,
+                       &Rows
+                       );
+    if (!EFI_ERROR (Status)) {
+      if (Columns > BestModeColumns) {
+        BestModeColumns = Columns;
+        BestMode = ModeNumber;
+      }
+    }
+  }
+
+  Status = Console->SetMode (Console, BestMode);
+
+  return Status;
+}
+
 /**
   The function will execute with as the platform policy, current policy
   is driven by boot mode. IBV/OEM can customize this code for their specific
@@ -534,6 +568,9 @@ PlatformBdsPolicyBehavior (
   // connect console
   Status = PlatformBdsConnectConsole ();
   ASSERT_EFI_ERROR (Status);
+
+  // set best mode for console
+  ConsoleSetBestMode(gST->ConOut);
 
   BootShell();
 }
