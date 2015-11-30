@@ -17,6 +17,10 @@
 #include <Library/DebugLib.h>
 #include <LittleKernel.h>
 
+STATIC lkapi_t* mLKApi = NULL;
+
+#define GETLKAPI() if(!mLKApi) mLKApi = GetLKApi();
+
 /**
   Stalls the CPU for at least the given number of microseconds.
 
@@ -33,8 +37,8 @@ MicroSecondDelay (
   IN      UINTN                     MicroSeconds
   )
 {
-  lkapi_t* LKApi = GetLKApi();
-  LKApi->timer_delay_microseconds(MicroSeconds);
+  GETLKAPI();
+  mLKApi->timer_delay_microseconds(MicroSeconds);
   return MicroSeconds;
 }
 
@@ -54,8 +58,8 @@ NanoSecondDelay (
   IN      UINTN                     NanoSeconds
   )
 {
-  lkapi_t* LKApi = GetLKApi();
-  LKApi->timer_delay_nanoseconds(NanoSeconds);
+  GETLKAPI();
+  mLKApi->timer_delay_nanoseconds(NanoSeconds);
   return NanoSeconds;
 }
 
@@ -76,8 +80,8 @@ GetPerformanceCounter (
   VOID
   )
 {
-  lkapi_t* LKApi = GetLKApi();
-  return LKApi->perf_ticks();
+  GETLKAPI();
+  return mLKApi->perf_ticks();
 }
 
 /**
@@ -110,8 +114,8 @@ GetPerformanceCounterProperties (
   OUT      UINT64                    *EndValue     OPTIONAL
   )
 {
-  lkapi_t* LKApi = GetLKApi();
-  return LKApi->perf_props(StartValue, EndValue);
+  GETLKAPI();
+  return mLKApi->perf_props(StartValue, EndValue);
 }
 
 /**
@@ -131,6 +135,6 @@ GetTimeInNanoSecond (
   IN      UINT64                     Ticks
   )
 {
-  lkapi_t* LKApi = GetLKApi();
-  return LKApi->perf_ticks_to_ns(Ticks);
+  GETLKAPI();
+  return mLKApi->perf_ticks_to_ns(Ticks);
 }

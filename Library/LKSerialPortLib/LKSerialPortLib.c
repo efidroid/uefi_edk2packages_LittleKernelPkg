@@ -17,6 +17,9 @@
 #include <Library/SerialPortLib.h>
 #include <LittleKernel.h>
 
+STATIC lkapi_t* mLKApi = NULL;
+#define GETLKAPI() if(!mLKApi) mLKApi = GetLKApi();
+
 /**
   Initialize the serial device hardware.
   
@@ -63,10 +66,10 @@ SerialPortWrite (
 {
   UINTN i;
 
-  lkapi_t* LKApi = GetLKApi();
+  GETLKAPI();
 
   for(i=0; i<NumberOfBytes; i++) {
-	LKApi->serial_write_char(Buffer[i]);
+	mLKApi->serial_write_char(Buffer[i]);
   }
 
   return NumberOfBytes;
@@ -98,11 +101,11 @@ SerialPortRead (
 {
   UINTN NumRead = 0;
 
-  lkapi_t* LKApi = GetLKApi();
+  GETLKAPI();
 
   while(NumRead!=NumberOfBytes) {
 	char c = 0;
-	int rc = LKApi->serial_read_char(&c);
+	int rc = mLKApi->serial_read_char(&c);
 	if(rc>0) {
 		Buffer[NumRead++] = c;
 	}
@@ -127,9 +130,9 @@ SerialPortPoll (
   VOID
   )
 {
-  lkapi_t* LKApi = GetLKApi();
+  GETLKAPI();
 
-  return LKApi->serial_poll_char() == 1;
+  return mLKApi->serial_poll_char() == 1;
 }
 
 /**
