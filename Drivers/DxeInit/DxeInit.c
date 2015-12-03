@@ -24,6 +24,8 @@
 #include <LittleKernel.h>
 #include <Library/UefiBootServicesTableLib.h>
 
+EFI_EVENT             EfiExitBootServicesEvent = (EFI_EVENT)NULL;
+
 STATIC VOID
 lkapi_event_init(VOID** event)
 {
@@ -49,6 +51,17 @@ lkapi_event_signal(VOID* event)
   ASSERT(gBS->SignalEvent((EFI_EVENT)event)==EFI_SUCCESS);
 }
 
+VOID
+EFIAPI
+ExitBootServicesEvent (
+  IN EFI_EVENT  Event,
+  IN VOID       *Context
+  )
+{
+  lkapi_t* LKApi = GetLKApi();
+  LKApi->platform_uninit();
+}
+
 EFI_STATUS
 EFIAPI
 DxeInitInitialize (
@@ -56,6 +69,7 @@ DxeInitInitialize (
   IN EFI_SYSTEM_TABLE   *SystemTable
   )
 {
+  EFI_STATUS Status;
   lkapi_t* LKApi = GetLKApi();
 
   PcdSet32 (PcdGicDistributorBase, LKApi->int_get_dist_base());
@@ -66,6 +80,10 @@ DxeInitInitialize (
   LKApi->event_destroy = lkapi_event_destroy;
   LKApi->event_wait = lkapi_event_wait;
   LKApi->event_signal = lkapi_event_signal;
+
+  // Register for an ExitBootServicesEvent
+  Status = gBS->CreateEvent (EVT_SIGNAL_EXIT_BOOT_SERVICES, TPL_NOTIFY, ExitBootServicesEvent, NULL, &EfiExitBootServicesEvent);
+  ASSERT_EFI_ERROR (Status);
 
   return EFI_SUCCESS;
 }
