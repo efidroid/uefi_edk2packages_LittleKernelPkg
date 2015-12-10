@@ -22,6 +22,7 @@
 #include <Library/PcdLib.h>
 #include <Library/UefiLib.h>
 #include <Library/TimerLib.h>
+#include <Library/BltLib.h>
 
 #include <Protocol/DevicePath.h>
 #include <Protocol/LKDisplay.h>
@@ -100,7 +101,7 @@ LcdGraphicsBlt (
 
 UINTN
 GetBytesPerPixel (
-  IN  LCD_BPP       Bpp
+  VOID
   );
 
 EFI_STATUS
@@ -165,6 +166,11 @@ UINT32
 LKDisplayGetLandscapeMode (
   VOID
 );
+
+lkapi_lcd_pixelformat_t
+LcdGetPixelFormat (
+  VOID
+  );
 
 STATIC inline
 UINT64

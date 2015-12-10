@@ -32,6 +32,7 @@
   ArmPkg/ArmPkg.dec
   ArmPlatformPkg/ArmPlatformPkg.dec
   LittleKernelPkg/LittleKernelPkg.dec
+  OptionRomPkg/OptionRomPkg.dec
 
 [LibraryClasses]
   ArmLib
@@ -44,6 +45,7 @@
   IoLib
   BaseMemoryLib
   LKApiLib
+  BltLib
 
 [Protocols]
   gEfiDevicePathProtocolGuid

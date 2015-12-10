@@ -345,7 +345,6 @@ LcdGraphicsSetMode (
   EFI_STATUS                      Status = EFI_SUCCESS;
   EFI_GRAPHICS_OUTPUT_BLT_PIXEL   FillColour;
   LCD_INSTANCE*                   Instance;
-  LCD_BPP                         Bpp;
 
   Instance = LCD_INSTANCE_FROM_GOP_THIS (This);
 
@@ -374,14 +373,9 @@ LcdGraphicsSetMode (
   // Update the UEFI mode information
   This->Mode->Mode = ModeNumber;
   LcdPlatformQueryMode (ModeNumber,&Instance->ModeInfo);
-  Status = LcdPlatformGetBpp(ModeNumber, &Bpp);
-  if (EFI_ERROR(Status)) {
-    DEBUG ((DEBUG_ERROR, "LcdGraphicsSetMode: ERROR - Couldn't get bytes per pixel, status: %r\n", Status));
-    goto EXIT;
-  }
   This->Mode->FrameBufferSize =  Instance->ModeInfo.VerticalResolution
                                * Instance->ModeInfo.PixelsPerScanLine
-                               * GetBytesPerPixel(Bpp);
+                               * 4;
 
   // Set the hardware to the new mode
   Status = LcdSetMode (ModeNumber);
@@ -389,6 +383,11 @@ LcdGraphicsSetMode (
     Status = EFI_DEVICE_ERROR;
     goto EXIT;
   }
+
+  BltLibConfigure (
+    (VOID*)(UINTN) This->Mode->FrameBufferBase,
+    This->Mode->Info
+    );
 
   // The UEFI spec requires that we now clear the visible portions of the output display to black.
 
@@ -414,27 +413,25 @@ EXIT:
 
 UINTN
 GetBytesPerPixel (
-  IN  LCD_BPP       Bpp
+  VOID
   )
 {
-  switch(Bpp) {
-  case LCD_BITS_PER_PIXEL_24:
-    return 3;
-
-  case LCD_BITS_PER_PIXEL_16_565:
-  case LCD_BITS_PER_PIXEL_16_555:
-  case LCD_BITS_PER_PIXEL_12_444:
-    return 2;
-
-  case LCD_BITS_PER_PIXEL_8:
-  case LCD_BITS_PER_PIXEL_4:
-  case LCD_BITS_PER_PIXEL_2:
-  case LCD_BITS_PER_PIXEL_1:
-    return 1;
-
-  default:
-    return 0;
+  switch(LcdGetPixelFormat()) {
+    case LKAPI_LCD_PIXELFORMAT_RGB888:
+      return 3;
+    case LKAPI_LCD_PIXELFORMAT_RGB565:
+      return 2;
+    default:
+      return 0;
   }
+}
+
+UINTN
+GetPixelMask (
+  VOID
+  )
+{
+  return 0;
 }
 
 UINT32
@@ -463,7 +460,7 @@ LKDisplayGetFlushMode (
 }
 
 VOID
-LcdCopyRotated (
+LcdCopy (
   IN LCD_INSTANCE *Instance
 )
 {
@@ -476,14 +473,20 @@ LcdCopyRotated (
   UINTN           BytesPerPixel;
   UINT32          HorizontalResolution;
   UINT32          VerticalResolution;
+  UINT32          DestinationStride;
   UINT32          Index;
 
   UINT8* HWBuffer = (VOID*)(UINT32)Instance->FrameBufferBase;
   UINT8* SWBuffer = (VOID*)(UINT32)Instance->Gop.Mode->FrameBufferBase;
 
-  BytesPerPixel = GetBytesPerPixel(LCD_BITS_PER_PIXEL_24);
+  BytesPerPixel = GetBytesPerPixel();
   HorizontalResolution = Instance->ModeInfo.HorizontalResolution;
   VerticalResolution = Instance->ModeInfo.VerticalResolution;
+
+  if (Instance->Gop.Mode->Mode == 0)
+    DestinationStride = HorizontalResolution;
+  else
+    DestinationStride = VerticalResolution;
 
   // Access each pixel inside the BltBuffer Memory
   for (SourceLine = 0; SourceLine < VerticalResolution; SourceLine++)
@@ -494,15 +497,22 @@ LcdCopyRotated (
       //DestinationLine = HorizontalResolution-SourcePixelX;
       //DestinationPixelX = SourceLine;
 
-      // LEFT
-      DestinationLine = SourcePixelX;
-      DestinationPixelX = VerticalResolution-SourceLine;
+      if (Instance->Gop.Mode->Mode == 0) {
+        DestinationLine = SourceLine;
+        DestinationPixelX = SourcePixelX;
+      }
+      else {
+        // LEFT
+        DestinationLine = SourcePixelX;
+        DestinationPixelX = VerticalResolution-SourceLine;
+      }
 
       // Calculate the source and target addresses:
-      SourcePixel      = SWBuffer + SourceLine      * HorizontalResolution * BytesPerPixel + SourcePixelX      * BytesPerPixel;
-      DestinationPixel = HWBuffer + DestinationLine * VerticalResolution   * BytesPerPixel + DestinationPixelX * BytesPerPixel;
+      SourcePixel      = SWBuffer + SourceLine      * HorizontalResolution * 4             + SourcePixelX      * 4;
+      DestinationPixel = HWBuffer + DestinationLine * DestinationStride    * BytesPerPixel + DestinationPixelX * BytesPerPixel;
 
       // copy pixel
+      // TODO: check pixel format
       for(Index = 0; Index<BytesPerPixel; Index++)
         DestinationPixel[Index] = SourcePixel[Index];
     }
@@ -532,16 +542,7 @@ LKDisplayFlushScreen (
   OldTpl = gBS->RaiseTPL (TPL_NOTIFY);
 
   // copy temporary to real framebuffer
-  if (Instance->Gop.Mode->Mode == 0) {
-    CopyMem(
-      (VOID*)(UINT32)Instance->FrameBufferBase,
-      (VOID*)(UINT32)Instance->Gop.Mode->FrameBufferBase,
-      Instance->Gop.Mode->FrameBufferSize
-    );
-  }
-  else {
-    LcdCopyRotated(Instance);
-  }
+  LcdCopy(Instance);
 
   // trigger hw flush
   LKApi->lcd_flush();

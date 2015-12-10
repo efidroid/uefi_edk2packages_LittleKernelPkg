@@ -51,16 +51,16 @@ LcdShutdown (
 typedef struct {
   UINT32                     HorizontalResolution;
   UINT32                     VerticalResolution;
-  LCD_BPP                    Bpp;
+  lkapi_lcd_pixelformat_t    PixelFormat;
 } LCD_RESOLUTION;
 
 
 STATIC LCD_RESOLUTION mResolutions[] = {
   {
-    0, 0, LCD_BITS_PER_PIXEL_24
+    0, 0, LKAPI_LCD_PIXELFORMAT_INVALID
   },
   {
-    0, 0, LCD_BITS_PER_PIXEL_24
+    0, 0, LKAPI_LCD_PIXELFORMAT_INVALID
   }
 };
 
@@ -72,10 +72,12 @@ LcdPlatformInitializeDisplay (
   // native orientation
   mResolutions[0].HorizontalResolution = LKApi->lcd_get_width();
   mResolutions[0].VerticalResolution   = LKApi->lcd_get_height();
+  mResolutions[0].PixelFormat          = LKApi->lcd_get_pixelformat();
 
   // rotated 90deg clockwise
   mResolutions[1].HorizontalResolution = LKApi->lcd_get_height();
   mResolutions[1].VerticalResolution   = LKApi->lcd_get_width();
+  mResolutions[1].PixelFormat          = LKApi->lcd_get_pixelformat();
 
   return EFI_SUCCESS;
 }
@@ -164,42 +166,8 @@ LcdPlatformQueryMode (
   Info->VerticalResolution = mResolutions[ModeNumber].VerticalResolution;
   Info->PixelsPerScanLine = mResolutions[ModeNumber].HorizontalResolution;
 
-  switch (mResolutions[ModeNumber].Bpp) {
-    case LCD_BITS_PER_PIXEL_24:
-      Info->PixelFormat                   = PixelRedGreenBlueReserved8BitPerColor;
-      Info->PixelInformation.RedMask      = LCD_24BPP_RED_MASK;
-      Info->PixelInformation.GreenMask    = LCD_24BPP_GREEN_MASK;
-      Info->PixelInformation.BlueMask     = LCD_24BPP_BLUE_MASK;
-      Info->PixelInformation.ReservedMask = LCD_24BPP_RESERVED_MASK;
-      break;
-
-    case LCD_BITS_PER_PIXEL_16_555:
-    case LCD_BITS_PER_PIXEL_16_565:
-    case LCD_BITS_PER_PIXEL_12_444:
-    case LCD_BITS_PER_PIXEL_8:
-    case LCD_BITS_PER_PIXEL_4:
-    case LCD_BITS_PER_PIXEL_2:
-    case LCD_BITS_PER_PIXEL_1:
-    default:
-      // These are not supported
-      ASSERT(FALSE);
-      break;
-  }
-
-  return EFI_SUCCESS;
-}
-
-EFI_STATUS
-LcdPlatformGetBpp (
-  IN  UINT32                              ModeNumber,
-  OUT LCD_BPP  *                          Bpp
-  )
-{
-  if (ModeNumber >= LcdPlatformGetMaxMode ()) {
-    return EFI_INVALID_PARAMETER;
-  }
-
-  *Bpp = mResolutions[ModeNumber].Bpp;
+  // we use a sw buffer in EFI's native format
+  Info->PixelFormat = PixelBlueGreenRedReserved8BitPerColor;
 
   return EFI_SUCCESS;
 }
@@ -224,4 +192,12 @@ LKDisplayGetLandscapeMode (
     return 0;
   else
     return 1;
+}
+
+lkapi_lcd_pixelformat_t
+LcdGetPixelFormat (
+  VOID
+  )
+{
+  return mResolutions[0].PixelFormat;
 }
