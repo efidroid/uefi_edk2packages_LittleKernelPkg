@@ -67,6 +67,12 @@ typedef struct {
 	const char* product;
 } lkapi_usb_gadget_device;
 
+typedef enum {
+	LKAPI_LCD_PIXELFORMAT_INVALID = -1,
+	LKAPI_LCD_PIXELFORMAT_RGB888 = 0,
+	LKAPI_LCD_PIXELFORMAT_RGB565,
+} lkapi_lcd_pixelformat_t;
+
 typedef struct {
 	void (*platform_early_init)(void);
 	void (*platform_uninit)(void);
@@ -99,6 +105,8 @@ typedef struct {
 	unsigned int (*lcd_get_width)(void);
 	unsigned int (*lcd_get_height)(void);
 	unsigned int (*lcd_get_density)(void);
+	unsigned int (*lcd_get_bpp)(void);
+	lkapi_lcd_pixelformat_t (*lcd_get_pixelformat)(void);
 	void (*lcd_flush)(void);
 	void (*lcd_shutdown)(void);
 
