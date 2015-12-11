@@ -407,7 +407,10 @@
   LittleKernelPkg/Drivers/MMCHSDxe/MMCHS.inf
 
   # LCD driver
-  LittleKernelPkg/Drivers/LcdGraphicsOutputDxe/LcdGraphicsOutputDxe.inf
+  LittleKernelPkg/Drivers/LcdGraphicsOutputDxe/LcdGraphicsOutputDxe.inf {
+    <LibraryClasses>
+      BltLib|OptionRomPkg/Library/FrameBufferBltLib/FrameBufferBltLib.inf
+  }
 
   MdeModulePkg/Universal/Console/ConPlatformDxe/ConPlatformDxe.inf
   MdeModulePkg/Universal/Console/ConSplitterDxe/ConSplitterDxe.inf
