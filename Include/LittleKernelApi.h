@@ -26,6 +26,7 @@ struct lkapi_biodev {
 	lkapi_biodev_type_t type;
 	unsigned int block_size;
 	unsigned long long num_blocks;
+	void* api_pdata;
 
 	int (*init)(lkapi_biodev_t* dev);
 	int (*read)(lkapi_biodev_t* dev, unsigned long long lba, unsigned long buffersize, void* buffer);
