@@ -213,7 +213,7 @@
 [BuildOptions]
   XCODE:*_*_ARM_PLATFORM_FLAGS == -arch armv7
 
-  GCC:*_*_ARM_PLATFORM_FLAGS == -march=armv7-a -mfpu=neon -D__ARM_PCS_VFP
+  GCC:*_*_ARM_PLATFORM_FLAGS == -march=armv7-a
 
   RVCT:*_*_ARM_PLATFORM_FLAGS == --cpu Cortex-A8
 
