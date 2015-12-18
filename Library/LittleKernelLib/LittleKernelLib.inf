@@ -55,5 +55,8 @@
   gArmTokenSpaceGuid.PcdArmPrimaryCoreMask
   gArmTokenSpaceGuid.PcdArmPrimaryCore
 
+[Ppis]
+  gArmMpCoreInfoPpiGuid
+
 [Pcd.common]
   gArmTokenSpaceGuid.PcdGicDistributorBase
