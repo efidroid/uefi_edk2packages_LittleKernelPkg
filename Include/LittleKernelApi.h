@@ -102,6 +102,7 @@ typedef struct {
 	int (*bio_list)(lkapi_biodev_t* list);
 
 	unsigned long long (*lcd_get_vram_address)(void);
+	unsigned long long (*lcd_get_vram_size)(void);
 	int (*lcd_init)(void);
 	unsigned int (*lcd_get_width)(void);
 	unsigned int (*lcd_get_height)(void);

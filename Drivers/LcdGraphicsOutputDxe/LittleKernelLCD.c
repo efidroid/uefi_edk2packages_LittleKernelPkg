@@ -93,7 +93,7 @@ LcdPlatformGetVram (
   EFI_ALLOCATE_TYPE       AllocationType;
 
   // Set the vram size
-  *VramSize = LCD_VRAM_SIZE;
+  *VramSize = LKApi->lcd_get_vram_size();
 
   *VramBaseAddress = (EFI_PHYSICAL_ADDRESS)LKApi->lcd_get_vram_address();
 
@@ -103,7 +103,7 @@ LcdPlatformGetVram (
   } else {
     AllocationType = AllocateAddress;
   }
-  Status = gBS->AllocatePages (AllocationType, EfiBootServicesData, EFI_SIZE_TO_PAGES(((UINTN)LCD_VRAM_SIZE)), VramBaseAddress);
+  Status = gBS->AllocatePages (AllocationType, EfiBootServicesData, EFI_SIZE_TO_PAGES((*VramSize)), VramBaseAddress);
   if (EFI_ERROR(Status)) {
     return Status;
   }
