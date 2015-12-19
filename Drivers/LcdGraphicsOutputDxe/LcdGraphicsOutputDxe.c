@@ -235,7 +235,7 @@ LcdGraphicsOutputDxeInitialize (
   Status = gBS->CreateEvent (EVT_TIMER | EVT_NOTIFY_SIGNAL, TPL_CALLBACK, TimerCallback, Instance, &mTimerEvent);
   ASSERT_EFI_ERROR (Status);
 
-  Status = gBS->SetTimer (mTimerEvent, TimerPeriodic, MS2100N(FPS2MS(10)));
+  Status = gBS->SetTimer (mTimerEvent, TimerPeriodic, MS2100N(FPS2MS(30)));
   ASSERT_EFI_ERROR (Status);
 
   // To get here, everything must be fine, so just exit
