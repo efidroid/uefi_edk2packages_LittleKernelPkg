@@ -182,6 +182,11 @@ FvNameGuid         = 411ffc75-2138-44b9-874c-d2c91fa78e91
     SECTION RAW = $(EFIDROID_FSTAB)
   }
 
+  # truetype font
+  FILE FREEFORM = PCD(gLittleKernelTokenSpaceGuid.PcdTruetypeFont) {
+    SECTION RAW = LittleKernelPkg/Fonts/Roboto-Regular.ttf
+  }
+
 [FV.FVMAIN_COMPACT]
 FvAlignment        = 8
 ERASE_POLARITY     = 1
