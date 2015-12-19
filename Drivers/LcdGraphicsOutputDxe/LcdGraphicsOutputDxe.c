@@ -526,14 +526,15 @@ LKDisplayFlushScreen (
 {
   LCD_INSTANCE *Instance;
   EFI_TPL      OldTpl;
-  UINT64       Now;
+  UINT64       Now = 0;
+  STATIC UINT64 RenderTime = 0;
 
   Instance = LCD_INSTANCE_FROM_LKDISPLAY_THIS(This);
 
   // limit flushes per second
   if(gLCDFlushMode==LK_DISPLAY_FLUSH_MODE_AUTO) {
     Now = GetTimeMs();
-    if (Now-mLastFlush<50) {
+    if (Now-mLastFlush<RenderTime) {
       gLcdNeedsSync = TRUE;
       return;
     }
@@ -549,6 +550,7 @@ LKDisplayFlushScreen (
 
   if(gLCDFlushMode==LK_DISPLAY_FLUSH_MODE_AUTO) {
     mLastFlush = GetTimeMs();
+    RenderTime = mLastFlush - Now;
     gLcdNeedsSync = FALSE;
   }
 
