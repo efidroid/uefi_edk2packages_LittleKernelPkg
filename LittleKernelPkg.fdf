@@ -170,19 +170,9 @@ FvNameGuid         = 411ffc75-2138-44b9-874c-d2c91fa78e91
   INF MdeModulePkg/Universal/SetupBrowserDxe/SetupBrowserDxe.inf
   INF IntelFrameworkModulePkg/Universal/BdsDxe/BdsDxe.inf
 
-  # Multiboot binary
-  FILE FREEFORM = PCD(gLittleKernelTokenSpaceGuid.PcdMultibootBin) {
-    SECTION RAW = $(EFIDROID_MULTIBOOT_BIN)
-  }
-
-  # fstab.multiboot
-  FILE FREEFORM = PCD(gLittleKernelTokenSpaceGuid.PcdFstabData) {
-    SECTION RAW = $(EFIDROID_FSTAB)
-  }
-
-  # truetype font
-  FILE FREEFORM = PCD(gLittleKernelTokenSpaceGuid.PcdTruetypeFont) {
-    SECTION RAW = LittleKernelPkg/Fonts/Roboto-Regular.ttf
+  # UEFI ramdisk
+  FILE FREEFORM = PCD(gLittleKernelTokenSpaceGuid.PcdUEFIRamdisk) {
+    SECTION RAW = $(EFIDROID_UEFIRD)
   }
 
   #
