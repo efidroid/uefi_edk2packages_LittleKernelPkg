@@ -207,9 +207,9 @@
 [BuildOptions]
   XCODE:*_*_ARM_PLATFORM_FLAGS == -arch armv7
 
-  GCC:*_*_ARM_PLATFORM_FLAGS == -march=armv7-a
+  GCC:*_*_ARM_PLATFORM_FLAGS == -march=armv7-a -nostdinc -nostdlib
 
-  RVCT:*_*_ARM_PLATFORM_FLAGS == --cpu Cortex-A8
+  RVCT:*_*_ARM_PLATFORM_FLAGS == --cpu Cortex-A8 --library_interface=none
 
 [BuildOptions.common.EDKII.DXE_RUNTIME_DRIVER]
   GCC:*_*_ARM_DLINK_FLAGS = -z common-page-size=0x1000
