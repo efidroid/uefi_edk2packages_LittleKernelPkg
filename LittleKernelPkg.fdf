@@ -170,8 +170,6 @@ FvNameGuid         = 411ffc75-2138-44b9-874c-d2c91fa78e91
   INF MdeModulePkg/Universal/SetupBrowserDxe/SetupBrowserDxe.inf
   INF IntelFrameworkModulePkg/Universal/BdsDxe/BdsDxe.inf
 
-  INF EFIDroidPkg/Application/AndroidBoot/AndroidBoot.inf
-
   # Multiboot binary
   FILE FREEFORM = PCD(gLittleKernelTokenSpaceGuid.PcdMultibootBin) {
     SECTION RAW = $(EFIDROID_MULTIBOOT_BIN)
@@ -185,6 +183,14 @@ FvNameGuid         = 411ffc75-2138-44b9-874c-d2c91fa78e91
   # truetype font
   FILE FREEFORM = PCD(gLittleKernelTokenSpaceGuid.PcdTruetypeFont) {
     SECTION RAW = LittleKernelPkg/Fonts/Roboto-Regular.ttf
+  }
+
+  #
+  # FAT file system
+  #
+  FILE APPLICATION = 1db8bf12-1b3d-4d8d-99e8-23309e10d5ee {
+    SECTION PE32 = Build/EFIDroidUEFIApps/$(TARGET)_$(TOOL_CHAIN_TAG)/$(ARCH)/EFIDroidUi.efi
+    SECTION UI   = "EFIDroidUi"
   }
 
 [FV.FVMAIN_COMPACT]

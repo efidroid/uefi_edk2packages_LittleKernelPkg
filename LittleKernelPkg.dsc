@@ -114,12 +114,6 @@
   PlatformBdsLib|LittleKernelPkg/Library/PlatformIntelBdsLib/PlatformIntelBdsLib.inf
   GenericBdsLib|IntelFrameworkModulePkg/Library/GenericBdsLib/GenericBdsLib.inf
   CustomizedDisplayLib|MdeModulePkg/Library/CustomizedDisplayLib/CustomizedDisplayLib.inf
-  Freetype2Lib|EFIDroidPkg/Library/Freetype2Lib/Freetype2Lib.inf
-  EFIDroidMenuLib|EFIDroidPkg/Library/MenuLib/MenuLib.inf
-  CpioLib|EFIDroidPkg/Library/CpioLib/CpioLib.inf
-  DecompressLib|EFIDroidPkg/Library/DecompressLib/DecompressLib.inf
-  IniLib|EFIDroidPkg/Library/IniLib/IniLib.inf
-  FstabLib|EFIDroidPkg/Library/FstabLib/FstabLib.inf
 
   # non-volatile variable storage
   NvVarsBlockIoLib|LittleKernelPkg/Library/NvVarsBlockIoLib/NvVarsBlockIoLib.inf
@@ -478,5 +472,3 @@
       gEfiShellPkgTokenSpaceGuid.PcdShellLibAutoInitialize|FALSE
       gEfiMdePkgTokenSpaceGuid.PcdUefiLibMaxPrintBufferSize|8000
   }
-
-  EFIDroidPkg/Application/AndroidBoot/AndroidBoot.inf

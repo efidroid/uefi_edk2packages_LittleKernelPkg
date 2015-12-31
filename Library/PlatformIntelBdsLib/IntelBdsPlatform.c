@@ -494,7 +494,7 @@ BootShell (
       return Status;
     }
 
-    CONST CHAR16* Args = L"-nomap -nostartup -noversion -_exit AndroidBoot";
+    CONST CHAR16* Args = L"-nomap -nostartup -noversion -_exit EFIDroidUi";
     UINTN LoadOptionsSize = (UINT32)StrSize (Args);
     VOID *LoadOptions     = AllocatePool (LoadOptionsSize);
     StrCpy (LoadOptions, Args);
