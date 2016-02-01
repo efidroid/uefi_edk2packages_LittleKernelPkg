@@ -42,37 +42,52 @@ typedef enum {
 } lkapi_uefi_bootmode;
 
 typedef enum {
-  LKAPI_USB_GADGET_EVENT_ONLINE = 0,
-  LKAPI_USB_GADGET_EVENT_OFFLINE,
-  LKAPI_USB_GADGET_EVENT_READ_SUCCESS,
-  LKAPI_USB_GADGET_EVENT_READ_ERROR,
-  LKAPI_USB_GADGET_EVENT_WRITE_SUCCESS,
-  LKAPI_USB_GADGET_EVENT_WRITE_ERROR,
-} lkapi_usb_gadget_event;
-
-typedef struct _lkapi_usb_gadget_gadget lkapi_usb_gadget_gadget;
-struct _lkapi_usb_gadget_gadget {
-	void (*notify)(lkapi_usb_gadget_gadget* gadget, lkapi_usb_gadget_event event, void* data);
-	unsigned char ifc_class;
-	unsigned char ifc_subclass;
-	unsigned char ifc_protocol;
-	const char* ifc_string;
-};
-
-typedef struct {
-	unsigned short vendor_id;
-	unsigned short product_id;
-	unsigned short version_id;
-
-	const char* manufacturer;
-	const char* product;
-} lkapi_usb_gadget_device;
-
-typedef enum {
 	LKAPI_LCD_PIXELFORMAT_INVALID = -1,
 	LKAPI_LCD_PIXELFORMAT_RGB888 = 0,
 	LKAPI_LCD_PIXELFORMAT_RGB565,
 } lkapi_lcd_pixelformat_t;
+
+#define LKAPI_UDC_EVENT_ONLINE  1
+#define LKAPI_UDC_EVENT_OFFLINE 2
+
+typedef struct lkapi_udc_gadget lkapi_udc_gadget_t;
+struct lkapi_udc_gadget {
+	void (*notify)(lkapi_udc_gadget_t *gadget, unsigned event);
+
+	unsigned char ifc_class;
+	unsigned char ifc_subclass;
+	unsigned char ifc_protocol;
+	unsigned char ifc_endpoints;
+	const char *ifc_string;
+	unsigned flags;
+
+	int (*usb_read)(lkapi_udc_gadget_t* gadget, void *buf, unsigned len);
+	int (*usb_write)(lkapi_udc_gadget_t* gadget, void *buf, unsigned len);
+
+	void *pdata;
+};
+
+typedef struct lkapi_udc_device lkapi_udc_device_t;
+typedef struct lkapi_usbgadget_iface lkapi_usbgadget_iface_t;
+
+struct lkapi_udc_device {
+	unsigned short vendor_id;
+	unsigned short product_id;
+	unsigned short version_id;
+
+	const char *manufacturer;
+	const char *product;
+	const char *serialno;
+};
+
+struct lkapi_usbgadget_iface {
+	int (*udc_init)(lkapi_usbgadget_iface_t* dev, lkapi_udc_device_t *devinfo);
+	int (*udc_register_gadget)(lkapi_usbgadget_iface_t* dev, lkapi_udc_gadget_t *gadget);
+	int (*udc_start)(lkapi_usbgadget_iface_t* dev);
+	int (*udc_stop)(lkapi_usbgadget_iface_t* dev);
+
+    void* pdata;
+};
 
 typedef struct {
 	void (*platform_early_init)(void);
@@ -134,14 +149,7 @@ typedef struct {
 	void (*event_wait)(void** event);
 	void (*event_signal)(void* event);
 
-	int (*usbgadget_init)(lkapi_usb_gadget_device* device);
-	int (*usbgadget_register_gadget)(lkapi_usb_gadget_gadget* gadget);
-	int (*usbgadget_start)(void);
-	int (*usbgadget_stop)(void);
-	void* (*usbgadget_alloc)(unsigned int size);
-	int (*usbgadget_free)(void* buffer);
-	int (*usbgadget_read)(void* buffer, unsigned int size);
-	int (*usbgadget_write)(void* buffer, unsigned int size);
+    lkapi_usbgadget_iface_t* (*usbgadget_get_interface)(void);
 } lkapi_t;
 
 #endif
