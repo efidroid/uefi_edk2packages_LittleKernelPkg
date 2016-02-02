@@ -29,26 +29,30 @@ EFI_EVENT             EfiExitBootServicesEvent = (EFI_EVENT)NULL;
 STATIC VOID
 lkapi_event_init(VOID** event)
 {
-  ASSERT(gBS->CreateEvent(0, 0, NULL, NULL, (EFI_EVENT*)event)==EFI_SUCCESS);
+  EFI_STATUS Status = gBS->CreateEvent(0, 0, NULL, NULL, (EFI_EVENT*)event);
+  ASSERT_EFI_ERROR (Status);
 }
 
 STATIC VOID
 lkapi_event_destroy(VOID* event)
 {
-  ASSERT(gBS->CloseEvent((EFI_EVENT)event)==EFI_SUCCESS);
+  EFI_STATUS Status = gBS->CloseEvent((EFI_EVENT)event);
+  ASSERT_EFI_ERROR (Status);
 }
 
 STATIC VOID
 lkapi_event_wait(VOID** event)
 {
   UINTN Index;
-  ASSERT(gBS->WaitForEvent(1, (EFI_EVENT*)event, &Index)==EFI_SUCCESS);
+  EFI_STATUS Status = gBS->WaitForEvent(1, (EFI_EVENT*)event, &Index);
+  ASSERT_EFI_ERROR (Status);
 }
 
 STATIC VOID
 lkapi_event_signal(VOID* event)
 {
-  ASSERT(gBS->SignalEvent((EFI_EVENT)event)==EFI_SUCCESS);
+  EFI_STATUS Status = gBS->SignalEvent((EFI_EVENT)event);
+  ASSERT_EFI_ERROR (Status);
 }
 
 VOID
