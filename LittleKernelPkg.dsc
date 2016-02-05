@@ -114,6 +114,7 @@
   PlatformBdsLib|LittleKernelPkg/Library/PlatformIntelBdsLib/PlatformIntelBdsLib.inf
   GenericBdsLib|IntelFrameworkModulePkg/Library/GenericBdsLib/GenericBdsLib.inf
   CustomizedDisplayLib|MdeModulePkg/Library/CustomizedDisplayLib/CustomizedDisplayLib.inf
+  FileExplorerLib|MdeModulePkg/Library/FileExplorerLib/FileExplorerLib.inf
 
   # non-volatile variable storage
   NvVarsBlockIoLib|LittleKernelPkg/Library/NvVarsBlockIoLib/NvVarsBlockIoLib.inf
@@ -437,6 +438,7 @@
   MdeModulePkg/Universal/Disk/DiskIoDxe/DiskIoDxe.inf
   MdeModulePkg/Universal/Disk/PartitionDxe/PartitionDxe.inf
   MdeModulePkg/Universal/Disk/UnicodeCollation/EnglishDxe/EnglishDxe.inf
+  MdeModulePkg/Universal/Disk/RamDiskDxe/RamDiskDxe.inf
 
   #
   # Bds
