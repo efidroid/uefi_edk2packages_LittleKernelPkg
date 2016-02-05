@@ -127,9 +127,9 @@ typedef struct {
 	void (*lcd_flush)(void);
 	void (*lcd_shutdown)(void);
 
-	void (*reset_cold)(void);
-	void (*reset_warm)(void);
-	void (*reset_shutdown)(void);
+	void (*reset_cold)(const char* reason);
+	void (*reset_warm)(const char* reason);
+	void (*reset_shutdown)(const char* reason);
 
 	int (*rtc_init)(void);
 	int (*rtc_gettime)(unsigned int* time);

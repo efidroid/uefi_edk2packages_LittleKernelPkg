@@ -22,10 +22,26 @@
 #include <Library/BaseLib.h>
 #include <Library/IoLib.h>
 #include <Library/EfiResetSystemLib.h>
+#include <Library/MemoryAllocationLib.h>
 
 #include <LittleKernel.h>
 
 lkapi_t* LKApi = NULL;
+
+CHAR8*
+Unicode2Ascii (
+  CONST CHAR16* UnicodeStr
+)
+{
+  CHAR8* AsciiStr = AllocatePool((StrLen (UnicodeStr) + 1) * sizeof (CHAR8));
+  if (AsciiStr == NULL) {
+    return NULL;
+  }
+
+  UnicodeStrToAsciiStr(UnicodeStr, AsciiStr);
+
+  return AsciiStr;
+}
 
 
 /**
@@ -48,31 +64,45 @@ LibResetSystem (
   IN CHAR16           *ResetData OPTIONAL
   )
 {
+  // convert to ascii
+  CHAR8* AsciiResetStr = NULL;
+
+  if (ResetData) {
+    AsciiResetStr = Unicode2Ascii(ResetData);
+    if (AsciiResetStr==NULL) {
+      return EFI_OUT_OF_RESOURCES;
+    }
+  }
+
   switch (ResetType) {
   case EfiResetCold:
     // system power cycle
-    LKApi->reset_cold();
+    LKApi->reset_cold(AsciiResetStr);
     break;
 
   case EfiResetWarm:
     // not a full power cycle, maybe memory stays around.
     // if not support do the same thing as EfiResetCold.
-    LKApi->reset_warm();
+    LKApi->reset_warm(AsciiResetStr);
     break;
 
   case EfiResetShutdown:
     // turn off the system.
     // if not support do the same thing as EfiResetCold.
-    LKApi->reset_shutdown();
+    LKApi->reset_shutdown(AsciiResetStr);
     break;
 
   default:
+    if (AsciiResetStr)
+      FreePool(AsciiResetStr);
     return EFI_INVALID_PARAMETER;
   }
 
   //
   // If we reset, we would not have returned...
   //
+  if (AsciiResetStr)
+    FreePool(AsciiResetStr);
   return EFI_DEVICE_ERROR;
 }
 
