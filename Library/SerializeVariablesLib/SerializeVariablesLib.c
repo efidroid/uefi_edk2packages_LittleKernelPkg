@@ -49,6 +49,8 @@ IsVariableAllowed (
     return Status;
   if(!StrCmp(Name, L"ErrOut") && CompareGuid(Guid, &gEfiGlobalVariableGuid))
     return Status;
+  if(!StrnCmp(Name, L"Boot", 4) && CompareGuid(Guid, &gEfiGlobalVariableGuid))
+    return Status;
 
   return EFI_SUCCESS;
 }
