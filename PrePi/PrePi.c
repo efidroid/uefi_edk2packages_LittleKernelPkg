@@ -109,7 +109,7 @@ PrePiMain (
   // allocate LK range so nothing else is gonna use it's memory
   unsigned long LKAddr, LKSize;
   GetLKApi()->mmap_get_lk_range(&LKAddr, &LKSize);
-  BuildMemoryAllocationHob ((EFI_PHYSICAL_ADDRESS)LKAddr, (UINT64)LKSize, EfiBootServicesData);
+  BuildMemoryAllocationHob ((EFI_PHYSICAL_ADDRESS)LKAddr, (UINT64)LKSize, EfiRuntimeServicesCode);
 
   // Create the Stacks HOB (reserve the memory for all stacks)
   StacksSize = PcdGet32 (PcdCPUCorePrimaryStackSize);
