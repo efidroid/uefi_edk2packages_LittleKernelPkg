@@ -38,6 +38,7 @@
 
 BOOLEAN mDisplayInitialized = FALSE;
 BOOLEAN gLcdNeedsSync = FALSE;
+BOOLEAN gDisplayNeedsFlush = FALSE;
 LK_DISPLAY_FLUSH_MODE gLCDFlushMode = LK_DISPLAY_FLUSH_MODE_AUTO;
 lkapi_t* LKApi = NULL;
 EFI_EVENT mTimerEvent;
@@ -240,11 +241,15 @@ LcdGraphicsOutputDxeInitialize (
     goto EXIT_ERROR_UNINSTALL_PROTOCOL;
   }
 
-  Status = gBS->CreateEvent (EVT_TIMER | EVT_NOTIFY_SIGNAL, TPL_CALLBACK, TimerCallback, Instance, &mTimerEvent);
-  ASSERT_EFI_ERROR (Status);
+  gDisplayNeedsFlush = LKApi->lcd_needs_flush();
 
-  Status = gBS->SetTimer (mTimerEvent, TimerPeriodic, MS2100N(FPS2MS(30)));
-  ASSERT_EFI_ERROR (Status);
+  if (gDisplayNeedsFlush) {
+    Status = gBS->CreateEvent (EVT_TIMER | EVT_NOTIFY_SIGNAL, TPL_CALLBACK, TimerCallback, Instance, &mTimerEvent);
+    ASSERT_EFI_ERROR (Status);
+
+    Status = gBS->SetTimer (mTimerEvent, TimerPeriodic, MS2100N(FPS2MS(30)));
+    ASSERT_EFI_ERROR (Status);
+  }
 
   // To get here, everything must be fine, so just exit
   goto EXIT;
@@ -538,6 +543,9 @@ LKDisplayFlushScreen (
   EFI_TPL      OldTpl;
   UINT64       Now = 0;
   STATIC UINT64 RenderTime = 0;
+
+  if (!gDisplayNeedsFlush)
+    return;
 
 #ifdef DOUBLE_BUFFER
   Instance = LCD_INSTANCE_FROM_LKDISPLAY_THIS(This);

@@ -32,6 +32,7 @@
 
 extern lkapi_t* LKApi;
 extern LK_DISPLAY_FLUSH_MODE gLCDFlushMode;
+extern BOOLEAN gDisplayNeedsFlush;
 
 //#define DOUBLE_BUFFER 1
 //#define ROTATION_SUPPORT 1

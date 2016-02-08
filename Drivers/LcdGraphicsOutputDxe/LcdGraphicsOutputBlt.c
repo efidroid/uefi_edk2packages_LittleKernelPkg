@@ -83,9 +83,11 @@ LcdGraphicsBlt (
     ASSERT (FALSE);
   }
 
-  if (!EFI_ERROR(Status) && BltOperation!=EfiBltVideoToBltBuffer) {
-    if (gLCDFlushMode==LK_DISPLAY_FLUSH_MODE_AUTO) {
-      Instance->LKDisplay.FlushScreen(&Instance->LKDisplay);
+  if(gDisplayNeedsFlush) {
+    if (!EFI_ERROR(Status) && BltOperation!=EfiBltVideoToBltBuffer) {
+      if (gLCDFlushMode==LK_DISPLAY_FLUSH_MODE_AUTO) {
+        Instance->LKDisplay.FlushScreen(&Instance->LKDisplay);
+      }
     }
   }
 

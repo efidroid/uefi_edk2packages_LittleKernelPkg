@@ -124,6 +124,7 @@ typedef struct {
 	unsigned int (*lcd_get_density)(void);
 	unsigned int (*lcd_get_bpp)(void);
 	lkapi_lcd_pixelformat_t (*lcd_get_pixelformat)(void);
+	int  (*lcd_needs_flush)(void);
 	void (*lcd_flush)(void);
 	void (*lcd_shutdown)(void);
 
