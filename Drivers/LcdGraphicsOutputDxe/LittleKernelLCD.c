@@ -58,10 +58,12 @@ typedef struct {
 STATIC LCD_RESOLUTION mResolutions[] = {
   {
     0, 0, LKAPI_LCD_PIXELFORMAT_INVALID
-  },
-  {
+  }
+#ifdef ROTATION_SUPPORT
+ ,{
     0, 0, LKAPI_LCD_PIXELFORMAT_INVALID
   }
+#endif
 };
 
 EFI_STATUS
@@ -74,10 +76,12 @@ LcdPlatformInitializeDisplay (
   mResolutions[0].VerticalResolution   = LKApi->lcd_get_height();
   mResolutions[0].PixelFormat          = LKApi->lcd_get_pixelformat();
 
+#ifdef ROTATION_SUPPORT
   // rotated 90deg clockwise
   mResolutions[1].HorizontalResolution = LKApi->lcd_get_height();
   mResolutions[1].VerticalResolution   = LKApi->lcd_get_width();
   mResolutions[1].PixelFormat          = LKApi->lcd_get_pixelformat();
+#endif
 
   return EFI_SUCCESS;
 }
@@ -151,6 +155,10 @@ LcdPlatformSetMode (
   return Status;
 }
 
+#define PIXEL24_RED_MASK    0x00ff0000
+#define PIXEL24_GREEN_MASK  0x0000ff00
+#define PIXEL24_BLUE_MASK   0x000000ff
+
 EFI_STATUS
 LcdPlatformQueryMode (
   IN  UINT32                                ModeNumber,
@@ -167,7 +175,22 @@ LcdPlatformQueryMode (
   Info->PixelsPerScanLine = mResolutions[ModeNumber].HorizontalResolution;
 
   // we use a sw buffer in EFI's native format
+#ifdef DOUBLE_BUFFER
   Info->PixelFormat = PixelBlueGreenRedReserved8BitPerColor;
+#else
+  switch(mResolutions[ModeNumber].PixelFormat) {
+    case LKAPI_LCD_PIXELFORMAT_RGB888:
+      Info->PixelFormat = PixelBitMask;
+      Info->PixelInformation.RedMask = PIXEL24_RED_MASK;
+      Info->PixelInformation.GreenMask = PIXEL24_GREEN_MASK;
+      Info->PixelInformation.BlueMask = PIXEL24_BLUE_MASK;
+      Info->PixelInformation.ReservedMask = 0;
+      break;
+
+    default:
+      ASSERT(FALSE);
+  }
+#endif
 
   return EFI_SUCCESS;
 }
@@ -177,9 +200,11 @@ LKDisplayGetPortraitMode (
   VOID
 )
 {
+#ifdef ROTATION_SUPPORT
   if (mResolutions[0].HorizontalResolution > mResolutions[0].VerticalResolution)
     return 1;
   else
+#endif
     return 0;
 }
 
@@ -188,10 +213,14 @@ LKDisplayGetLandscapeMode (
   VOID
 )
 {
+#ifdef ROTATION_SUPPORT
   if (mResolutions[0].HorizontalResolution > mResolutions[0].VerticalResolution)
     return 0;
   else
     return 1;
+#else
+    return 0;
+#endif
 }
 
 lkapi_lcd_pixelformat_t

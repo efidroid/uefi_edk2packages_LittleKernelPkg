@@ -127,7 +127,9 @@ InitializeDisplay (
   EFI_STATUS             Status = EFI_SUCCESS;
   EFI_PHYSICAL_ADDRESS   VramBaseAddress;
   UINTN                  VramSize;
+#ifdef DOUBLE_BUFFER
   VOID                   *VramDoubleBuffer;
+#endif
 
   // Setup the LCD
   Status = LcdInitialize ();
@@ -146,15 +148,21 @@ InitializeDisplay (
     goto EXIT_ERROR_LCD_SHUTDOWN;
   }
 
+#ifdef DOUBLE_BUFFER
   VramDoubleBuffer = AllocatePool (VramSize);
   if (VramDoubleBuffer == NULL) {
     Status = EFI_OUT_OF_RESOURCES;
     goto EXIT;
   }
+#endif
 
   // Setup all the relevant mode information
   Instance->Gop.Mode->SizeOfInfo      = sizeof(EFI_GRAPHICS_OUTPUT_MODE_INFORMATION);
+#ifdef DOUBLE_BUFFER
   Instance->Gop.Mode->FrameBufferBase = (EFI_PHYSICAL_ADDRESS)(UINT32) VramDoubleBuffer;
+#else
+  Instance->Gop.Mode->FrameBufferBase = VramBaseAddress;
+#endif
   Instance->Gop.Mode->FrameBufferSize = VramSize;
   Instance->FrameBufferBase           = VramBaseAddress;
 
@@ -524,12 +532,16 @@ LKDisplayFlushScreen (
   IN EFI_LK_DISPLAY_PROTOCOL* This
 )
 {
+#ifdef DOUBLE_BUFFER
   LCD_INSTANCE *Instance;
+#endif
   EFI_TPL      OldTpl;
   UINT64       Now = 0;
   STATIC UINT64 RenderTime = 0;
 
+#ifdef DOUBLE_BUFFER
   Instance = LCD_INSTANCE_FROM_LKDISPLAY_THIS(This);
+#endif
 
   // limit flushes per second
   if(gLCDFlushMode==LK_DISPLAY_FLUSH_MODE_AUTO) {
@@ -542,8 +554,10 @@ LKDisplayFlushScreen (
 
   OldTpl = gBS->RaiseTPL (TPL_NOTIFY);
 
+#ifdef DOUBLE_BUFFER
   // copy temporary to real framebuffer
   LcdCopy(Instance);
+#endif
 
   // trigger hw flush
   LKApi->lcd_flush();
