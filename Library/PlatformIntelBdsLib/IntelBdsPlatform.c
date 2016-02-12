@@ -511,7 +511,7 @@ ConsoleSetBestMode (
   EFI_STATUS Status;
   UINT32     ModeNumber;
   UINT32     BestMode = 0;
-  UINT32     BestModeColumns = 0;
+  UINTN      BestModeCells = 0;
   UINTN      Columns, Rows;
 
   //
@@ -524,9 +524,10 @@ ConsoleSetBestMode (
                        &Columns,
                        &Rows
                        );
+    UINTN Cells = Columns * Rows;
     if (!EFI_ERROR (Status)) {
-      if (Columns > BestModeColumns) {
-        BestModeColumns = Columns;
+      if (Cells > BestModeCells) {
+        BestModeCells = Cells;
         BestMode = ModeNumber;
       }
     }
