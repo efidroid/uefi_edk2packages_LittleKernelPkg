@@ -339,6 +339,7 @@
   gArmPlatformTokenSpaceGuid.PcdDefaultConInPaths|L"VenHw(D3987D4B-971A-435F-8CAF-4967EB627241)/Uart(115200,8,N,1)/VenMsg(7D916D80-5BB1-458C-A48F-E25FDD51EF94)"
 
   gEfiMdeModulePkgTokenSpaceGuid.PcdVariableStoreSize|0xe000
+  gEfiMdeModulePkgTokenSpaceGuid.PcdMaxVariableSize|0x1000
   gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageVariableSize|0xe000
   gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageFtwWorkingSize|0x1000
   gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageFtwSpareSize|0x00010000
