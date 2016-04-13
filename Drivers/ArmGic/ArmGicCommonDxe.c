@@ -48,6 +48,7 @@ typedef struct lkapi_ihandler {
 
 HARDWARE_INTERRUPT_HANDLER  *gRegisteredInterruptHandlers = NULL;
 lkapi_ihandler_t  *gRegisteredInterruptHandlersLK = NULL;
+STATIC EFI_HARDWARE_INTERRUPT_PROTOCOL *mHardwareInterruptProtocol = NULL;
 
 VOID
 EFIAPI
@@ -71,6 +72,14 @@ void lkapi_int_register_handler(unsigned int vector, lkapi_int_handler func, voi
   gRegisteredInterruptHandlersLK[vector].arg = arg;
 
   gRegisteredInterruptHandlers[vector] = LKInterruptHandler;
+}
+
+int lkapi_int_mask(unsigned int vector) {
+  return mHardwareInterruptProtocol->DisableInterruptSource (mHardwareInterruptProtocol, vector)==EFI_SUCCESS;
+}
+
+int lkapi_int_unmask(unsigned int vector) {
+  return mHardwareInterruptProtocol->EnableInterruptSource (mHardwareInterruptProtocol, vector)==EFI_SUCCESS;
 }
 
 /**
@@ -172,6 +181,8 @@ InstallAndRegisterInterruptService (
 
   // Register for an ExitBootServicesEvent
   Status = gBS->CreateEvent (EVT_SIGNAL_EXIT_BOOT_SERVICES, TPL_NOTIFY, ExitBootServicesEvent, NULL, &EfiExitBootServicesEvent);
+
+  mHardwareInterruptProtocol = InterruptProtocol;
 
   return Status;
 }

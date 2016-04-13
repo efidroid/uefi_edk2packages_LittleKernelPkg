@@ -59,6 +59,8 @@ InterruptDxeInitialize (
   }
 
   mLKApi->int_register_handler = lkapi_int_register_handler;
+  mLKApi->int_mask = lkapi_int_mask;
+  mLKApi->int_unmask = lkapi_int_unmask;
 
   return Status;
 }

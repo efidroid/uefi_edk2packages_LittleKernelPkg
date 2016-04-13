@@ -35,6 +35,8 @@ extern lkapi_t                     *mLKApi;
 // Common API
 //
 void lkapi_int_register_handler(unsigned int vector, lkapi_int_handler func, void *arg);
+int lkapi_int_mask(unsigned int vector);
+int lkapi_int_unmask(unsigned int vector);
 
 EFI_STATUS
 InstallAndRegisterInterruptService (
