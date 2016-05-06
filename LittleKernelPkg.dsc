@@ -335,8 +335,8 @@
   gArmTokenSpaceGuid.PcdSystemMemoryBase|$(DRAM_BASE)
   gArmTokenSpaceGuid.PcdSystemMemorySize|$(DRAM_SIZE)
 
-  gArmPlatformTokenSpaceGuid.PcdDefaultConOutPaths|L"VenHw(D3987D4B-971A-435F-8CAF-4967EB627241)/Uart(115200,8,N,1)/VenMsg(7D916D80-5BB1-458C-A48F-E25FDD51EF94);VenHw(2B087898-86D8-4512-9E72-D2DA27E3C9E0)"
-  gArmPlatformTokenSpaceGuid.PcdDefaultConInPaths|L"VenHw(D3987D4B-971A-435F-8CAF-4967EB627241)/Uart(115200,8,N,1)/VenMsg(7D916D80-5BB1-458C-A48F-E25FDD51EF94)"
+  gLittleKernelTokenSpaceGuid.PcdDefaultConOutPaths|L"VenHw(D3987D4B-971A-435F-8CAF-4967EB627241)/Uart(115200,8,N,1)/VenMsg(7D916D80-5BB1-458C-A48F-E25FDD51EF94);VenHw(2B087898-86D8-4512-9E72-D2DA27E3C9E0)"
+  gLittleKernelTokenSpaceGuid.PcdDefaultConInPaths|L"VenHw(D3987D4B-971A-435F-8CAF-4967EB627241)/Uart(115200,8,N,1)/VenMsg(7D916D80-5BB1-458C-A48F-E25FDD51EF94)"
 
   gEfiMdeModulePkgTokenSpaceGuid.PcdVariableStoreSize|0xe000
   gEfiMdeModulePkgTokenSpaceGuid.PcdMaxVariableSize|0x1000
