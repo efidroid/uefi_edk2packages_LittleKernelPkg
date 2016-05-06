@@ -469,40 +469,6 @@ PlatformBdsDiagnostics (
 {
 }
 
-STATIC
-EFI_STATUS
-BootShell (
-  VOID
-  )
-{
-  EFI_STATUS       Status;
-  EFI_DEVICE_PATH* EfiShellDevicePath;
-
-  // Find the EFI Shell
-  Status = LocateEfiApplicationInFvByName (L"Shell", &EfiShellDevicePath);
-  if (Status == EFI_NOT_FOUND) {
-    Print (L"Error: EFI Application not found.\n");
-    return Status;
-  } else if (EFI_ERROR (Status)) {
-    Print (L"Error: Status Code: 0x%X\n", (UINT32)Status);
-    return Status;
-  } else {
-    // Need to connect every drivers to ensure no dependencies are missing for the application
-    Status = BdsConnectAllDrivers ();
-    if (EFI_ERROR (Status)) {
-      DEBUG ((EFI_D_ERROR, "FAIL to connect all drivers\n"));
-      return Status;
-    }
-
-    CONST CHAR16* Args = L"-nomap -nostartup -noversion -_exit EFIDroidUi";
-    UINTN LoadOptionsSize = (UINT32)StrSize (Args);
-    VOID *LoadOptions     = AllocatePool (LoadOptionsSize);
-    StrCpy (LoadOptions, Args);
-
-    return BdsStartEfiApplication (gImageHandle, EfiShellDevicePath, LoadOptionsSize, LoadOptions);
-  }
-}
-
 EFI_STATUS
 ConsoleSetBestMode (
   IN EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL *Console
@@ -573,7 +539,17 @@ PlatformBdsPolicyBehavior (
   // set best mode for console
   ConsoleSetBestMode(gST->ConOut);
 
-  BootShell();
+  //
+  // Show the splash screen.
+  //
+  EnableQuietBoot (PcdGetPtr (PcdLogoFile));
+
+  //
+  // Connect _all_ devices, to pick up plug-in and removable devices
+  // TODO: do this more cleanly, permitting faster boot times when boot config
+  //       is known
+  //
+  BdsLibConnectAll ();
 }
 
 /**

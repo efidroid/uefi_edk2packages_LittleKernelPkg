@@ -18,10 +18,8 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 #include <Protocol/DevicePathFromText.h>
 #include <Protocol/DevicePathToText.h>
 #include <Protocol/BlockIo.h>
-#include <Protocol/PartitionName.h>
 
 #include <Library/BaseMemoryLib.h>
-#include <Library/BdsLib.h>
 #include <Library/DebugLib.h>
 #include <Library/DevicePathLib.h>
 #include <Library/UefiBootServicesTableLib.h>
@@ -29,9 +27,9 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 #include <Library/MemoryAllocationLib.h>
 #include <Library/BaseLib.h>
 #include <Library/PcdLib.h>
-#include <Library/UefiLib.h>
 #include <Library/GenericBdsLib.h>
 #include <Library/PlatformBdsLib.h>
+#include <Library/UefiLib.h>
 #include <Library/NvVarsBlockIoLib.h>
 
 #include <Guid/GlobalVariable.h>

@@ -45,7 +45,6 @@
 [LibraryClasses]
   BaseLib
   BaseMemoryLib
-  BdsLib
   DebugLib
   DevicePathLib
   MemoryAllocationLib
@@ -63,9 +62,9 @@
   gArmPlatformTokenSpaceGuid.PcdDefaultConInPaths
   gArmPlatformTokenSpaceGuid.PcdDefaultConOutPaths
   gEfiMdePkgTokenSpaceGuid.PcdPlatformBootTimeOut
+  gEfiIntelFrameworkModulePkgTokenSpaceGuid.PcdLogoFile
   gLittleKernelTokenSpaceGuid.PcdEmuVariableEvent
 
 [Protocols]
   gEfiDevicePathFromTextProtocolGuid
   gEfiDevicePathToTextProtocolGuid
-  gEfiPartitionNameProtocolGuid
