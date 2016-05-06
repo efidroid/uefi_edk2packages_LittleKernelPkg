@@ -1,10 +1,7 @@
 ## @file
-#  Implementation for PlatformBootManagerLib library class interfaces.
-#  using ARM Platform framework.
+#  Include all platform action which can be customized by IBV/OEM.
 #
-#  Copyright (c) 2007 - 2014, Intel Corporation. All rights reserved.<BR>
-#  Copyright (c) 2014, ARM Ltd. All rights reserved.<BR>
-#
+#  Copyright (c) 2012 - 2015, Intel Corporation. All rights reserved.<BR>
 #  This program and the accompanying materials
 #  are licensed and made available under the terms and conditions of the BSD License
 #  which accompanies this distribution.  The full text of the license may be found at
@@ -22,7 +19,7 @@
   MODULE_TYPE                    = DXE_DRIVER
   VERSION_STRING                 = 1.0
   LIBRARY_CLASS                  = PlatformBootManagerLib|DXE_DRIVER
-  CONSTRUCTOR                    = PlatformIntelBdsConstructor
+
 
 #
 # The following information is for reference only and not required by the build tools.
@@ -33,24 +30,26 @@
 [Sources]
   PlatformBm.c
   PlatformBm.h
+  QuietBoot.c
 
 [Packages]
   MdePkg/MdePkg.dec
   MdeModulePkg/MdeModulePkg.dec
-  IntelFrameworkModulePkg/IntelFrameworkModulePkg.dec
   LittleKernelPkg/LittleKernelPkg.dec
+  IntelFrameworkModulePkg/IntelFrameworkModulePkg.dec
 
 [LibraryClasses]
   BaseLib
   BaseMemoryLib
   DebugLib
   DevicePathLib
-  MemoryAllocationLib
-  UefiBootServicesTableLib
-  PcdLib
-  GenericBdsLib
-  NvVarsBlockIoLib
+  DxeServicesLib
   LKApiLib
+  MemoryAllocationLib
+  NvVarsBlockIoLib
+  PcdLib
+  UefiBootManagerLib
+  UefiBootServicesTableLib
 
 [Guids]
   gEfiEndOfDxeEventGroupGuid
@@ -59,10 +58,18 @@
 [Pcd]
   gLittleKernelTokenSpaceGuid.PcdDefaultConInPaths
   gLittleKernelTokenSpaceGuid.PcdDefaultConOutPaths
-  gEfiMdePkgTokenSpaceGuid.PcdPlatformBootTimeOut
-  gEfiIntelFrameworkModulePkgTokenSpaceGuid.PcdLogoFile
   gLittleKernelTokenSpaceGuid.PcdEmuVariableEvent
+  gEfiMdePkgTokenSpaceGuid.PcdPlatformBootTimeOut
+
+[FixedPcd]
+  gEfiIntelFrameworkModulePkgTokenSpaceGuid.PcdLogoFile
+  gEfiIntelFrameworkModulePkgTokenSpaceGuid.PcdShellFile
+
+[FeaturePcd]
+  gEfiIntelFrameworkModulePkgTokenSpaceGuid.PcdBootlogoOnlyEnable
+  gEfiMdePkgTokenSpaceGuid.PcdUgaConsumeSupport
 
 [Protocols]
   gEfiDevicePathFromTextProtocolGuid
   gEfiDevicePathToTextProtocolGuid
+  gEfiOEMBadgingProtocolGuid

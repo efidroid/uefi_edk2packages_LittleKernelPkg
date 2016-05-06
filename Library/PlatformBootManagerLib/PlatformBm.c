@@ -1,15 +1,17 @@
 /** @file
+  Implementation for PlatformBootManagerLib library class interfaces.
 
-Copyright (c) 2004 - 2008, Intel Corporation. All rights reserved.<BR>
-Copyright (c) 2014, ARM Ltd. All rights reserved.<BR>
+  Copyright (C) 2015-2016, Red Hat, Inc.
+  Copyright (c) 2014, ARM Ltd. All rights reserved.<BR>
+  Copyright (c) 2004 - 2016, Intel Corporation. All rights reserved.<BR>
 
-This program and the accompanying materials
-are licensed and made available under the terms and conditions of the BSD License
-which accompanies this distribution.  The full text of the license may be found at
-http://opensource.org/licenses/bsd-license.php
+  This program and the accompanying materials are licensed and made available
+  under the terms and conditions of the BSD License which accompanies this
+  distribution. The full text of the license may be found at
+  http://opensource.org/licenses/bsd-license.php
 
-THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
-WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS, WITHOUT
+  WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 
 **/
 
@@ -18,7 +20,6 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 ///
 /// Predefined platform default time out value
 ///
-UINT16                      gPlatformBootTimeOutDefault;
 VOID                        *mEmuVariableEventReg;
 EFI_EVENT                   mEmuVariableEvent;
 
@@ -33,38 +34,6 @@ EFI_STATUS
   IN VOID                 *Instance,
   IN VOID                 *Context
   );
-
-
-EFI_STATUS
-EFIAPI
-PlatformIntelBdsConstructor (
-  IN EFI_HANDLE        ImageHandle,
-  IN EFI_SYSTEM_TABLE  *SystemTable
-  )
-{
-  gPlatformBootTimeOutDefault = (UINT16)PcdGet16 (PcdPlatformBootTimeOut);
-  return EFI_SUCCESS;
-}
-
-//
-// BDS Platform Functions
-//
-/**
-  Platform Bds init. Include the platform firmware vendor, revision
-  and so crc check.
-
-**/
-VOID
-EFIAPI
-PlatformBdsInit (
-  VOID
-  )
-{
-  //
-  // Signal EndOfDxe PI Event
-  //
-  EfiEventGroupSignal (&gEfiEndOfDxeEventGroupGuid);
-}
 
 STATIC
 EFI_STATUS
@@ -84,8 +53,9 @@ GetConsoleDevicePathFromVariable (
 
   Status = EFI_SUCCESS;
   Size = 0;
+  DevicePathInstances = NULL;
 
-  DevicePathInstances = BdsLibGetVariableAndSize (ConsoleVarName, &gEfiGlobalVariableGuid, &Size);
+  GetEfiGlobalVariable2 (ConsoleVarName, (VOID **) &DevicePathInstances, &Size);
   if (DevicePathInstances == NULL) {
     // In case no default console device path has been defined we assume a driver handles the console (eg: SimpleTextInOutSerial)
     if ((DefaultConsolePaths == NULL) || (DefaultConsolePaths[0] == L'\0')) {
@@ -306,49 +276,6 @@ PlatformBdsRestoreNvVarsFromHardDisk (
     );
 }
 
-/**
-  Connect with predefined platform connect sequence,
-  the OEM/IBV can customize with their own connect sequence.
-**/
-VOID
-PlatformBdsConnectSequence (
-  VOID
-  )
-{
-}
-
-/**
-  Load the predefined driver option, OEM/IBV can customize this
-  to load their own drivers
-
-  @param BdsDriverLists  - The header of the driver option link list.
-
-**/
-VOID
-PlatformBdsGetDriverOption (
-  IN OUT LIST_ENTRY              *BdsDriverLists
-  )
-{
-}
-
-/**
-  Perform the platform diagnostic, such like test memory. OEM/IBV also
-  can customize this function to support specific platform diagnostic.
-
-  @param MemoryTestLevel  The memory test intensive level
-  @param QuietBoot        Indicate if need to enable the quiet boot
-  @param BaseMemoryTest   A pointer to BdsMemoryTest()
-
-**/
-VOID
-PlatformBdsDiagnostics (
-  IN EXTENDMEM_COVERAGE_LEVEL    MemoryTestLevel,
-  IN BOOLEAN                     QuietBoot,
-  IN BASEM_MEMORY_TEST           BaseMemoryTest
-  )
-{
-}
-
 EFI_STATUS
 ConsoleSetBestMode (
   IN EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL *Console
@@ -384,26 +311,140 @@ ConsoleSetBestMode (
   return Status;
 }
 
+STATIC
+VOID
+PlatformRegisterFvBootOption (
+  EFI_GUID                         *FileGuid,
+  CHAR16                           *Description,
+  UINT32                           Attributes
+  )
+{
+  EFI_STATUS                        Status;
+  INTN                              OptionIndex;
+  EFI_BOOT_MANAGER_LOAD_OPTION      NewOption;
+  EFI_BOOT_MANAGER_LOAD_OPTION      *BootOptions;
+  UINTN                             BootOptionCount;
+  MEDIA_FW_VOL_FILEPATH_DEVICE_PATH FileNode;
+  EFI_LOADED_IMAGE_PROTOCOL         *LoadedImage;
+  EFI_DEVICE_PATH_PROTOCOL          *DevicePath;
+
+  Status = gBS->HandleProtocol (
+                  gImageHandle,
+                  &gEfiLoadedImageProtocolGuid,
+                  (VOID **) &LoadedImage
+                  );
+  ASSERT_EFI_ERROR (Status);
+
+  EfiInitializeFwVolDevicepathNode (&FileNode, FileGuid);
+  DevicePath = DevicePathFromHandle (LoadedImage->DeviceHandle);
+  ASSERT (DevicePath != NULL);
+  DevicePath = AppendDevicePathNode (
+                 DevicePath,
+                 (EFI_DEVICE_PATH_PROTOCOL *) &FileNode
+                 );
+  ASSERT (DevicePath != NULL);
+
+  Status = EfiBootManagerInitializeLoadOption (
+             &NewOption,
+             LoadOptionNumberUnassigned,
+             LoadOptionTypeBoot,
+             Attributes,
+             Description,
+             DevicePath,
+             NULL,
+             0
+             );
+  ASSERT_EFI_ERROR (Status);
+  FreePool (DevicePath);
+
+  BootOptions = EfiBootManagerGetLoadOptions (
+                  &BootOptionCount, LoadOptionTypeBoot
+                  );
+
+  OptionIndex = EfiBootManagerFindLoadOption (
+                  &NewOption, BootOptions, BootOptionCount
+                  );
+
+  if (OptionIndex == -1) {
+    Status = EfiBootManagerAddLoadOptionVariable (&NewOption, MAX_UINTN);
+    ASSERT_EFI_ERROR (Status);
+  }
+  EfiBootManagerFreeLoadOption (&NewOption);
+  EfiBootManagerFreeLoadOptions (BootOptions, BootOptionCount);
+}
+
+
+STATIC
+VOID
+PlatformRegisterOptionsAndKeys (
+  VOID
+  )
+{
+  EFI_STATUS                   Status;
+  EFI_INPUT_KEY                Enter;
+  EFI_INPUT_KEY                F2;
+  EFI_INPUT_KEY                Esc;
+  EFI_BOOT_MANAGER_LOAD_OPTION BootOption;
+
+  //
+  // Register ENTER as CONTINUE key
+  //
+  Enter.ScanCode    = SCAN_NULL;
+  Enter.UnicodeChar = CHAR_CARRIAGE_RETURN;
+  Status = EfiBootManagerRegisterContinueKeyOption (0, &Enter, NULL);
+  ASSERT_EFI_ERROR (Status);
+
+  //
+  // Map F2 and ESC to Boot Manager Menu
+  //
+  F2.ScanCode     = SCAN_F2;
+  F2.UnicodeChar  = CHAR_NULL;
+  Esc.ScanCode    = SCAN_ESC;
+  Esc.UnicodeChar = CHAR_NULL;
+  Status = EfiBootManagerGetBootManagerMenu (&BootOption);
+  ASSERT_EFI_ERROR (Status);
+  Status = EfiBootManagerAddKeyOptionVariable (
+             NULL, (UINT16) BootOption.OptionNumber, 0, &F2, NULL
+             );
+  ASSERT (Status == EFI_SUCCESS || Status == EFI_ALREADY_STARTED);
+  Status = EfiBootManagerAddKeyOptionVariable (
+             NULL, (UINT16) BootOption.OptionNumber, 0, &Esc, NULL
+             );
+  ASSERT (Status == EFI_SUCCESS || Status == EFI_ALREADY_STARTED);
+  //
+  // Register UEFI Shell
+  //
+  PlatformRegisterFvBootOption (
+    PcdGetPtr (PcdShellFile), L"EFI Internal Shell", LOAD_OPTION_ACTIVE
+    );
+}
+
+
+//
+// BDS Platform Functions
+//
 /**
-  The function will execute with as the platform policy, current policy
-  is driven by boot mode. IBV/OEM can customize this code for their specific
-  policy action.
-
-  @param  DriverOptionList        The header of the driver option link list
-  @param  BootOptionList          The header of the boot option link list
-  @param  ProcessCapsules         A pointer to ProcessCapsules()
-  @param  BaseMemoryTest          A pointer to BaseMemoryTest()
-
+  Do the platform init, can be customized by OEM/IBV
+  Possible things that can be done in PlatformBootManagerBeforeConsole:
+  > Update console variable: 1. include hot-plug devices;
+  >                          2. Clear ConIn and add SOL for AMT
+  > Register new Driver#### or Boot####
+  > Register new Key####: e.g.: F12
+  > Signal ReadyToLock event
+  > Authentication action: 1. connect Auth devices;
+  >                        2. Identify auto logon user.
 **/
 VOID
 EFIAPI
-PlatformBdsPolicyBehavior (
-  IN LIST_ENTRY                      *DriverOptionList,
-  IN LIST_ENTRY                      *BootOptionList,
-  IN PROCESS_CAPSULES                ProcessCapsules,
-  IN BASEM_MEMORY_TEST               BaseMemoryTest
+PlatformBootManagerBeforeConsole (
+  VOID
   )
 {
+  //
+  // Signal EndOfDxe PI Event
+  //
+  EfiEventGroupSignal (&gEfiEndOfDxeEventGroupGuid);
+
   //
   // Try to restore variables from the hard disk early so
   // they can be used for the other BDS connect operations.
@@ -411,84 +452,54 @@ PlatformBdsPolicyBehavior (
   PlatformBdsRestoreNvVarsFromHardDisk ();
 
   SetConsoleVariables();
-  BdsLibConnectAll ();
 
-  // set best mode for console
-  ConsoleSetBestMode(gST->ConOut);
+  //
+  // Register platform-specific boot options and keyboard shortcuts.
+  //
+  PlatformRegisterOptionsAndKeys ();
+}
 
+/**
+  Do the platform specific action after the console is ready
+  Possible things that can be done in PlatformBootManagerAfterConsole:
+  > Console post action:
+    > Dynamically switch output mode from 100x31 to 80x25 for certain senarino
+    > Signal console ready platform customized event
+  > Run diagnostics like memory testing
+  > Connect certain devices
+  > Dispatch aditional option roms
+  > Special boot: e.g.: USB boot, enter UI
+**/
+VOID
+EFIAPI
+PlatformBootManagerAfterConsole (
+  VOID
+  )
+{
   //
   // Show the splash screen.
   //
   EnableQuietBoot (PcdGetPtr (PcdLogoFile));
+
+  //
+  // Connect the rest of the devices.
+  //
+  EfiBootManagerConnectAll ();
+
+  // set best mode for console
+  ConsoleSetBestMode(gST->ConOut);
 }
 
 /**
-  Hook point after a boot attempt succeeds. We don't expect a boot option to
-  return, so the UEFI 2.0 specification defines that you will default to an
-  interactive mode and stop processing the BootOrder list in this case. This
-  is also a platform implementation and can be customized by IBV/OEM.
+  This function is called each second during the boot manager waits the
+  timeout.
 
-  @param  Option                  Pointer to Boot Option that succeeded to boot.
-
+  @param TimeoutRemain  The remaining timeout.
 **/
 VOID
 EFIAPI
-PlatformBdsBootSuccess (
-  IN  BDS_COMMON_OPTION *Option
+PlatformBootManagerWaitCallback (
+  UINT16          TimeoutRemain
   )
 {
-}
-
-/**
-  Hook point after a boot attempt fails.
-
-  @param  Option                  Pointer to Boot Option that failed to boot.
-  @param  Status                  Status returned from failed boot.
-  @param  ExitData                Exit data returned from failed boot.
-  @param  ExitDataSize            Exit data size returned from failed boot.
-
-**/
-VOID
-EFIAPI
-PlatformBdsBootFail (
-  IN  BDS_COMMON_OPTION  *Option,
-  IN  EFI_STATUS         Status,
-  IN  CHAR16             *ExitData,
-  IN  UINTN              ExitDataSize
-  )
-{
-}
-
-/**
-  This function locks platform flash that is not allowed to be updated during normal boot path.
-  The flash layout is platform specific.
-**/
-VOID
-EFIAPI
-PlatformBdsLockNonUpdatableFlash (
-  VOID
-  )
-{
-  return;
-}
-
-
-/**
-  Lock the ConsoleIn device in system table. All key
-  presses will be ignored until the Password is typed in. The only way to
-  disable the password is to type it in to a ConIn device.
-
-  @param  Password        Password used to lock ConIn device.
-
-  @retval EFI_SUCCESS     lock the Console In Spliter virtual handle successfully.
-  @retval EFI_UNSUPPORTED Password not found
-
-**/
-EFI_STATUS
-EFIAPI
-LockKeyboards (
-  IN  CHAR16    *Password
-  )
-{
-    return EFI_UNSUPPORTED;
 }
