@@ -30,7 +30,6 @@
 [Sources]
   PlatformBm.c
   PlatformBm.h
-  QuietBoot.c
 
 [Packages]
   MdePkg/MdePkg.dec
@@ -62,14 +61,8 @@
   gEfiMdePkgTokenSpaceGuid.PcdPlatformBootTimeOut
 
 [FixedPcd]
-  gEfiIntelFrameworkModulePkgTokenSpaceGuid.PcdLogoFile
   gEfiIntelFrameworkModulePkgTokenSpaceGuid.PcdShellFile
-
-[FeaturePcd]
-  gEfiIntelFrameworkModulePkgTokenSpaceGuid.PcdBootlogoOnlyEnable
-  gEfiMdePkgTokenSpaceGuid.PcdUgaConsumeSupport
 
 [Protocols]
   gEfiDevicePathFromTextProtocolGuid
   gEfiDevicePathToTextProtocolGuid
-  gEfiOEMBadgingProtocolGuid
