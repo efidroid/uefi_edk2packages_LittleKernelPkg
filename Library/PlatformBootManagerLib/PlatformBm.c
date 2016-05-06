@@ -316,7 +316,9 @@ VOID
 PlatformRegisterFvBootOption (
   EFI_GUID                         *FileGuid,
   CHAR16                           *Description,
-  UINT32                           Attributes
+  UINT32                           Attributes,
+  UINT8                            *OptionalData,
+  UINT32                           OptionalDataSize
   )
 {
   EFI_STATUS                        Status;
@@ -351,8 +353,8 @@ PlatformRegisterFvBootOption (
              Attributes,
              Description,
              DevicePath,
-             NULL,
-             0
+             OptionalData,
+             OptionalDataSize
              );
   ASSERT_EFI_ERROR (Status);
   FreePool (DevicePath);
@@ -415,7 +417,19 @@ PlatformRegisterOptionsAndKeys (
   // Register UEFI Shell
   //
   PlatformRegisterFvBootOption (
-    PcdGetPtr (PcdShellFile), L"EFI Internal Shell", LOAD_OPTION_ACTIVE
+    PcdGetPtr (PcdShellFile), L"EFI Internal Shell", 0, NULL, 0
+    );
+
+  //
+  // Register EFIDroid UI
+  //
+  CONST CHAR16* Args = L"-nomap -nostartup -noversion -_exit EFIDroidUi";
+  UINTN LoadOptionsSize = (UINT32)StrSize (Args);
+  VOID *LoadOptions     = AllocatePool (LoadOptionsSize);
+  StrCpy (LoadOptions, Args);
+
+  PlatformRegisterFvBootOption (
+    PcdGetPtr (PcdShellFile), L"EFIDroid UI", LOAD_OPTION_ACTIVE, LoadOptions, LoadOptionsSize
     );
 }
 
