@@ -429,7 +429,7 @@ PlatformRegisterOptionsAndKeys (
   StrCpy (LoadOptions, Args);
 
   PlatformRegisterFvBootOption (
-    PcdGetPtr (PcdShellFile), L"EFIDroid UI", LOAD_OPTION_ACTIVE, LoadOptions, LoadOptionsSize
+    PcdGetPtr (PcdShellFile), L"EFIDroid UI", LOAD_OPTION_ACTIVE|LOAD_OPTION_HIDDEN, LoadOptions, LoadOptionsSize
     );
 }
 
