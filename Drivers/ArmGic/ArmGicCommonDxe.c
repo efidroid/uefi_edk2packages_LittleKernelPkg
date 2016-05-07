@@ -101,7 +101,7 @@ RegisterInterruptSource (
   IN HARDWARE_INTERRUPT_HANDLER         Handler
   )
 {
-  if (Source > mGicNumInterrupts) {
+  if (Source >= mGicNumInterrupts) {
     ASSERT(FALSE);
     return EFI_UNSUPPORTED;
   }
