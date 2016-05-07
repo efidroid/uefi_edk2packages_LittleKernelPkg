@@ -423,7 +423,7 @@ PlatformRegisterOptionsAndKeys (
   //
   // Register EFIDroid UI
   //
-  CONST CHAR16* Args = L"-nomap -nostartup -noversion -_exit EFIDroidUi";
+  CONST CHAR16* Args = L"-nomap -nostartup -noversion -_exit -nonest EFIDroidUi";
   UINTN LoadOptionsSize = (UINT32)StrSize (Args);
   VOID *LoadOptions     = AllocatePool (LoadOptionsSize);
   StrCpy (LoadOptions, Args);
