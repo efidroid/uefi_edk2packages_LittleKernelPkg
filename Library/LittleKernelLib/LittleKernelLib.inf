@@ -40,7 +40,6 @@
 
 [Sources.Arm]
   Arm/LittleKernelHelper.S    | GCC
-  Arm/LittleKernelHelper.asm  | RVCT
 
 [Sources.AArch64]
   AArch64/LittleKernelHelper.S
