@@ -307,9 +307,10 @@ TimerInitialize (
 {
   EFI_HANDLE  Handle = NULL;
   EFI_STATUS  Status;
+  UINTN       Ret;
 
   LKApi = GetLKApi();
-  ASSERT_EFI_ERROR(LKApi != NULL);
+  ASSERT(LKApi != NULL);
 
   // Find the interrupt controller protocol.  ASSERT if not found.
   Status = gBS->LocateProtocol (&gHardwareInterruptProtocolGuid, NULL, (VOID **)&gInterrupt);
@@ -319,8 +320,8 @@ TimerInitialize (
   Status = TimerDriverSetTimerPeriod (&gTimer, 0);
   ASSERT_EFI_ERROR (Status);
 
-  Status = LKApi->timer_register_handler(TimerInterruptHandler);
-  ASSERT_EFI_ERROR (Status == 0);
+  Ret = LKApi->timer_register_handler(TimerInterruptHandler);
+  ASSERT(Ret==0);
 
   // Set up default timer
   Status = TimerDriverSetTimerPeriod (&gTimer, FixedPcdGet32(PcdTimerPeriod)); // TIMER_DEFAULT_PERIOD
