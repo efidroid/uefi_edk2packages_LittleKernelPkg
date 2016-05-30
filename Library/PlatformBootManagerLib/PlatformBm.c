@@ -375,6 +375,39 @@ PlatformRegisterFvBootOption (
   EfiBootManagerFreeLoadOptions (BootOptions, BootOptionCount);
 }
 
+EFI_GUID mPcdUIFile = { 0x1db8bf12, 0x1b3d, 0x4d8d, {0x99, 0xe8, 0x23, 0x30, 0x9e, 0x10, 0xd5, 0xee}};
+
+STATIC
+VOID
+PlatformRemoveVNOROption (
+  VOID
+  )
+{
+  UINTN                         Index;
+  EFI_BOOT_MANAGER_LOAD_OPTION  *BootOption;
+  UINTN                         BootOptionCount;
+  EFI_DEVICE_PATH*              DevicePathNode;
+  EFI_STATUS                    Status;
+
+  BootOption = EfiBootManagerGetLoadOptions (&BootOptionCount, LoadOptionTypeBoot);
+  for (Index = 0; Index < BootOptionCount; Index++) {
+    DevicePathNode = BootOption[Index].FilePath;
+    while ((DevicePathNode != NULL) && !IsDevicePathEnd (DevicePathNode)) {
+
+      if (IS_DEVICE_PATH_NODE (DevicePathNode, HARDWARE_DEVICE_PATH, HW_VENDOR_DP)) {
+        CONST VENDOR_DEVICE_PATH* Vendor =  ((CONST VENDOR_DEVICE_PATH *)DevicePathNode);
+        if (Vendor != NULL && CompareGuid (&Vendor->Guid, &gLKVNORGuid)) {
+          Status = EfiBootManagerDeleteLoadOptionVariable (BootOption[Index].OptionNumber, LoadOptionTypeBoot);
+          ASSERT_EFI_ERROR (Status);
+          break;
+        }
+      }
+
+      // next
+      DevicePathNode     = NextDevicePathNode (DevicePathNode);
+    }
+  }
+}
 
 STATIC
 VOID
@@ -413,23 +446,26 @@ PlatformRegisterOptionsAndKeys (
              NULL, (UINT16) BootOption.OptionNumber, 0, &Esc, NULL
              );
   ASSERT (Status == EFI_SUCCESS || Status == EFI_ALREADY_STARTED);
-  //
-  // Register UEFI Shell
-  //
-  PlatformRegisterFvBootOption (
-    PcdGetPtr (PcdShellFile), L"EFI Internal Shell", 0, NULL, 0
-    );
 
   //
   // Register EFIDroid UI
   //
-  CONST CHAR16* Args = L"-nomap -nostartup -noversion -_exit -nonest EFIDroidUi";
-  UINTN LoadOptionsSize = (UINT32)StrSize (Args);
-  VOID *LoadOptions     = AllocatePool (LoadOptionsSize);
-  StrCpy (LoadOptions, Args);
-
   PlatformRegisterFvBootOption (
-    PcdGetPtr (PcdShellFile), L"EFIDroid UI", LOAD_OPTION_ACTIVE|LOAD_OPTION_HIDDEN, LoadOptions, LoadOptionsSize
+    &mPcdUIFile, L"EFIDroid UI", LOAD_OPTION_ACTIVE|LOAD_OPTION_HIDDEN, NULL, 0
+    );
+
+  EfiBootManagerRefreshAllBootOption ();
+
+  //
+  // remove VNOR
+  //
+  PlatformRemoveVNOROption();
+
+  //
+  // Register UEFI Shell
+  //
+  PlatformRegisterFvBootOption (
+    PcdGetPtr (PcdShellFile), L"EFI Internal Shell", LOAD_OPTION_ACTIVE, NULL, 0
     );
 }
 
