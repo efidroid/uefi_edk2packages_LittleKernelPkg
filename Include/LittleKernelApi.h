@@ -140,8 +140,16 @@ typedef struct {
     void *(*mmap_get_mappings)(void *pdata, lkapi_mmap_mappings_cb_t cb);
     void (*mmap_get_lk_range)(unsigned long *addr, unsigned long *size);
 
-    int (*boot_create_tags)(const char *cmdline, unsigned int ramdisk_addr, unsigned int ramdisk_size, unsigned int tags_addr, unsigned int tags_size);
-    unsigned int (*boot_machine_type)(void);
+    unsigned int (*boot_get_machine_type)(void);
+    unsigned int (*boot_get_pmic_target)(unsigned short num_ent);
+    unsigned int (*boot_get_platform_id)(void);
+    unsigned int (*boot_get_hardware_id)(void);
+    unsigned int (*boot_get_hardware_subtype)(void);
+    unsigned int (*boot_get_soc_version)(void);
+    unsigned int (*boot_get_target_id)(void);
+    unsigned int (*boot_get_foundry_id)(void);
+    unsigned int (*boot_get_hlos_subtype)(void);
+    const char* (*boot_get_cmdline_extension)(void);
     void (*boot_update_addrs)(unsigned int *kernel, unsigned int *ramdisk, unsigned int *tags);
     void (*boot_exec)(void *kernel, unsigned int zero, unsigned int arch, unsigned int tags);
 
