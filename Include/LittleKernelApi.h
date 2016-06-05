@@ -151,6 +151,8 @@ typedef struct {
     unsigned int (*boot_get_hlos_subtype)(void);
     const char* (*boot_get_cmdline_extension)(void);
     void (*boot_update_addrs)(unsigned int *kernel, unsigned int *ramdisk, unsigned int *tags);
+    void* (*boot_extend_atags)(void *atags);
+    void (*boot_extend_fdt)(void *fdt);
     void (*boot_exec)(void *kernel, unsigned int zero, unsigned int arch, unsigned int tags);
 
     void (*event_init)(void **event);
