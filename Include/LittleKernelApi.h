@@ -23,6 +23,7 @@ typedef enum {
 
 typedef struct lkapi_biodev lkapi_biodev_t;
 struct lkapi_biodev {
+    int id;
     lkapi_biodev_type_t type;
     unsigned int block_size;
     unsigned long long num_blocks;

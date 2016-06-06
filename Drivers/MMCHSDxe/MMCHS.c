@@ -65,6 +65,7 @@ BIO_INSTANCE mBioTemplate = {
     }
   },
   { // LKDev
+    -1,                          // id
     0,                           // type
     0,                           // block_size
     0,                           // num_blocks
@@ -364,12 +365,12 @@ MMCHSInitialize (
     }
 
     // set data
-    Instance->BlockMedia.BlockSize = Devices[Index].block_size;
-    Instance->BlockMedia.LastBlock = Devices[Index].num_blocks - 1;
     Instance->LKDev = Devices[Index];
+    Instance->BlockMedia.BlockSize = Instance->LKDev.block_size;
+    Instance->BlockMedia.LastBlock = Instance->LKDev.num_blocks - 1;
     // give every device a slighty different GUID, this limits us to 256 devices
-    Instance->DevicePath.Mmc.Guid.Data4[7] = Index;
-    if (Devices[Index].type == LKAPI_BIODEV_TYPE_VNOR)
+    Instance->DevicePath.Mmc.Guid.Data4[7] = Instance->LKDev.id<0?Index:Instance->LKDev.id;
+    if (Instance->LKDev.type == LKAPI_BIODEV_TYPE_VNOR)
       Instance->DevicePath.Mmc.Guid = VNOR_GUID;
 
     // Publish BlockIO
