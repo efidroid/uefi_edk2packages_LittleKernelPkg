@@ -21,7 +21,7 @@
 
 STATIC UINT32 mTableSize = 0;
 
-static void* mmap_callback_dram_buildhob(void* pdata, unsigned long addr, unsigned long size, int reserved) {
+static void* mmap_callback_dram_buildhob(void* pdata, unsigned long long addr, unsigned long long size, int reserved) {
   EFI_RESOURCE_ATTRIBUTE_TYPE   ResourceAttributes;
 
   if(!reserved) {
@@ -47,7 +47,7 @@ static void* mmap_callback_dram_buildhob(void* pdata, unsigned long addr, unsign
   return pdata;
 }
 
-static void* mmap_callback_mappings_count(void* pdata, unsigned long vaddr, unsigned long paddr, unsigned long size, lkapi_memorytype_t type) {
+static void* mmap_callback_mappings_count(void* pdata, unsigned long long vaddr, unsigned long long paddr, unsigned long long size, lkapi_memorytype_t type) {
 
   mTableSize++;
 
@@ -70,7 +70,7 @@ static UINT64 lktype2efitype(lkapi_memorytype_t type) {
   }
 }
 
-static void* mmap_callback_mappings_add(void* pdata, unsigned long vaddr, unsigned long paddr, unsigned long size, lkapi_memorytype_t type) {
+static void* mmap_callback_mappings_add(void* pdata, unsigned long long vaddr, unsigned long long paddr, unsigned long long size, lkapi_memorytype_t type) {
   ARM_MEMORY_REGION_DESCRIPTOR  *VirtualMemoryTable = (ARM_MEMORY_REGION_DESCRIPTOR*)pdata;
 
   VirtualMemoryTable->PhysicalBase = vaddr;

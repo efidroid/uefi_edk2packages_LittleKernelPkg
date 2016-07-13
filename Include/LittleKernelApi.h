@@ -34,8 +34,8 @@ struct lkapi_biodev {
     int (*write)(lkapi_biodev_t *dev, unsigned long long lba, unsigned long buffersize, void *buffer);
 };
 
-typedef void *(*lkapi_mmap_cb_t)(void *pdata, unsigned long addr, unsigned long size, int reserved);
-typedef void *(*lkapi_mmap_mappings_cb_t)(void *pdata, unsigned long vaddr, unsigned long paddr, unsigned long size, lkapi_memorytype_t type);
+typedef void *(*lkapi_mmap_cb_t)(void *pdata, unsigned long long addr, unsigned long long size, int reserved);
+typedef void *(*lkapi_mmap_mappings_cb_t)(void *pdata, unsigned long long vaddr, unsigned long long paddr, unsigned long long size, lkapi_memorytype_t type);
 typedef void *(*lkapi_mmap_lkmem_cb_t)(void *pdata, unsigned long long addr, unsigned long long size);
 
 typedef enum {
