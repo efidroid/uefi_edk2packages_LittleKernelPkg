@@ -66,6 +66,19 @@ GetPlatformPpi (
   return EFI_NOT_FOUND;
 }
 
+STATIC
+VOID*
+lkapi_mmap_lkmem_cb (
+  VOID *Pdata,
+  UINT64 Address,
+  UINT64 Size
+)
+{
+  BuildMemoryAllocationHob ((EFI_PHYSICAL_ADDRESS)Address, (UINT64)Size, EfiRuntimeServicesCode);
+
+  return Pdata;
+}
+
 VOID
 PrePiMain (
   IN  UINTN                     UefiMemoryBase,
@@ -106,10 +119,8 @@ PrePiMain (
   ASSERT_EFI_ERROR (Status);
 
   
-  // allocate LK range so nothing else is gonna use it's memory
-  unsigned long LKAddr, LKSize;
-  GetLKApi()->mmap_get_lk_range(&LKAddr, &LKSize);
-  BuildMemoryAllocationHob ((EFI_PHYSICAL_ADDRESS)LKAddr, (UINT64)LKSize, EfiRuntimeServicesCode);
+  // allocate LK memory so nothing else is gonna use it
+  GetLKApi()->mmap_get_lkmem(NULL, lkapi_mmap_lkmem_cb);
 
   // Create the Stacks HOB (reserve the memory for all stacks)
   StacksSize = PcdGet32 (PcdCPUCorePrimaryStackSize);

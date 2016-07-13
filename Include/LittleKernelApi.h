@@ -36,6 +36,7 @@ struct lkapi_biodev {
 
 typedef void *(*lkapi_mmap_cb_t)(void *pdata, unsigned long addr, unsigned long size, int reserved);
 typedef void *(*lkapi_mmap_mappings_cb_t)(void *pdata, unsigned long vaddr, unsigned long paddr, unsigned long size, lkapi_memorytype_t type);
+typedef void *(*lkapi_mmap_lkmem_cb_t)(void *pdata, unsigned long long addr, unsigned long long size);
 
 typedef enum {
     LKAPI_UEFI_BM_NORMAL = 0,
@@ -139,7 +140,7 @@ typedef struct {
 
     void *(*mmap_get_dram)(void *pdata, lkapi_mmap_cb_t cb);
     void *(*mmap_get_mappings)(void *pdata, lkapi_mmap_mappings_cb_t cb);
-    void (*mmap_get_lk_range)(unsigned long *addr, unsigned long *size);
+    void *(*mmap_get_lkmem)(void *pdata, lkapi_mmap_lkmem_cb_t cb);
 
     unsigned int (*boot_get_machine_type)(void);
     unsigned int (*boot_get_pmic_target)(unsigned short num_ent);
