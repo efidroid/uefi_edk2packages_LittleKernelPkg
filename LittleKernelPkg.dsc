@@ -358,6 +358,7 @@
   }
   MdeModulePkg/Universal/PCD/Dxe/Pcd.inf
   LittleKernelPkg/Drivers/DxeInit/DxeInit.inf
+  LittleKernelPkg/Drivers/DxeInit2/DxeInit2.inf
 
   #
   # Architectural Protocols
