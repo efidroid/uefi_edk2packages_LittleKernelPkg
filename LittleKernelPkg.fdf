@@ -26,35 +26,10 @@
 
 [Defines]
 !include $(WORKSPACE)/Build/EFIDROID/LittleKernelPkg.fdf.inc
-
-[FD.LittleKernelPkg_EFI]
-BaseAddress   = $(FD_BASE)|gArmTokenSpaceGuid.PcdFdBaseAddress  # The base address of the Firmware in NOR Flash.
-Size          = 0x00200000|gArmTokenSpaceGuid.PcdFdSize         # The size in bytes of the FLASH Device
-ErasePolarity = 1
-
-# This one is tricky, it must be: BlockSize * NumBlocks = Size
-BlockSize     = 0x00001000
-NumBlocks     = 0x200
-
-################################################################################
-#
-# Following are lists of FD Region layout which correspond to the locations of different
-# images within the flash device.
-#
-# Regions must be defined in ascending order and may not overlap.
-#
-# A Layout Region start with a eight digit hex offset (leading "0x" required) followed by
-# the pipe "|" character, followed by the size of the region, also in hex with the leading
-# "0x" characters. Like:
-# Offset|Size
-# PcdOffsetCName|PcdSizeCName
-# RegionType <FV, DATA, or FILE>
-#
-################################################################################
-
-0x00000000|0x00200000
-gArmTokenSpaceGuid.PcdFvBaseAddress|gArmTokenSpaceGuid.PcdFvSize
-FV = FVMAIN_COMPACT
+SET gArmTokenSpaceGuid.PcdFdBaseAddress = $(FD_BASE)
+SET gArmTokenSpaceGuid.PcdFdSize        = $(FD_SIZE)
+SET gArmTokenSpaceGuid.PcdFvBaseAddress = $(FD_BASE)
+SET gArmTokenSpaceGuid.PcdFvSize        = $(FD_SIZE)
 
 
 ################################################################################
@@ -189,6 +164,7 @@ FvNameGuid         = 411ffc75-2138-44b9-874c-d2c91fa78e91
   }
 
 [FV.FVMAIN_COMPACT]
+FvBaseAddress      = $(FD_BASE)
 FvAlignment        = 8
 ERASE_POLARITY     = 1
 MEMORY_MAPPED      = TRUE
