@@ -47,14 +47,14 @@ static void* mmap_callback_dram_buildhob(void* pdata, unsigned long long addr, u
   return pdata;
 }
 
-static void* mmap_callback_mappings_count(void* pdata, unsigned long long vaddr, unsigned long long paddr, unsigned long long size, lkapi_memorytype_t type) {
+static void* mmap_callback_mappings_count(void* pdata, unsigned long long vaddr, unsigned long long paddr, unsigned long long size, unsigned int type) {
 
   mTableSize++;
 
   return pdata;
 }
 
-static UINT64 lktype2efitype(lkapi_memorytype_t type) {
+static UINT64 lktype2efitype(unsigned int type) {
   switch(type) {
     case LKAPI_MEMORY_UNCACHED:
       return ARM_MEMORY_REGION_ATTRIBUTE_UNCACHED_UNBUFFERED;
@@ -70,7 +70,7 @@ static UINT64 lktype2efitype(lkapi_memorytype_t type) {
   }
 }
 
-static void* mmap_callback_mappings_add(void* pdata, unsigned long long vaddr, unsigned long long paddr, unsigned long long size, lkapi_memorytype_t type) {
+static void* mmap_callback_mappings_add(void* pdata, unsigned long long vaddr, unsigned long long paddr, unsigned long long size, unsigned int type) {
   ARM_MEMORY_REGION_DESCRIPTOR  *VirtualMemoryTable = (ARM_MEMORY_REGION_DESCRIPTOR*)pdata;
 
   VirtualMemoryTable->PhysicalBase = vaddr;

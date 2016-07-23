@@ -171,7 +171,7 @@ LKDisplayGetLandscapeMode (
   VOID
 );
 
-lkapi_lcd_pixelformat_t
+INTN
 LcdGetPixelFormat (
   VOID
   );

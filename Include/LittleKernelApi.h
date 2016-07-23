@@ -1,30 +1,24 @@
 #ifndef __LITTLEKERNELAPI_PLATFORM_H__
 #define __LITTLEKERNELAPI_PLATFORM_H__
 
-typedef enum {
-    LKAPI_MEMORY_UNCACHED = 0,
-    LKAPI_MEMORY_WRITE_BACK,
-    LKAPI_MEMORY_WRITE_THROUGH,
-    LKAPI_MEMORY_DEVICE,
-} lkapi_memorytype_t;
+#define LKAPI_MEMORY_UNCACHED 0
+#define LKAPI_MEMORY_WRITE_BACK 1
+#define LKAPI_MEMORY_WRITE_THROUGH 2
+#define LKAPI_MEMORY_DEVICE 3
 
-enum lkapi_handler_return {
-    LKAPI_INT_NO_RESCHEDULE = 0,
-    LKAPI_INT_RESCHEDULE,
-};
-typedef enum lkapi_handler_return (*lkapi_int_handler)(void *arg);
+#define LKAPI_INT_NO_RESCHEDULE 0
+#define LKAPI_INT_RESCHEDULE 1
 
+#define LKAPI_BIODEV_TYPE_MMC 0
+#define LKAPI_BIODEV_TYPE_VNOR 1
+
+typedef unsigned int (*lkapi_int_handler)(void *arg);
 typedef void (*lkapi_timer_callback_t)(void);
-
-typedef enum {
-    LKAPI_BIODEV_TYPE_MMC,
-    LKAPI_BIODEV_TYPE_VNOR,
-} lkapi_biodev_type_t;
 
 typedef struct lkapi_biodev lkapi_biodev_t;
 struct lkapi_biodev {
     int id;
-    lkapi_biodev_type_t type;
+    unsigned int type;
     unsigned int block_size;
     unsigned long long num_blocks;
     void *api_pdata;
@@ -35,19 +29,15 @@ struct lkapi_biodev {
 };
 
 typedef void *(*lkapi_mmap_cb_t)(void *pdata, unsigned long long addr, unsigned long long size, int reserved);
-typedef void *(*lkapi_mmap_mappings_cb_t)(void *pdata, unsigned long long vaddr, unsigned long long paddr, unsigned long long size, lkapi_memorytype_t type);
+typedef void *(*lkapi_mmap_mappings_cb_t)(void *pdata, unsigned long long vaddr, unsigned long long paddr, unsigned long long size, unsigned int type);
 typedef void *(*lkapi_mmap_lkmem_cb_t)(void *pdata, unsigned long long addr, unsigned long long size);
 
-typedef enum {
-    LKAPI_UEFI_BM_NORMAL = 0,
-    LKAPI_UEFI_BM_RECOVERY,
-} lkapi_uefi_bootmode;
+#define LKAPI_UEFI_BM_NORMAL 0
+#define LKAPI_UEFI_BM_RECOVERY 1
 
-typedef enum {
-    LKAPI_LCD_PIXELFORMAT_INVALID = -1,
-    LKAPI_LCD_PIXELFORMAT_RGB888 = 0,
-    LKAPI_LCD_PIXELFORMAT_RGB565,
-} lkapi_lcd_pixelformat_t;
+#define LKAPI_LCD_PIXELFORMAT_INVALID -1
+#define LKAPI_LCD_PIXELFORMAT_RGB888   0
+#define LKAPI_LCD_PIXELFORMAT_RGB565   1
 
 #define LKAPI_UDC_EVENT_ONLINE  1
 #define LKAPI_UDC_EVENT_OFFLINE 2
@@ -95,7 +85,7 @@ typedef struct {
     void (*platform_early_init)(void);
     void (*platform_init)(void);
     void (*platform_uninit)(void);
-    lkapi_uefi_bootmode (*platform_get_uefi_bootmode)(void);
+    unsigned int (*platform_get_uefi_bootmode)(void);
 
     int (*serial_poll_char)(void);
     void (*serial_write_char)(char c);
@@ -126,7 +116,7 @@ typedef struct {
     unsigned int (*lcd_get_height)(void);
     unsigned int (*lcd_get_density)(void);
     unsigned int (*lcd_get_bpp)(void);
-    lkapi_lcd_pixelformat_t (*lcd_get_pixelformat)(void);
+    int (*lcd_get_pixelformat)(void);
     int  (*lcd_needs_flush)(void);
     void (*lcd_flush)(void);
     void (*lcd_shutdown)(void);
@@ -143,15 +133,7 @@ typedef struct {
     void *(*mmap_get_mappings)(void *pdata, lkapi_mmap_mappings_cb_t cb);
     void *(*mmap_get_lkmem)(void *pdata, lkapi_mmap_lkmem_cb_t cb);
 
-    unsigned int (*boot_get_machine_type)(void);
-    unsigned int (*boot_get_pmic_target)(unsigned short num_ent);
-    unsigned int (*boot_get_platform_id)(void);
-    unsigned int (*boot_get_hardware_id)(void);
-    unsigned int (*boot_get_hardware_subtype)(void);
-    unsigned int (*boot_get_soc_version)(void);
-    unsigned int (*boot_get_target_id)(void);
-    unsigned int (*boot_get_foundry_id)(void);
-    unsigned int (*boot_get_hlos_subtype)(void);
+    int (*boot_get_hwid)(const char* id, unsigned int* datap);
     const char* (*boot_get_cmdline_extension)(void);
     void (*boot_update_addrs)(unsigned int *kernel, unsigned int *ramdisk, unsigned int *tags);
     void* (*boot_extend_atags)(void *atags);

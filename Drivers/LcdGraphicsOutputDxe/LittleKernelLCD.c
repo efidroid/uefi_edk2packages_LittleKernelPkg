@@ -51,7 +51,7 @@ LcdShutdown (
 typedef struct {
   UINT32                     HorizontalResolution;
   UINT32                     VerticalResolution;
-  lkapi_lcd_pixelformat_t    PixelFormat;
+  INTN                       PixelFormat;
 } LCD_RESOLUTION;
 
 
@@ -223,7 +223,7 @@ LKDisplayGetLandscapeMode (
 #endif
 }
 
-lkapi_lcd_pixelformat_t
+INTN
 LcdGetPixelFormat (
   VOID
   )
