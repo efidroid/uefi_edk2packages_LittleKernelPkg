@@ -235,7 +235,7 @@
   gEfiMdeModulePkgTokenSpaceGuid.PcdConOutGopSupport|TRUE
 
 [PcdsFixedAtBuild.common]
-  gArmPlatformTokenSpaceGuid.PcdSystemMemoryUefiRegionSize|0x00e00000 # PcdSystemMemorySize - PcdFdSize
+  gArmPlatformTokenSpaceGuid.PcdSystemMemoryUefiRegionSize|$(UEFI_REGION_SIZE)
   gEfiMdeModulePkgTokenSpaceGuid.PcdFirmwareVersionString|L"$(FIRMWARE_VER)"
 
   gEfiMdePkgTokenSpaceGuid.PcdMaximumUnicodeStringLength|1000000
