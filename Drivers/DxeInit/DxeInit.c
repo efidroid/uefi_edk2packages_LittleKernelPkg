@@ -62,9 +62,9 @@ DxeInitInitialize (
 {
   lkapi_t* LKApi = GetLKApi();
 
-  PcdSet32 (PcdGicDistributorBase, LKApi->int_get_dist_base());
-  PcdSet32 (PcdGicRedistributorsBase, LKApi->int_get_redist_base());
-  PcdSet32 (PcdGicInterruptInterfaceBase, LKApi->int_get_cpu_base());
+  PcdSet32S (PcdGicDistributorBase, LKApi->int_get_dist_base());
+  PcdSet32S (PcdGicRedistributorsBase, LKApi->int_get_redist_base());
+  PcdSet32S (PcdGicInterruptInterfaceBase, LKApi->int_get_cpu_base());
 
   LKApi->event_init = lkapi_event_init;
   LKApi->event_destroy = lkapi_event_destroy;

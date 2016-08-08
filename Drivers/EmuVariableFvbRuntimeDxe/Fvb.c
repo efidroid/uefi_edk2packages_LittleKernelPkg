@@ -789,19 +789,19 @@ FvbInitialize (
     SetMem (Ptr, EMU_FVB_SIZE, ERASED_UINT8);
     InitializeFvAndVariableStoreHeaders (Ptr);
   }
-  PcdSet64 (PcdFlashNvStorageVariableBase64, (UINT32)(UINTN) Ptr);
+  PcdSet64S (PcdFlashNvStorageVariableBase64, (UINT32)(UINTN) Ptr);
 
   //
   // Initialize the Fault Tolerant Write data area
   //
   SubPtr = (VOID*) ((UINT8*) Ptr + PcdGet32 (PcdVariableStoreSize));
-  PcdSet32 (PcdFlashNvStorageFtwWorkingBase, (UINT32)(UINTN) SubPtr);
+  PcdSet32S (PcdFlashNvStorageFtwWorkingBase, (UINT32)(UINTN) SubPtr);
 
   //
   // Initialize the Fault Tolerant Write spare block
   //
   SubPtr = (VOID*) ((UINT8*) Ptr + EMU_FVB_BLOCK_SIZE);
-  PcdSet32 (PcdFlashNvStorageFtwSpareBase, (UINT32)(UINTN) SubPtr);
+  PcdSet32S (PcdFlashNvStorageFtwSpareBase, (UINT32)(UINTN) SubPtr);
 
   //
   // Setup FVB device path

@@ -33,12 +33,13 @@ Unicode2Ascii (
   CONST CHAR16* UnicodeStr
 )
 {
-  CHAR8* AsciiStr = AllocatePool((StrLen (UnicodeStr) + 1) * sizeof (CHAR8));
+  UINTN BufSize = StrSize (UnicodeStr) * sizeof (CHAR8);
+  CHAR8* AsciiStr = AllocatePool(BufSize);
   if (AsciiStr == NULL) {
     return NULL;
   }
 
-  UnicodeStrToAsciiStr(UnicodeStr, AsciiStr);
+  UnicodeStrToAsciiStrS(UnicodeStr, AsciiStr, BufSize);
 
   return AsciiStr;
 }
