@@ -201,12 +201,20 @@
   # Add support for GCC stack protector
   NULL|MdePkg/Library/BaseStackCheckLib/BaseStackCheckLib.inf
 
+
 [BuildOptions]
+  GCC:*_*_*_CC_FLAGS = -nostdinc -nostdlib
+
+  RVCT:*_*_*_CC_FLAGS = --library_interface=none
+
+  *_*_*_CC_FLAGS = -D DISABLE_NEW_DEPRECATED_INTERFACES
+
+[BuildOptions.ARM]
   XCODE:*_*_ARM_PLATFORM_FLAGS == -arch armv7
 
-  GCC:*_*_ARM_PLATFORM_FLAGS == -march=armv7-a -nostdinc -nostdlib
+  GCC:*_*_ARM_PLATFORM_FLAGS == -march=armv7-a
 
-  RVCT:*_*_ARM_PLATFORM_FLAGS == --cpu Cortex-A8 --library_interface=none
+  RVCT:*_*_ARM_PLATFORM_FLAGS == --cpu Cortex-A8
 
 [BuildOptions.common.EDKII.DXE_RUNTIME_DRIVER]
   GCC:*_*_ARM_DLINK_FLAGS = -z common-page-size=0x1000
