@@ -33,7 +33,6 @@ typedef void *(*lkapi_mmap_mappings_cb_t)(void *pdata, unsigned long long vaddr,
 typedef void *(*lkapi_mmap_lkmem_cb_t)(void *pdata, unsigned long long addr, unsigned long long size);
 
 #define LKAPI_UEFI_BM_NORMAL 0
-#define LKAPI_UEFI_BM_RECOVERY 1
 
 #define LKAPI_LCD_PIXELFORMAT_INVALID -1
 #define LKAPI_LCD_PIXELFORMAT_RGB888   0
@@ -86,6 +85,7 @@ typedef struct {
     void (*platform_init)(void);
     void (*platform_uninit)(void);
     unsigned int (*platform_get_uefi_bootmode)(void);
+    const char* (*platform_get_uefi_bootpart)(void);
 
     int (*serial_poll_char)(void);
     void (*serial_write_char)(char c);
