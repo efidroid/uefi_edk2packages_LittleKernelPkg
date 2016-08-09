@@ -102,6 +102,12 @@ LcdInstanceContructor (
   )
 {
   LCD_INSTANCE* Instance;
+  EFI_STATUS    Status;
+
+  Status = LcdInitialize();
+  if(EFI_ERROR(Status)) {
+    return Status;
+  }
 
   Instance = AllocateCopyPool (sizeof(LCD_INSTANCE), &mLcdTemplate);
   if (Instance == NULL) {
@@ -131,12 +137,6 @@ InitializeDisplay (
 #ifdef DOUBLE_BUFFER
   VOID                   *VramDoubleBuffer;
 #endif
-
-  // Setup the LCD
-  Status = LcdInitialize ();
-  if (EFI_ERROR(Status)) {
-    goto EXIT_ERROR_LCD_SHUTDOWN;
-  }
 
   // get VRAM address
   Status = LcdPlatformGetVram (&VramBaseAddress, &VramSize);
