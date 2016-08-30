@@ -41,9 +41,6 @@
 [Sources.Arm]
   Arm/LittleKernelHelper.S    | GCC
 
-[Sources.AArch64]
-  AArch64/LittleKernelHelper.S
-
 [FixedPcd]
   gArmTokenSpaceGuid.PcdSystemMemoryBase
   gArmTokenSpaceGuid.PcdSystemMemorySize

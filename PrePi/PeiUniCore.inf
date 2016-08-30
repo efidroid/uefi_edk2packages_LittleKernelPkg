@@ -27,10 +27,6 @@
   Arm/ArchPrePi.c
   Arm/ModuleEntryPoint.S   | GCC
 
-[Sources.AArch64]
-  AArch64/ArchPrePi.c
-  AArch64/ModuleEntryPoint.S
-
 [Packages]
   MdePkg/MdePkg.dec
   MdeModulePkg/MdeModulePkg.dec
