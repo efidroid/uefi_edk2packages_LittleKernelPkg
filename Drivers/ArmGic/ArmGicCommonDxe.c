@@ -61,6 +61,8 @@ LKInterruptHandler (
 
   // TODO: check return value
   gRegisteredInterruptHandlersLK[Source].func(gRegisteredInterruptHandlersLK[Source].arg);
+
+  mHardwareInterruptProtocol->EndOfInterrupt (mHardwareInterruptProtocol, Source);
 }
 
 void lkapi_int_register_handler(unsigned int vector, lkapi_int_handler func, void *arg) {
