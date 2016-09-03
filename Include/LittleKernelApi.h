@@ -134,7 +134,7 @@ typedef struct {
     void *(*mmap_get_lkmem)(void *pdata, lkapi_mmap_lkmem_cb_t cb);
 
     int (*boot_get_hwid)(const char* id, unsigned int* datap);
-    const char* (*boot_get_cmdline_extension)(void);
+    const char* (*boot_get_cmdline_extension)(int is_recovery);
     void (*boot_update_addrs)(unsigned int *kernel, unsigned int *ramdisk, unsigned int *tags);
     void* (*boot_extend_atags)(void *atags);
     void (*boot_extend_fdt)(void *fdt);
