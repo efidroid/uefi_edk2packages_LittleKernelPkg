@@ -33,6 +33,7 @@ typedef void *(*lkapi_mmap_mappings_cb_t)(void *pdata, unsigned long long vaddr,
 typedef void *(*lkapi_mmap_lkmem_cb_t)(void *pdata, unsigned long long addr, unsigned long long size);
 
 #define LKAPI_UEFI_BM_NORMAL 0
+#define LKAPI_UEFI_BM_RECOVERY 1
 
 #define LKAPI_LCD_PIXELFORMAT_INVALID -1
 #define LKAPI_LCD_PIXELFORMAT_RGB888   0
