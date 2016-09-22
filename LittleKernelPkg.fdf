@@ -115,14 +115,6 @@ FvNameGuid         = 411ffc75-2138-44b9-874c-d2c91fa78e91
   INF MdeModulePkg/Universal/SerialDxe/SerialDxe.inf
 
   #
-  # INF GrubFSPkg
-  #
-  INF GrubFSPkg/src/NTFS.inf
-  INF GrubFSPkg/src/EXT2.inf
-  INF GrubFSPkg/src/EXFAT.inf
-  INF GrubFSPkg/src/F2FS.inf
-
-  #
   # FAT filesystem + GPT/MBR partitioning
   #
   INF MdeModulePkg/Universal/Disk/DiskIoDxe/DiskIoDxe.inf
@@ -161,6 +153,14 @@ FvNameGuid         = 411ffc75-2138-44b9-874c-d2c91fa78e91
   FILE APPLICATION = 1db8bf12-1b3d-4d8d-99e8-23309e10d5ee {
     SECTION PE32 = Build/uefiapp_EFIDroidUi/$(TARGET)_$(TOOL_CHAIN_TAG)/$(ARCH)/EFIDroidUi.efi
     SECTION UI   = "EFIDroidUi"
+  }
+
+  #
+  # LKL
+  #
+  FILE DRIVER = 21db9c99-120a-4c7a-a0bb-7ec6b5f3b49b {
+    SECTION PE32 = Build/uefiapp_LKL/$(TARGET)_$(TOOL_CHAIN_TAG)/$(ARCH)/LKL.efi
+    SECTION UI   = "LKL"
   }
 
 [FV.FVMAIN_COMPACT]

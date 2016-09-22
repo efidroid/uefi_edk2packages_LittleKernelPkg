@@ -408,14 +408,6 @@
   }
 
   #
-  # GrubFSPkg
-  #
-  GrubFSPkg/src/NTFS.inf
-  GrubFSPkg/src/EXT2.inf
-  GrubFSPkg/src/EXFAT.inf
-  GrubFSPkg/src/F2FS.inf
-
-  #
   # FAT filesystem + GPT/MBR partitioning
   #
   MdeModulePkg/Universal/Disk/DiskIoDxe/DiskIoDxe.inf
