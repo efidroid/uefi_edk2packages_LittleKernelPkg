@@ -159,7 +159,7 @@ FvNameGuid         = 411ffc75-2138-44b9-874c-d2c91fa78e91
   # EFIDroidUi
   #
   FILE APPLICATION = 1db8bf12-1b3d-4d8d-99e8-23309e10d5ee {
-    SECTION PE32 = Build/EFIDroidUEFIApps/$(TARGET)_$(TOOL_CHAIN_TAG)/$(ARCH)/EFIDroidUi.efi
+    SECTION PE32 = Build/uefiapp_EFIDroidUi/$(TARGET)_$(TOOL_CHAIN_TAG)/$(ARCH)/EFIDroidUi.efi
     SECTION UI   = "EFIDroidUi"
   }
 
