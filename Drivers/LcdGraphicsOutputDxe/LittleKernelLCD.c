@@ -117,7 +117,7 @@ LcdPlatformGetVram (
   ASSERT_EFI_ERROR(Status);
 
   // Mark the VRAM as un-cacheable. The VRAM is inside the DRAM, which is cacheable.
-  Status = Cpu->SetMemoryAttributes (Cpu, *VramBaseAddress, *VramSize, EFI_MEMORY_UC);
+  Status = Cpu->SetMemoryAttributes (Cpu, *VramBaseAddress, *VramSize, EFI_MEMORY_WC);
   ASSERT_EFI_ERROR(Status);
   if (EFI_ERROR(Status)) {
     gBS->FreePool (VramBaseAddress);
