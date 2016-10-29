@@ -233,6 +233,9 @@
 
   gEmbeddedTokenSpaceGuid.PcdPrePiProduceMemoryTypeInformationHob|TRUE
 
+  # Qualcomm Linux kernels panic if MDP stays enabled
+  gArmPlatformTokenSpaceGuid.PcdGopDisableOnExitBootServices|TRUE
+
   gEfiMdeModulePkgTokenSpaceGuid.PcdTurnOffUsbLegacySupport|TRUE
   gEfiMdeModulePkgTokenSpaceGuid.PcdConOutGopSupport|TRUE
 
