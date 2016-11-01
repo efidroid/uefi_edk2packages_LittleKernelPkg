@@ -30,6 +30,9 @@
 #include "PrePi.h"
 #include "LzmaDecompress.h"
 
+UINT64 mSystemMemoryEnd = FixedPcdGet64(PcdSystemMemoryBase) +
+                          FixedPcdGet64(PcdSystemMemorySize) - 1;
+
 EFI_STATUS
 EFIAPI
 ExtractGuidedSectionLibConstructor (
