@@ -137,10 +137,10 @@ typedef struct {
     int (*boot_get_hwid)(const char* id, unsigned int* datap);
     const char* (*boot_get_default_fdt_parser)(void);
     const char* (*boot_get_cmdline_extension)(int is_recovery);
-    void (*boot_update_addrs)(unsigned int *kernel, unsigned int *ramdisk, unsigned int *tags);
+    void (*boot_update_addrs)(int is64, unsigned int *kernel, unsigned int *ramdisk, unsigned int *tags);
     void* (*boot_extend_atags)(void *atags);
     void (*boot_extend_fdt)(void *fdt);
-    void (*boot_exec)(void *kernel, unsigned int zero, unsigned int arch, unsigned int tags);
+    void (*boot_exec)(int is64, void *kernel, unsigned int zero, unsigned int arch, unsigned int tags);
 
     void (*event_init)(void **event);
     void (*event_destroy)(void *event);
