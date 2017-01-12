@@ -51,6 +51,11 @@ MemoryPeim (
   IN UINT64                     UefiMemorySize
   );
 
+VOID
+ArmPlatformBuildMemoryAllocationHobs (
+  VOID
+  );
+
 EFI_STATUS
 EFIAPI
 PlatformPeim (
