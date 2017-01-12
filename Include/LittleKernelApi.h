@@ -1,13 +1,57 @@
 #ifndef __LITTLEKERNELAPI_PLATFORM_H__
 #define __LITTLEKERNELAPI_PLATFORM_H__
 
-#define LKAPI_MEMORY_UNCACHED 0
-#define LKAPI_MEMORY_WRITE_BACK 1
-#define LKAPI_MEMORY_WRITE_THROUGH 2
-#define LKAPI_MEMORY_DEVICE 3
+//
+// mmap
+//
+
+#define LKAPI_MEMORYTYPE_RESERVED 0
+#define LKAPI_MEMORYTYPE_LOADER_CODE 1
+#define LKAPI_MEMORYTYPE_LOADER_DATA 2
+#define LKAPI_MEMORYTYPE_BOOTSERVICES_CODE 3
+#define LKAPI_MEMORYTYPE_BOOTSERVICES_DATA 4
+#define LKAPI_MEMORYTYPE_RUNTIMESERVICES_CODE 5
+#define LKAPI_MEMORYTYPE_RUNTIMESERVICES_DATA 6
+#define LKAPI_MEMORYTYPE_CONVENTIONAL_MEMORY 7
+#define LKAPI_MEMORYTYPE_UNUSABLE_MEMORY 8
+#define LKAPI_MEMORYTYPE_MEMORY_MAPPED_IO 11
+#define LKAPI_MEMORYTYPE_MEMORY_MAPPED_IO_PORTSPACE 12
+#define LKAPI_MEMORYTYPE_PAL_CODE 13
+#define LKAPI_MEMORYTYPE_PERSISTENT 14
+
+#define LKAPI_MEMORYATTR_DONT_MAP -1
+#define LKAPI_MEMORYATTR_UNCACHED 0
+#define LKAPI_MEMORYATTR_WRITE_BACK 1
+#define LKAPI_MEMORYATTR_WRITE_THROUGH 2
+#define LKAPI_MEMORYATTR_DEVICE 3
+
+#define LKAPI_MMAP_RANGEFLAG_UNUSED   1
+#define LKAPI_MMAP_RANGEFLAG_DRAM     2
+#define LKAPI_MMAP_RANGEFLAG_RESERVED 4
+typedef unsigned int lkapi_mmap_rangeflags_t;
+
+typedef void* (*lkapi_mmap_add_cb_t) (void *pdata, unsigned long long start, unsigned long long size, lkapi_mmap_rangeflags_t rangeflags,
+                       long MemoryAttributes, long MemoryType, lkapi_mmap_rangeflags_t insert_in_rangeflags);
+
+
+//
+// boot
+//
+
+typedef void *(*lkapi_boot_mmap_cb_t)(void *pdata, unsigned long long addr, unsigned long long size);
+
+
+//
+// interrupts
+//
 
 #define LKAPI_INT_NO_RESCHEDULE 0
 #define LKAPI_INT_RESCHEDULE 1
+
+
+//
+// BIO
+//
 
 #define LKAPI_BIODEV_TYPE_MMC 0
 #define LKAPI_BIODEV_TYPE_VNOR 1
@@ -28,9 +72,10 @@ struct lkapi_biodev {
     int (*write)(lkapi_biodev_t *dev, unsigned long long lba, unsigned long buffersize, void *buffer);
 };
 
-typedef void *(*lkapi_mmap_cb_t)(void *pdata, unsigned long long addr, unsigned long long size, int reserved);
-typedef void *(*lkapi_mmap_mappings_cb_t)(void *pdata, unsigned long long vaddr, unsigned long long paddr, unsigned long long size, unsigned int type);
-typedef void *(*lkapi_mmap_lkmem_cb_t)(void *pdata, unsigned long long addr, unsigned long long size);
+
+//
+// USB
+//
 
 #define LKAPI_UEFI_BM_NORMAL 0
 #define LKAPI_UEFI_BM_RECOVERY 1
@@ -81,6 +126,10 @@ struct lkapi_usbgadget_iface {
     void *pdata;
 };
 
+
+//
+// main callback structure
+//
 typedef struct {
     void (*platform_early_init)(void);
     void (*platform_init)(void);
@@ -130,10 +179,10 @@ typedef struct {
     int (*rtc_gettime)(unsigned int *time);
     int (*rtc_settime)(unsigned int time);
 
-    void *(*mmap_get_dram)(void *pdata, lkapi_mmap_cb_t cb);
-    void *(*mmap_get_mappings)(void *pdata, lkapi_mmap_mappings_cb_t cb);
-    void *(*mmap_get_lkmem)(void *pdata, lkapi_mmap_lkmem_cb_t cb);
+    void *(*mmap_get_all)(void *pdata, lkapi_mmap_add_cb_t cb);
+    int (*mmap_needs_identity_map)(void);
 
+    void *(*boot_get_mmap)(void *pdata, lkapi_boot_mmap_cb_t cb);
     int (*boot_get_hwid)(const char* id, unsigned int* datap);
     const char* (*boot_get_default_fdt_parser)(void);
     const char* (*boot_get_cmdline_extension)(int is_recovery);
