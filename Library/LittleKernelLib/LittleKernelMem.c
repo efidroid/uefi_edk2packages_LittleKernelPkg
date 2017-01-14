@@ -196,9 +196,11 @@ MmapInsertRange (
   if (!IsListEmpty(&CombinationList)) {
     // check if items are coherent
     ListForEveryEntry(&CombinationList, Link, Item, MMAP_RANGE, TmpLink, MMAP_LIST_SIGNATURE) {
-      MMAP_RANGE *Next = CR(Item->TmpLink.ForwardLink, MMAP_RANGE, TmpLink, MMAP_LIST_SIGNATURE);
+      if (Item->TmpLink.ForwardLink==&CombinationList)
+        continue;
 
-      if(Item->TmpLink.ForwardLink!=&CombinationList && (Next->Start!=Item->End+1)) {
+      MMAP_RANGE *Next = CR(Item->TmpLink.ForwardLink, MMAP_RANGE, TmpLink, MMAP_LIST_SIGNATURE);
+      if(Next->Start!=Item->End+1) {
         DEBUG((EFI_D_ERROR, "not coherent: 0x%016llx - 0x%016llx\n", Item->Start, Item->End));
         return EFI_NOT_FOUND;
       }
