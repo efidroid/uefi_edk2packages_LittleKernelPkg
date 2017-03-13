@@ -25,7 +25,6 @@
 ################################################################################
 
 [Defines]
-!include $(WORKSPACE)/Build/EFIDROID/LittleKernelPkg.fdf.inc
 SET gArmTokenSpaceGuid.PcdFdBaseAddress = $(FD_BASE)
 SET gArmTokenSpaceGuid.PcdFdSize        = $(FD_SIZE)
 SET gArmTokenSpaceGuid.PcdFvBaseAddress = $(FD_BASE)
