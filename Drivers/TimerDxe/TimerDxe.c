@@ -25,7 +25,6 @@
 #include <Library/PcdLib.h>
 #include <Library/IoLib.h>
 #include <Library/ArmGenericTimerCounterLib.h>
-#include <Library/ArmArchTimer.h>
 #include <LittleKernel.h>
 
 #include <Protocol/Timer.h>
