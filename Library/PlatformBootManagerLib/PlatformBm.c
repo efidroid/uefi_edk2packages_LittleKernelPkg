@@ -4,6 +4,7 @@
   Copyright (C) 2015-2016, Red Hat, Inc.
   Copyright (c) 2014, ARM Ltd. All rights reserved.<BR>
   Copyright (c) 2004 - 2016, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2016, Linaro Ltd. All rights reserved.<BR>
 
   This program and the accompanying materials are licensed and made available
   under the terms and conditions of the BSD License which accompanies this
@@ -15,13 +16,30 @@
 
 **/
 
+#include <IndustryStandard/Pci22.h>
+#include <Library/DevicePathLib.h>
+#include <Library/PcdLib.h>
+#include <Library/UefiBootManagerLib.h>
+#include <Library/UefiLib.h>
+#include <Protocol/DevicePath.h>
+#include <Protocol/GraphicsOutput.h>
+#include <Protocol/LoadedImage.h>
+#include <Protocol/PciIo.h>
+#include <Protocol/PciRootBridgeIo.h>
+#include <Guid/EventGroup.h>
+#include <Guid/TtyTerm.h>
+
 #include "PlatformBm.h"
+
+#define DP_NODE_LEN(Type) { (UINT8)sizeof (Type), (UINT8)(sizeof (Type) >> 8) }
+#define IS_DEVICE_PATH_NODE(node,type,subtype) (((node)->Type == (type)) && ((node)->SubType == (subtype)))
 
 ///
 /// Predefined platform default time out value
 ///
 VOID                        *mEmuVariableEventReg;
 EFI_EVENT                   mEmuVariableEvent;
+EFI_GUID mPcdUIFile = { 0x1db8bf12, 0x1b3d, 0x4d8d, {0x99, 0xe8, 0x23, 0x30, 0x9e, 0x10, 0xd5, 0xee}};
 
 //
 // Type definitions
@@ -34,116 +52,6 @@ EFI_STATUS
   IN VOID                 *Instance,
   IN VOID                 *Context
   );
-
-STATIC
-EFI_STATUS
-GetConsoleDevicePathFromVariable (
-  IN  CHAR16*             ConsoleVarName,
-  IN  CHAR16*             DefaultConsolePaths,
-  OUT EFI_DEVICE_PATH**   DevicePaths
-  )
-{
-  EFI_STATUS                Status;
-  UINTN                     Size;
-  EFI_DEVICE_PATH_PROTOCOL* DevicePathInstances;
-  EFI_DEVICE_PATH_PROTOCOL* DevicePathInstance;
-  CHAR16*                   DevicePathStr;
-  CHAR16*                   NextDevicePathStr;
-  EFI_DEVICE_PATH_FROM_TEXT_PROTOCOL  *EfiDevicePathFromTextProtocol;
-
-  Status = EFI_SUCCESS;
-  Size = 0;
-  DevicePathInstances = NULL;
-
-  GetEfiGlobalVariable2 (ConsoleVarName, (VOID **) &DevicePathInstances, &Size);
-  if (DevicePathInstances == NULL) {
-    // In case no default console device path has been defined we assume a driver handles the console (eg: SimpleTextInOutSerial)
-    if ((DefaultConsolePaths == NULL) || (DefaultConsolePaths[0] == L'\0')) {
-      *DevicePaths = NULL;
-      return EFI_SUCCESS;
-    }
-
-    Status = gBS->LocateProtocol (&gEfiDevicePathFromTextProtocolGuid, NULL, (VOID **)&EfiDevicePathFromTextProtocol);
-    ASSERT_EFI_ERROR(Status);
-
-    // Extract the Device Path instances from the multi-device path string
-    while ((DefaultConsolePaths != NULL) && (DefaultConsolePaths[0] != L'\0')) {
-      NextDevicePathStr = StrStr (DefaultConsolePaths, L";");
-      if (NextDevicePathStr == NULL) {
-        DevicePathStr = DefaultConsolePaths;
-        DefaultConsolePaths = NULL;
-      } else {
-        DevicePathStr = (CHAR16*)AllocateCopyPool ((NextDevicePathStr - DefaultConsolePaths + 1) * sizeof(CHAR16), DefaultConsolePaths);
-        *(DevicePathStr + (NextDevicePathStr - DefaultConsolePaths)) = L'\0';
-        DefaultConsolePaths = NextDevicePathStr;
-        if (DefaultConsolePaths[0] == L';') {
-          DefaultConsolePaths++;
-        }
-      }
-
-      DevicePathInstance = EfiDevicePathFromTextProtocol->ConvertTextToDevicePath (DevicePathStr);
-      ASSERT(DevicePathInstance != NULL);
-      DevicePathInstances = AppendDevicePathInstance (DevicePathInstances, DevicePathInstance);
-
-      if (NextDevicePathStr != NULL) {
-        FreePool (DevicePathStr);
-      }
-      FreePool (DevicePathInstance);
-    }
-
-    // Set the environment variable with this device path multi-instances
-    Size = GetDevicePathSize (DevicePathInstances);
-    if (Size > 0) {
-      gRT->SetVariable (
-          ConsoleVarName,
-          &gEfiGlobalVariableGuid,
-          EFI_VARIABLE_NON_VOLATILE | EFI_VARIABLE_BOOTSERVICE_ACCESS | EFI_VARIABLE_RUNTIME_ACCESS,
-          Size,
-          DevicePathInstances
-          );
-    } else {
-      Status = EFI_INVALID_PARAMETER;
-    }
-  }
-
-  if (!EFI_ERROR(Status)) {
-    *DevicePaths = DevicePathInstances;
-  }
-  return Status;
-}
-
-/**
-  Connect the predefined platform default console device. Always try to find
-  and enable the vga device if have.
-
-  @param PlatformConsole          Predefined platform default console device array.
-
-  @retval EFI_SUCCESS             Success connect at least one ConIn and ConOut
-                                  device, there must have one ConOut device is
-                                  active vga device.
-  @return Return the status of BdsLibConnectAllDefaultConsoles ()
-
-**/
-VOID
-SetConsoleVariables (
-  VOID
-  )
-{
-  EFI_STATUS                Status;
-  EFI_DEVICE_PATH*          ConOutDevicePaths;
-  EFI_DEVICE_PATH*          ConInDevicePaths;
-  EFI_DEVICE_PATH*          ConErrDevicePaths;
-
-  // By getting the Console Device Paths from the environment variables before initializing the console pipe, we
-  // create the 3 environment variables (ConIn, ConOut, ConErr) that allows to initialize all the console interface
-  // of newly installed console drivers
-  Status = GetConsoleDevicePathFromVariable (L"ConOut", (CHAR16*)PcdGetPtr(PcdDefaultConOutPaths), &ConOutDevicePaths);
-  ASSERT_EFI_ERROR (Status);
-  Status = GetConsoleDevicePathFromVariable (L"ConIn", (CHAR16*)PcdGetPtr(PcdDefaultConInPaths), &ConInDevicePaths);
-  ASSERT_EFI_ERROR (Status);
-  Status = GetConsoleDevicePathFromVariable (L"ErrOut", (CHAR16*)PcdGetPtr(PcdDefaultConOutPaths), &ConErrDevicePaths);
-  ASSERT_EFI_ERROR (Status);
-}
 
 EFI_STATUS
 VisitAllInstancesOfProtocol (
@@ -313,12 +221,332 @@ ConsoleSetBestMode (
 
 STATIC
 VOID
+PlatformRemoveVNOROption (
+  VOID
+  )
+{
+  UINTN                         Index;
+  EFI_BOOT_MANAGER_LOAD_OPTION  *BootOption;
+  UINTN                         BootOptionCount;
+  EFI_DEVICE_PATH*              DevicePathNode;
+  EFI_STATUS                    Status;
+
+  BootOption = EfiBootManagerGetLoadOptions (&BootOptionCount, LoadOptionTypeBoot);
+  for (Index = 0; Index < BootOptionCount; Index++) {
+    DevicePathNode = BootOption[Index].FilePath;
+    while ((DevicePathNode != NULL) && !IsDevicePathEnd (DevicePathNode)) {
+
+      if (IS_DEVICE_PATH_NODE (DevicePathNode, HARDWARE_DEVICE_PATH, HW_VENDOR_DP)) {
+        CONST VENDOR_DEVICE_PATH* Vendor =  ((CONST VENDOR_DEVICE_PATH *)DevicePathNode);
+        if (Vendor != NULL && CompareGuid (&Vendor->Guid, &gLKVNORGuid)) {
+          Status = EfiBootManagerDeleteLoadOptionVariable (BootOption[Index].OptionNumber, LoadOptionTypeBoot);
+          ASSERT_EFI_ERROR (Status);
+          break;
+        }
+      }
+
+      // next
+      DevicePathNode     = NextDevicePathNode (DevicePathNode);
+    }
+  }
+}
+
+#pragma pack (1)
+typedef struct {
+  VENDOR_DEVICE_PATH         SerialDxe;
+  UART_DEVICE_PATH           Uart;
+  VENDOR_DEFINED_DEVICE_PATH TermType;
+  EFI_DEVICE_PATH_PROTOCOL   End;
+} PLATFORM_SERIAL_CONSOLE;
+#pragma pack ()
+
+#define SERIAL_DXE_FILE_GUID { \
+          0xD3987D4B, 0x971A, 0x435F, \
+          { 0x8C, 0xAF, 0x49, 0x67, 0xEB, 0x62, 0x72, 0x41 } \
+          }
+
+STATIC PLATFORM_SERIAL_CONSOLE mSerialConsole = {
+  //
+  // VENDOR_DEVICE_PATH SerialDxe
+  //
+  {
+    { HARDWARE_DEVICE_PATH, HW_VENDOR_DP, DP_NODE_LEN (VENDOR_DEVICE_PATH) },
+    SERIAL_DXE_FILE_GUID
+  },
+
+  //
+  // UART_DEVICE_PATH Uart
+  //
+  {
+    { MESSAGING_DEVICE_PATH, MSG_UART_DP, DP_NODE_LEN (UART_DEVICE_PATH) },
+    0,                                      // Reserved
+    FixedPcdGet64 (PcdUartDefaultBaudRate), // BaudRate
+    FixedPcdGet8 (PcdUartDefaultDataBits),  // DataBits
+    FixedPcdGet8 (PcdUartDefaultParity),    // Parity
+    FixedPcdGet8 (PcdUartDefaultStopBits)   // StopBits
+  },
+
+  //
+  // VENDOR_DEFINED_DEVICE_PATH TermType
+  //
+  {
+    {
+      MESSAGING_DEVICE_PATH, MSG_VENDOR_DP,
+      DP_NODE_LEN (VENDOR_DEFINED_DEVICE_PATH)
+    }
+    //
+    // Guid to be filled in dynamically
+    //
+  },
+
+  //
+  // EFI_DEVICE_PATH_PROTOCOL End
+  //
+  {
+    END_DEVICE_PATH_TYPE, END_ENTIRE_DEVICE_PATH_SUBTYPE,
+    DP_NODE_LEN (EFI_DEVICE_PATH_PROTOCOL)
+  }
+};
+
+
+#pragma pack (1)
+typedef struct {
+  USB_CLASS_DEVICE_PATH    Keyboard;
+  EFI_DEVICE_PATH_PROTOCOL End;
+} PLATFORM_USB_KEYBOARD;
+#pragma pack ()
+
+STATIC PLATFORM_USB_KEYBOARD mUsbKeyboard = {
+  //
+  // USB_CLASS_DEVICE_PATH Keyboard
+  //
+  {
+    {
+      MESSAGING_DEVICE_PATH, MSG_USB_CLASS_DP,
+      DP_NODE_LEN (USB_CLASS_DEVICE_PATH)
+    },
+    0xFFFF, // VendorId: any
+    0xFFFF, // ProductId: any
+    3,      // DeviceClass: HID
+    1,      // DeviceSubClass: boot
+    1       // DeviceProtocol: keyboard
+  },
+
+  //
+  // EFI_DEVICE_PATH_PROTOCOL End
+  //
+  {
+    END_DEVICE_PATH_TYPE, END_ENTIRE_DEVICE_PATH_SUBTYPE,
+    DP_NODE_LEN (EFI_DEVICE_PATH_PROTOCOL)
+  }
+};
+
+
+/**
+  Check if the handle satisfies a particular condition.
+
+  @param[in] Handle      The handle to check.
+  @param[in] ReportText  A caller-allocated string passed in for reporting
+                         purposes. It must never be NULL.
+
+  @retval TRUE   The condition is satisfied.
+  @retval FALSE  Otherwise. This includes the case when the condition could not
+                 be fully evaluated due to an error.
+**/
+typedef
+BOOLEAN
+(EFIAPI *FILTER_FUNCTION) (
+  IN EFI_HANDLE   Handle,
+  IN CONST CHAR16 *ReportText
+  );
+
+
+/**
+  Process a handle.
+
+  @param[in] Handle      The handle to process.
+  @param[in] ReportText  A caller-allocated string passed in for reporting
+                         purposes. It must never be NULL.
+**/
+typedef
+VOID
+(EFIAPI *CALLBACK_FUNCTION)  (
+  IN EFI_HANDLE   Handle,
+  IN CONST CHAR16 *ReportText
+  );
+
+/**
+  Locate all handles that carry the specified protocol, filter them with a
+  callback function, and pass each handle that passes the filter to another
+  callback.
+
+  @param[in] ProtocolGuid  The protocol to look for.
+
+  @param[in] Filter        The filter function to pass each handle to. If this
+                           parameter is NULL, then all handles are processed.
+
+  @param[in] Process       The callback function to pass each handle to that
+                           clears the filter.
+**/
+STATIC
+VOID
+FilterAndProcess (
+  IN EFI_GUID          *ProtocolGuid,
+  IN FILTER_FUNCTION   Filter         OPTIONAL,
+  IN CALLBACK_FUNCTION Process
+  )
+{
+  EFI_STATUS Status;
+  EFI_HANDLE *Handles;
+  UINTN      NoHandles;
+  UINTN      Idx;
+
+  Status = gBS->LocateHandleBuffer (ByProtocol, ProtocolGuid,
+                  NULL /* SearchKey */, &NoHandles, &Handles);
+  if (EFI_ERROR (Status)) {
+    //
+    // This is not an error, just an informative condition.
+    //
+    DEBUG ((EFI_D_VERBOSE, "%a: %g: %r\n", __FUNCTION__, ProtocolGuid,
+      Status));
+    return;
+  }
+
+  ASSERT (NoHandles > 0);
+  for (Idx = 0; Idx < NoHandles; ++Idx) {
+    CHAR16        *DevicePathText;
+    STATIC CHAR16 Fallback[] = L"<device path unavailable>";
+
+    //
+    // The ConvertDevicePathToText() function handles NULL input transparently.
+    //
+    DevicePathText = ConvertDevicePathToText (
+                       DevicePathFromHandle (Handles[Idx]),
+                       FALSE, // DisplayOnly
+                       FALSE  // AllowShortcuts
+                       );
+    if (DevicePathText == NULL) {
+      DevicePathText = Fallback;
+    }
+
+    if (Filter == NULL || Filter (Handles[Idx], DevicePathText)) {
+      Process (Handles[Idx], DevicePathText);
+    }
+
+    if (DevicePathText != Fallback) {
+      FreePool (DevicePathText);
+    }
+  }
+  gBS->FreePool (Handles);
+}
+
+
+/**
+  This FILTER_FUNCTION checks if a handle corresponds to a PCI display device.
+**/
+STATIC
+BOOLEAN
+EFIAPI
+IsPciDisplay (
+  IN EFI_HANDLE   Handle,
+  IN CONST CHAR16 *ReportText
+  )
+{
+  EFI_STATUS          Status;
+  EFI_PCI_IO_PROTOCOL *PciIo;
+  PCI_TYPE00          Pci;
+
+  Status = gBS->HandleProtocol (Handle, &gEfiPciIoProtocolGuid,
+                  (VOID**)&PciIo);
+  if (EFI_ERROR (Status)) {
+    //
+    // This is not an error worth reporting.
+    //
+    return FALSE;
+  }
+
+  Status = PciIo->Pci.Read (PciIo, EfiPciIoWidthUint32, 0 /* Offset */,
+                        sizeof Pci / sizeof (UINT32), &Pci);
+  if (EFI_ERROR (Status)) {
+    DEBUG ((EFI_D_ERROR, "%a: %s: %r\n", __FUNCTION__, ReportText, Status));
+    return FALSE;
+  }
+
+  return IS_PCI_DISPLAY (&Pci);
+}
+
+
+/**
+  This CALLBACK_FUNCTION attempts to connect a handle non-recursively, asking
+  the matching driver to produce all first-level child handles.
+**/
+STATIC
+VOID
+EFIAPI
+Connect (
+  IN EFI_HANDLE   Handle,
+  IN CONST CHAR16 *ReportText
+  )
+{
+  EFI_STATUS Status;
+
+  Status = gBS->ConnectController (
+                  Handle, // ControllerHandle
+                  NULL,   // DriverImageHandle
+                  NULL,   // RemainingDevicePath -- produce all children
+                  FALSE   // Recursive
+                  );
+  DEBUG ((EFI_ERROR (Status) ? EFI_D_ERROR : EFI_D_VERBOSE, "%a: %s: %r\n",
+    __FUNCTION__, ReportText, Status));
+}
+
+
+/**
+  This CALLBACK_FUNCTION retrieves the EFI_DEVICE_PATH_PROTOCOL from the
+  handle, and adds it to ConOut and ErrOut.
+**/
+STATIC
+VOID
+EFIAPI
+AddOutput (
+  IN EFI_HANDLE   Handle,
+  IN CONST CHAR16 *ReportText
+  )
+{
+  EFI_STATUS               Status;
+  EFI_DEVICE_PATH_PROTOCOL *DevicePath;
+
+  DevicePath = DevicePathFromHandle (Handle);
+  if (DevicePath == NULL) {
+    DEBUG ((EFI_D_ERROR, "%a: %s: handle %p: device path not found\n",
+      __FUNCTION__, ReportText, Handle));
+    return;
+  }
+
+  Status = EfiBootManagerUpdateConsoleVariable (ConOut, DevicePath, NULL);
+  if (EFI_ERROR (Status)) {
+    DEBUG ((EFI_D_ERROR, "%a: %s: adding to ConOut: %r\n", __FUNCTION__,
+      ReportText, Status));
+    return;
+  }
+
+  Status = EfiBootManagerUpdateConsoleVariable (ErrOut, DevicePath, NULL);
+  if (EFI_ERROR (Status)) {
+    DEBUG ((EFI_D_ERROR, "%a: %s: adding to ErrOut: %r\n", __FUNCTION__,
+      ReportText, Status));
+    return;
+  }
+
+  DEBUG ((EFI_D_VERBOSE, "%a: %s: added to ConOut and ErrOut\n", __FUNCTION__,
+    ReportText));
+}
+
+STATIC
+VOID
 PlatformRegisterFvBootOption (
   EFI_GUID                         *FileGuid,
   CHAR16                           *Description,
-  UINT32                           Attributes,
-  UINT8                            *OptionalData,
-  UINT32                           OptionalDataSize
+  UINT32                           Attributes
   )
 {
   EFI_STATUS                        Status;
@@ -353,8 +581,8 @@ PlatformRegisterFvBootOption (
              Attributes,
              Description,
              DevicePath,
-             OptionalData,
-             OptionalDataSize
+             NULL,
+             0
              );
   ASSERT_EFI_ERROR (Status);
   FreePool (DevicePath);
@@ -375,39 +603,6 @@ PlatformRegisterFvBootOption (
   EfiBootManagerFreeLoadOptions (BootOptions, BootOptionCount);
 }
 
-EFI_GUID mPcdUIFile = { 0x1db8bf12, 0x1b3d, 0x4d8d, {0x99, 0xe8, 0x23, 0x30, 0x9e, 0x10, 0xd5, 0xee}};
-
-STATIC
-VOID
-PlatformRemoveVNOROption (
-  VOID
-  )
-{
-  UINTN                         Index;
-  EFI_BOOT_MANAGER_LOAD_OPTION  *BootOption;
-  UINTN                         BootOptionCount;
-  EFI_DEVICE_PATH*              DevicePathNode;
-  EFI_STATUS                    Status;
-
-  BootOption = EfiBootManagerGetLoadOptions (&BootOptionCount, LoadOptionTypeBoot);
-  for (Index = 0; Index < BootOptionCount; Index++) {
-    DevicePathNode = BootOption[Index].FilePath;
-    while ((DevicePathNode != NULL) && !IsDevicePathEnd (DevicePathNode)) {
-
-      if (IS_DEVICE_PATH_NODE (DevicePathNode, HARDWARE_DEVICE_PATH, HW_VENDOR_DP)) {
-        CONST VENDOR_DEVICE_PATH* Vendor =  ((CONST VENDOR_DEVICE_PATH *)DevicePathNode);
-        if (Vendor != NULL && CompareGuid (&Vendor->Guid, &gLKVNORGuid)) {
-          Status = EfiBootManagerDeleteLoadOptionVariable (BootOption[Index].OptionNumber, LoadOptionTypeBoot);
-          ASSERT_EFI_ERROR (Status);
-          break;
-        }
-      }
-
-      // next
-      DevicePathNode     = NextDevicePathNode (DevicePathNode);
-    }
-  }
-}
 
 STATIC
 VOID
@@ -446,27 +641,6 @@ PlatformRegisterOptionsAndKeys (
              NULL, (UINT16) BootOption.OptionNumber, 0, &Esc, NULL
              );
   ASSERT (Status == EFI_SUCCESS || Status == EFI_ALREADY_STARTED);
-
-  //
-  // Register EFIDroid UI
-  //
-  PlatformRegisterFvBootOption (
-    &mPcdUIFile, L"EFIDroid UI", LOAD_OPTION_ACTIVE|LOAD_OPTION_HIDDEN, NULL, 0
-    );
-
-  EfiBootManagerRefreshAllBootOption ();
-
-  //
-  // remove VNOR
-  //
-  PlatformRemoveVNOROption();
-
-  //
-  // Register UEFI Shell
-  //
-  PlatformRegisterFvBootOption (
-    PcdGetPtr (PcdShellFile), L"EFI Internal Shell", LOAD_OPTION_ACTIVE, NULL, 0
-    );
 }
 
 
@@ -496,12 +670,56 @@ PlatformBootManagerBeforeConsole (
   EfiEventGroupSignal (&gEfiEndOfDxeEventGroupGuid);
 
   //
+  // Locate the PCI root bridges and make the PCI bus driver connect each,
+  // non-recursively. This will produce a number of child handles with PciIo on
+  // them.
+  //
+  FilterAndProcess (&gEfiPciRootBridgeIoProtocolGuid, NULL, Connect);
+
+  //
+  // Find all display class PCI devices (using the handles from the previous
+  // step), and connect them non-recursively. This should produce a number of
+  // child handles with GOPs on them.
+  //
+  FilterAndProcess (&gEfiPciIoProtocolGuid, IsPciDisplay, Connect);
+
+  //
+  // Now add the device path of all handles with GOP on them to ConOut and
+  // ErrOut.
+  //
+  FilterAndProcess (&gEfiGraphicsOutputProtocolGuid, NULL, AddOutput);
+
+  //
+  // Add the hardcoded short-form USB keyboard device path to ConIn.
+  //
+  EfiBootManagerUpdateConsoleVariable (ConIn,
+    (EFI_DEVICE_PATH_PROTOCOL *)&mUsbKeyboard, NULL);
+
+  //
+  // Add the hardcoded serial console device path to ConIn, ConOut, ErrOut.
+  //
+  ASSERT (FixedPcdGet8 (PcdDefaultTerminalType) == 4);
+  CopyGuid (&mSerialConsole.TermType.Guid, &gEfiTtyTermGuid);
+
+  EfiBootManagerUpdateConsoleVariable (ConIn,
+    (EFI_DEVICE_PATH_PROTOCOL *)&mSerialConsole, NULL);
+  EfiBootManagerUpdateConsoleVariable (ConOut,
+    (EFI_DEVICE_PATH_PROTOCOL *)&mSerialConsole, NULL);
+  EfiBootManagerUpdateConsoleVariable (ErrOut,
+    (EFI_DEVICE_PATH_PROTOCOL *)&mSerialConsole, NULL);
+
+  //
   // Try to restore variables from the hard disk early so
   // they can be used for the other BDS connect operations.
   //
   PlatformBdsRestoreNvVarsFromHardDisk ();
 
-  SetConsoleVariables();
+  //
+  // Register EFIDroid UI
+  //
+  PlatformRegisterFvBootOption (
+    &mPcdUIFile, L"EFIDroid UI", LOAD_OPTION_ACTIVE|LOAD_OPTION_HIDDEN
+    );
 
   //
   // Register platform-specific boot options and keyboard shortcuts.
@@ -526,10 +744,29 @@ PlatformBootManagerAfterConsole (
   VOID
   )
 {
+  Print (L"Press ESCAPE for boot options ");
+
   //
   // Connect the rest of the devices.
   //
   EfiBootManagerConnectAll ();
+
+  //
+  // Enumerate all possible boot options.
+  //
+  EfiBootManagerRefreshAllBootOption ();
+
+  //
+  // remove VNOR
+  //
+  PlatformRemoveVNOROption();
+
+  //
+  // Register UEFI Shell
+  //
+  PlatformRegisterFvBootOption (
+    PcdGetPtr (PcdShellFile), L"UEFI Shell", LOAD_OPTION_ACTIVE
+    );
 
   // set best mode for console
   ConsoleSetBestMode(gST->ConOut);
@@ -547,4 +784,5 @@ PlatformBootManagerWaitCallback (
   UINT16          TimeoutRemain
   )
 {
+  Print (L".");
 }

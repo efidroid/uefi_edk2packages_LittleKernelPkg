@@ -1,14 +1,19 @@
 ## @file
-#  Include all platform action which can be customized by IBV/OEM.
+#  Implementation for PlatformBootManagerLib library class interfaces.
 #
-#  Copyright (c) 2012 - 2015, Intel Corporation. All rights reserved.<BR>
-#  This program and the accompanying materials
-#  are licensed and made available under the terms and conditions of the BSD License
-#  which accompanies this distribution.  The full text of the license may be found at
+#  Copyright (C) 2015-2016, Red Hat, Inc.
+#  Copyright (c) 2014, ARM Ltd. All rights reserved.<BR>
+#  Copyright (c) 2007 - 2014, Intel Corporation. All rights reserved.<BR>
+#  Copyright (c) 2016, Linaro Ltd. All rights reserved.<BR>
+#
+#  This program and the accompanying materials are licensed and made available
+#  under the terms and conditions of the BSD License which accompanies this
+#  distribution. The full text of the license may be found at
 #  http://opensource.org/licenses/bsd-license.php
 #
 #  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR
+#  IMPLIED.
 #
 ##
 
@@ -19,7 +24,6 @@
   MODULE_TYPE                    = DXE_DRIVER
   VERSION_STRING                 = 1.0
   LIBRARY_CLASS                  = PlatformBootManagerLib|DXE_DRIVER
-
 
 #
 # The following information is for reference only and not required by the build tools.
@@ -32,10 +36,10 @@
   PlatformBm.h
 
 [Packages]
-  MdePkg/MdePkg.dec
-  MdeModulePkg/MdeModulePkg.dec
-  LittleKernelPkg/LittleKernelPkg.dec
   IntelFrameworkModulePkg/IntelFrameworkModulePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  MdePkg/MdePkg.dec
+  LittleKernelPkg/LittleKernelPkg.dec
 
 [LibraryClasses]
   BaseLib
@@ -43,26 +47,39 @@
   DebugLib
   DevicePathLib
   DxeServicesLib
-  LKApiLib
   MemoryAllocationLib
-  NvVarsBlockIoLib
   PcdLib
+  PrintLib
   UefiBootManagerLib
   UefiBootServicesTableLib
-
-[Guids]
-  gEfiEndOfDxeEventGroupGuid
-  gLKVNORGuid
-
-[Pcd]
-  gLittleKernelTokenSpaceGuid.PcdDefaultConInPaths
-  gLittleKernelTokenSpaceGuid.PcdDefaultConOutPaths
-  gLittleKernelTokenSpaceGuid.PcdEmuVariableEvent
-  gEfiMdePkgTokenSpaceGuid.PcdPlatformBootTimeOut
+  UefiLib
+  LKApiLib
+  NvVarsBlockIoLib
 
 [FixedPcd]
   gEfiIntelFrameworkModulePkgTokenSpaceGuid.PcdShellFile
+  gEfiMdePkgTokenSpaceGuid.PcdUartDefaultBaudRate
+  gEfiMdePkgTokenSpaceGuid.PcdUartDefaultDataBits
+  gEfiMdePkgTokenSpaceGuid.PcdUartDefaultParity
+  gEfiMdePkgTokenSpaceGuid.PcdUartDefaultStopBits
+  gEfiMdePkgTokenSpaceGuid.PcdDefaultTerminalType
+
+[Pcd]
+  gLittleKernelTokenSpaceGuid.PcdEmuVariableEvent
+  gEfiMdePkgTokenSpaceGuid.PcdPlatformBootTimeOut
+
+[Guids]
+  gEfiFileInfoGuid
+  gEfiFileSystemInfoGuid
+  gEfiFileSystemVolumeLabelInfoIdGuid
+  gEfiEndOfDxeEventGroupGuid
+  gEfiTtyTermGuid
+  gLKVNORGuid
 
 [Protocols]
-  gEfiDevicePathFromTextProtocolGuid
-  gEfiDevicePathToTextProtocolGuid
+  gEfiDevicePathProtocolGuid
+  gEfiGraphicsOutputProtocolGuid
+  gEfiLoadedImageProtocolGuid
+  gEfiOEMBadgingProtocolGuid
+  gEfiPciRootBridgeIoProtocolGuid
+  gEfiSimpleFileSystemProtocolGuid
