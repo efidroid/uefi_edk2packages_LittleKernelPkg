@@ -330,7 +330,6 @@
   #
   # ARM Pcds
   #
-  gArmTokenSpaceGuid.PcdArmUncachedMemoryMask|0x0000000000000000
   gArmTokenSpaceGuid.PcdVFPEnabled|1
 
   gArmTokenSpaceGuid.PcdSystemMemoryBase|$(DRAM_BASE)
