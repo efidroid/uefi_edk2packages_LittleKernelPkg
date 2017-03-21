@@ -744,7 +744,7 @@ PlatformBootManagerAfterConsole (
   VOID
   )
 {
-  Print (L"Press ESCAPE for boot options ");
+  DEBUG ((EFI_D_INFO, "Press ESCAPE for boot options "));
 
   //
   // Connect the rest of the devices.
@@ -784,5 +784,5 @@ PlatformBootManagerWaitCallback (
   UINT16          TimeoutRemain
   )
 {
-  Print (L".");
+  DEBUG ((EFI_D_INFO, "."));
 }
